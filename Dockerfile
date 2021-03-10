@@ -1,5 +1,5 @@
 FROM golang:1.16
-
+ENV CGO_ENABLED=0
 # Set the Current Working Directory inside the container
 WORKDIR $GOPATH/src/github.com/golang/got_english_backend
 
