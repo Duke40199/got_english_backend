@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	responseConfig "github.com/golang/GotEnglishBackend/Application/config"
-	"github.com/golang/GotEnglishBackend/Application/daos"
-	"github.com/golang/GotEnglishBackend/Application/database"
-	"github.com/golang/GotEnglishBackend/Application/models"
-	"github.com/golang/GotEnglishBackend/Application/utils"
+	responseConfig "github.com/golang/got_english_backend/config"
+	"github.com/golang/got_english_backend/daos"
+	"github.com/golang/got_english_backend/database"
+	"github.com/golang/got_english_backend/models"
+	"github.com/golang/got_english_backend/utils"
 
 	"github.com/google/uuid"
 )

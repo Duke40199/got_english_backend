@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/golang/GotEnglishBackend/Application/middleware"
+	"github.com/golang/got_english_backend/middleware"
 
-	"github.com/golang/GotEnglishBackend/Application/config"
-	"github.com/golang/GotEnglishBackend/Application/controllers"
+	"github.com/golang/got_english_backend/config"
+	"github.com/golang/got_english_backend/controllers"
 
 	"github.com/gorilla/mux"
 )

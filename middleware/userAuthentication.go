@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/golang/GotEnglishBackend/Application/config"
-	"github.com/golang/GotEnglishBackend/Application/utils"
+	"github.com/golang/got_english_backend/config"
+	"github.com/golang/got_english_backend/utils"
 )
 
 // FirebaseAuthentication : to verify all authorized operations

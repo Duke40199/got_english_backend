@@ -40,7 +40,7 @@ func (c *Config) Read() {
 	default:
 		configFile = "config.local.toml"
 	}
-	basePath := os.Getenv("GOPATH") + "/src/github.com/golang/GotEnglishBackend/Application/"
+	basePath := os.Getenv("GOPATH") + "/src/github.com/golang/got_english_backend/"
 	configFile = basePath + configFile
 
 	if _, err := toml.DecodeFile(configFile, &c); err != nil {

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/golang/GotEnglishBackend/Application/config"
-	"github.com/golang/GotEnglishBackend/Application/database"
-	"github.com/golang/GotEnglishBackend/Application/router"
+	"github.com/golang/got_english_backend/config"
+	"github.com/golang/got_english_backend/database"
+	"github.com/golang/got_english_backend/router"
 
 	"github.com/rs/cors"
 )

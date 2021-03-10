@@ -3,7 +3,7 @@ package daos
 import (
 	"fmt"
 
-	AccountModel "github.com/golang/GotEnglishBackend/Application/models"
+	AccountModel "github.com/golang/got_english_backend/models"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"

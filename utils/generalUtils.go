@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/golang/GotEnglishBackend/Application/models"
+	"github.com/golang/got_english_backend/models"
 
 	"github.com/dgrijalva/jwt-go"
 )

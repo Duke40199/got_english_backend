@@ -3,8 +3,8 @@ package database
 import (
 	"fmt"
 
-	"github.com/golang/GotEnglishBackend/Application/config"
-	"github.com/golang/GotEnglishBackend/Application/models"
+	"github.com/golang/got_english_backend/config"
+	"github.com/golang/got_english_backend/models"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

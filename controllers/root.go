@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	config "github.com/golang/GotEnglishBackend/Application/config"
-	"github.com/golang/GotEnglishBackend/Application/daos"
-	"github.com/golang/GotEnglishBackend/Application/database"
-	"github.com/golang/GotEnglishBackend/Application/models"
+	config "github.com/golang/got_english_backend/config"
+	"github.com/golang/got_english_backend/daos"
+	"github.com/golang/got_english_backend/database"
+	"github.com/golang/got_english_backend/models"
 )
 
 //LoginHandler will handle the login function
