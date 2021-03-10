@@ -1,0 +1,29 @@
+version: "3"
+
+services: 
+  got_english_mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: got_english_db_local
+      MYSQL_USER: username
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbvol:/var/lib/mysql
+
+  got_english_adminer:
+    depends_on:
+      - got_english_mysql
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DEFAULT_DB_HOST: gotenglish:3306
+      ADMINER_DEFAULT_DB_NAME: gotenglish
+      ADMINER_DESIGN: nette
+    ports:
+      - "8080:8080"
+volumes:
+  dbvol:

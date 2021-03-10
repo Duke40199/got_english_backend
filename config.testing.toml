@@ -1,0 +1,13 @@
+environment="Testing"
+appname="GotEnglish Backend API"
+appversion="1.0"
+jwt_secret="got_english_hihi"
+
+ge_database_host = "ec2-54-144-45-5.compute-1.amazonaws.com"
+ge_database_name= "dbh9qbtil91kro"
+ge_database_user = "vguokksrloxslv"
+ge_database_password = "2f7c54b8baf028a5db64c3465c62de3e4af49ba4be4b5afa505459456ba743bc"
+ge_database_port = "5432"
+ge_database_ssl_mode = "require"
+ge_database_dialect="postgres"
+ge_database_timezone="Asia/Ho_Chi_Minh"

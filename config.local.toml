@@ -1,0 +1,13 @@
+environment="Local"
+appname="GotEnglish Backend API"
+appversion="1.0"
+jwt_secret="got_english_hihi"
+
+ge_database_host = "127.0.0.1"
+ge_database_name= "got_english_db_local"
+ge_database_user = "username"
+ge_database_password = "password"
+ge_database_port = "3306"
+ge_database_ssl_mode = "disable"
+ge_database_dialect="mysql"
+ge_database_timezone="Asia/Ho_Chi_Minh"

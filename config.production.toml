@@ -1,0 +1,13 @@
+environment="Production"
+appname="GotEnglish Backend API"
+appversion="1.0"
+jwt_secret="got_english_hihi"
+
+ge_database_host = "got-english-db-prod.mysql.database.azure.com"
+ge_database_name= "got_english_db_prod"
+ge_database_user = "username@got-english-db-prod"
+ge_database_password = "Password123"
+ge_database_port = "3306"
+ge_database_ssl_mode = "require"
+ge_database_dialect="mysql"
+ge_database_timezone="Asia/Ho_Chi_Minh"
