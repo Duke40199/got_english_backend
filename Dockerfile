@@ -13,7 +13,7 @@ RUN chmod +x $GOPATH/src/github.com/golang/got_english_backend/install_dependenc
 RUN $GOPATH/src/github.com/golang/got_english_backend/install_dependencies.sh
 
 # This container exposes port 80 to the outside world
-EXPOSE 80
+EXPOSE 8080
 
 # Run the executable
 CMD ["bash", "start_app_production.sh" ] 
