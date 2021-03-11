@@ -24,6 +24,6 @@ services:
       ADMINER_DEFAULT_DB_NAME: gotenglish
       ADMINER_DESIGN: nette
     ports:
-      - "8080:8080"
+      - "8000:8080"
 volumes:
   dbvol:

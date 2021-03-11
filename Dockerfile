@@ -1,5 +1,6 @@
 FROM golang:1.16
 ENV CGO_ENABLED=0
+ENV GO111MODULE=on
 # Set the Current Working Directory inside the container
 WORKDIR $GOPATH/src/github.com/golang/got_english_backend
 
@@ -13,7 +14,7 @@ RUN chmod +x $GOPATH/src/github.com/golang/got_english_backend/install_dependenc
 RUN $GOPATH/src/github.com/golang/got_english_backend/install_dependencies.sh
 
 # This container exposes port 80 to the outside world
-EXPOSE 8080
+EXPOSE 80
 
 # Run the executable
 CMD ["bash", "start_app_production.sh" ] 
