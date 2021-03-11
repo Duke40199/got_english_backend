@@ -17,11 +17,9 @@ func main() {
 	config := config.GetConfig()
 	r := router.GetRouter()
 
-	defaultListeningPort := "4000"
-	apiPort := defaultListeningPort
-
-	if port := os.Getenv("PORT"); port != "" {
-		apiPort = port
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
 
 	log.Printf(`
@@ -31,7 +29,7 @@ func main() {
 	Listening Port: %v
 	Environment: %s
 	-----------------------------------------------------
-	`, config.AppName, config.AppVersion, apiPort, config.Environment)
+	`, config.AppName, config.AppVersion, port, config.Environment)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -40,7 +38,7 @@ func main() {
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 	})
 
-	log.Fatal(http.ListenAndServe(":"+apiPort, c.Handler(r)))
+	log.Fatal(http.ListenAndServe(":"+port, c.Handler(r)))
 
 }
 

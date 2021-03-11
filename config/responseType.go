@@ -1,7 +1,6 @@
 package config
 
 import (
-	// "bitbucket.org/knorexteam/knx-ta-audience-api/service/logger"
 	"encoding/json"
 	"log"
 	"net/http"
