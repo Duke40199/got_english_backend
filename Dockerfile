@@ -1,6 +1,6 @@
 FROM golang:1.15
 ENV CGO_ENABLED=0
-ENV GO111MODULE=on
+ENV GO111MODULE=auto
 # Set the Current Working Directory inside the container
 WORKDIR $GOPATH/src/github.com/golang/got_english_backend
 
