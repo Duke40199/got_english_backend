@@ -1,4 +1,4 @@
-FROM golang:1.16
+FROM golang:1.15
 ENV CGO_ENABLED=0
 ENV GO111MODULE=on
 # Set the Current Working Directory inside the container
