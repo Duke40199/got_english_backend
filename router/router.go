@@ -20,9 +20,9 @@ func init() {
 	//For root functions
 	apiV1.HandleFunc("/", RootRoute).Methods("GET")
 	apiV1.HandleFunc("/login", controllers.LoginHandler).Methods("POST")
-	apiV1.HandleFunc("/profile", middleware.FirebaseAuthentication(controllers.ViewProfileHandler)).Methods("GET")
+	apiV1.HandleFunc("/profile", middleware.UserAuthentication(controllers.ViewProfileHandler)).Methods("GET")
 	//For user functions
-	apiV1.HandleFunc("/users", middleware.FirebaseAuthentication(controllers.ViewProfileHandler)).Methods("GET")
+	apiV1.HandleFunc("/users", middleware.AdminAuthentication(controllers.GetUsersHandler)).Methods("GET")
 	apiV1.HandleFunc("/users/register", middleware.FirebaseAuthentication(controllers.CreateUserHandler)).Methods("POST")
 	// For changelogs
 	//apiV1.HandleFunc("/cms/changelogs", controller.ShowChangelogsHandler).Methods("GET")

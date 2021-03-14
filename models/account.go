@@ -12,16 +12,23 @@ var currentTime = time.Now().Unix()
 
 // Account model struct
 type Account struct {
-	gorm.Model
-	ID        uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
-	Username  string    `gorm:"size:255;not null;unique" json:"username"`
-	Email     string    `gorm:"size:100;not null;unique" json:"email"`
-	Password  string    `gorm:"size:100;not null;" json:"password"`
-	AvatarURL string    `gorm:"size:255" json:"avatar_url"`
-	RoleName  string    `gorm:"size:100;not null;" json:"role_name"`
+	gorm.Model `json:"-"`
+	//Login
+	ID       uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
+	Username string    `gorm:"size:255;not null;unique" json:"username"`
+	Email    string    `gorm:"size:100;not null;unique" json:"email"`
+	Password string    `gorm:"size:100;not null;" json:"password"`
+	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
+	//Info
+	AvatarURL   string     `gorm:"size:255" json:"avatar_url"`
+	Address     string     `gorm:"size:255;" json:"address"`
+	PhoneNumber string     `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
+	Birthday    time.Time  `gorm:"column:birthday" json:"birthday"`
+	SuspendedAt *time.Time `gorm:"column:SuspendedAt" json:"suspended_at";sql:"index"`
 	//default timestamps
-	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
-	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`
+	CreatedAt time.Time  `gorm:"column:CreatedAt;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time  `gorm:"column:UpdatedAt;autoCreateTime" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"column:DeletedAt" json:"deleted_at";sql:"index"`
 }
 
 //Hash password

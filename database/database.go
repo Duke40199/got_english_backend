@@ -22,10 +22,10 @@ func ConnectToDB() (*gorm.DB, error) {
 		config.DatabaseHost,
 		config.DatabaseName,
 	)
-	fmt.Printf("+======DBRI:%s", dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err == nil {
-		fmt.Printf("DBURI: %s", dsn)
+		fmt.Println("DB connected.")
+		// fmt.Printf("DBURI: %s", dsn)
 		return db, nil
 	} else {
 		fmt.Println("ERROR FOUND!")
@@ -52,18 +52,19 @@ func SyncDB(isForced bool) {
 		}
 		SeedDB(db)
 		//Setup custom relations
-		db.Exec("ALTER TABLE `experts` ADD CONSTRAINT `fk_expert_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
-		db.Exec("ALTER TABLE `learners` ADD CONSTRAINT `fk_learner_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
-		db.Exec("ALTER TABLE `moderators` ADD CONSTRAINT `fk_moderator_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
-		db.Exec("ALTER TABLE `admins` ADD CONSTRAINT `fk_admin_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
+		// db.Exec("ALTER TABLE `experts` ADD CONSTRAINT `fk_expert_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
+		// db.Exec("ALTER TABLE `learners` ADD CONSTRAINT `fk_learner_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
+		// db.Exec("ALTER TABLE `moderators` ADD CONSTRAINT `fk_moderator_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
+		// db.Exec("ALTER TABLE `admins` ADD CONSTRAINT `fk_admin_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
 		db.AutoMigrate(&models.TranslationSession{}, &models.Learner{})
 	} else {
-		fmt.Println("seeding...")
-		for i := 0; i < len(modelList); i++ {
-			if db.Migrator().HasTable(modelList[i]) {
-				db.Migrator().CreateTable(modelList[i])
-			}
-		}
+		fmt.Println("No seeding needed.")
+		// fmt.Println("seeding...")
+		// for i := 0; i < len(modelList); i++ {
+		// 	if db.Migrator().HasTable(modelList[i]) {
+		// 		db.Migrator().CreateTable(modelList[i])
+		// 	}
+		// }
 		//Relations raw queries
 	}
 

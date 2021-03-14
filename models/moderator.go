@@ -17,7 +17,8 @@ type Moderator struct {
 	CanManagePricing         bool `gorm:"column:can_manage_pricing" json:"can_manage_pricing"`
 	CanManageApplicationForm bool `gorm:"column:can_manage_application_form" json:"can_manage_application_form"`
 	//An expert can have only one user account
-	AccountsID uuid.UUID `gorm:"size:225;column:accounts_id"`
+	AccountID uuid.UUID `gorm:"size:225;column:account_id"`
+	Account   Account   `gorm:"foreignKey:AccountID"`
 	//default timestamps
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`
