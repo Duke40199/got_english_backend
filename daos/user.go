@@ -104,6 +104,7 @@ func (u *AccountDAO) GetUsers(user models.Account) (*[]AccountFullInfo, error) {
 	accounts := []AccountFullInfo{}
 	db, err := database.ConnectToDB()
 	err = db.Debug().Model(&models.Account{}).Select("accounts.id, accounts.username, accounts.email, accounts.role_name, accounts.avatar_url, accounts.address,accounts.birthday, accounts.phone_number, accounts.SuspendedAt, accounts.deletedAt, experts.can_chat, experts.can_join_translation_session, experts.can_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
+		Where("accounts.role_name LIKE ? AND accounts.username LIKE ?", user.RoleName+"%", user.Username+"%").
 		Joins("left join experts on experts.account_id = accounts.id").
 		Joins("left join learners on learners.account_id = learners.id").
 		Joins("left join moderators on moderators.account_id = accounts.id").

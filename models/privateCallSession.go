@@ -24,6 +24,4 @@ type PrivateCallSession struct {
 	//A private call session can have only one expert
 	Expert   Expert    `gorm:"foreignKey:ExpertID"`
 	ExpertID uuid.UUID `gorm:"size:255"`
-	//A PrivateCall session will have a pricing
-	Price float32 `gorm:"column:price"`
 }

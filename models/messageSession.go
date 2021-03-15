@@ -6,8 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// MessageSession model struct
-type MessageSession struct {
+// MessagingSession model struct
+type MessagingSession struct {
 	gorm.Model
 	ID uint `gorm:"column:id;autoIncrement;not null; unique; primaryKey;" json:"id"`
 	//A leaner can have many message sessions.
@@ -24,9 +24,7 @@ type MessageSession struct {
 	//Rating attributes
 	Rating        float32
 	RatingContent string
-	//A message session will have a pricing
-	Price float32 `gorm:"column:price"`
 	//default timestamps
-	// CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	// UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	CreatedAt time.Time `gorm:"column:CreatedAt;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:UpdatedAt;autoCreateTime" json:"updated_at"`
 }

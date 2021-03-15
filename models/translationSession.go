@@ -23,8 +23,6 @@ type TranslationSession struct {
 	//A translation session can have only one expert.
 	Expert   Expert    `gorm:"foreignKey:ExpertID"`
 	ExpertID uuid.UUID `gorm:"size:255"`
-	//A translation session will have a pricing
-	Price float32 `gorm:"column:price"`
 	//default timestamps
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`

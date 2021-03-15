@@ -14,14 +14,14 @@ var modelList = []interface{}{
 	ApplicationForm{},
 
 	//Service-related
-	MessageSession{},
+	MessagingSession{},
 	Message{},
 	TranslationSession{},
 	PrivateCallSession{},
 
 	//Finance-related
 	CoinBundle{},
-	Transaction{},
+	Invoice{},
 }
 
 func init() {
