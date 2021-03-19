@@ -17,11 +17,13 @@ type PrivateCallSession struct {
 	//Rating attributes
 	Rating            float32
 	RatingDescription string
-
 	//A private call session can have only one learner
 	Learners  Learner   `gorm:"foreignKey:LearnerID"`
 	LearnerID uuid.UUID `gorm:"size:255"`
 	//A private call session can have only one expert
 	Expert   Expert    `gorm:"foreignKey:ExpertID"`
 	ExpertID uuid.UUID `gorm:"size:255"`
+	//An messaging session can only have one pricing.
+	Pricing   Pricing `gorm:"foreignKey:PricingID"`
+	PricingID uint    `gorm:"size:255"`
 }

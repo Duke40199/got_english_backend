@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	responseConfig "github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
 	"github.com/golang/got_english_backend/utils"
+	"github.com/gorilla/mux"
 
 	"github.com/google/uuid"
 )
@@ -41,6 +43,32 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		resp := map[string]string{"id": "hello"}
 		responseConfig.ResponseWithSuccess(w, message, resp)
+	}
+}
+
+func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+		params  = mux.Vars(r)
+	)
+	//parse request param to get userid
+	userID, err := uuid.Parse(params["user_id"])
+	var account = models.Account{
+		ID: userID,
+	}
+
+	userDAO := daos.GetAccountDAO()
+	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
+		errMsg := "Malformed data"
+		responseConfig.ResponseWithError(w, errMsg, err)
+	}
+	fmt.Print(account.Email)
+	err = userDAO.UpdateUserByID(account)
+	if err != nil {
+		responseConfig.ResponseWithDetailedError(w, "error found", err, nil)
+	} else {
+		responseConfig.ResponseWithSuccess(w, message, 1)
 	}
 }
 

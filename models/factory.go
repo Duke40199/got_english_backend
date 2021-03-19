@@ -20,6 +20,7 @@ var modelList = []interface{}{
 	PrivateCallSession{},
 
 	//Finance-related
+	Pricing{},
 	CoinBundle{},
 	Invoice{},
 }

@@ -16,6 +16,9 @@ type MessagingSession struct {
 	//An expert can have many message sessions.
 	Expert   Expert `gorm:"foreignKey:ExpertID"`
 	ExpertID uint   `gorm:"size:255"`
+	//An messaging session can only have one pricing.
+	Pricing   Pricing `gorm:"foreignKey:PricingID"`
+	PricingID uint    `gorm:"size:255"`
 	//MessageSession status
 	IsCancelled bool      `gorm:"default:false;" json:"is_cancelled"`
 	IsFinished  bool      `gorm:"default:false;" json:"is_finished"`

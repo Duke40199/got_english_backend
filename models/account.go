@@ -16,6 +16,7 @@ type Account struct {
 	//Login
 	ID       uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
 	Username string    `gorm:"size:255;not null;unique" json:"username"`
+	Fullname string    `gorm:"size:255;not null;unique" json:"fullname"`
 	Email    string    `gorm:"size:100;not null;unique" json:"email"`
 	Password string    `gorm:"size:100;not null;" json:"password"`
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
@@ -24,7 +25,8 @@ type Account struct {
 	Address     string     `gorm:"size:255;" json:"address"`
 	PhoneNumber string     `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
 	Birthday    time.Time  `gorm:"column:birthday" json:"birthday"`
-	SuspendedAt *time.Time `gorm:"column:SuspendedAt" json:"suspended_at";sql:"index"`
+	IsSuspended bool       `gorm:"column:isSuspended" json:"is_suspended"`
+	SuspendedAt *time.Time `gorm:"column:SuspendedAt" json:"suspended_at"`
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:CreatedAt;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time  `gorm:"column:UpdatedAt;autoCreateTime" json:"updated_at"`

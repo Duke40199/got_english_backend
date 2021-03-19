@@ -20,6 +20,7 @@ func SeedDB(db *gorm.DB) {
 		{
 			ID:          uuid.New(),
 			Username:    "SpacePotato",
+			Fullname:    "GotEnglish Admin 1",
 			Password:    "password",
 			Email:       "anhntse130266@fpt.edu.vn",
 			AvatarURL:   "https://scontent-hkt1-1.xx.fbcdn.net/v/t1.0-9/136993742_3749756998379656_496491351021530940_n.jpg?_nc_cat=107&ccb=1-3&_nc_sid=09cbfe&_nc_ohc=kvndP9qcIusAX-iZQVs&_nc_ht=scontent-hkt1-1.xx&oh=5768c6a74d45c1c23b69b2ef86dfa77c&oe=6072A896",
@@ -31,6 +32,7 @@ func SeedDB(db *gorm.DB) {
 		{
 			ID:          uuid.New(),
 			Username:    "TuanAnh",
+			Fullname:    "Nguyen Tuan Anh",
 			Password:    "password",
 			Email:       "binguyentuananh@gmail.com",
 			AvatarURL:   "https://scontent-hkt1-1.xx.fbcdn.net/v/t1.0-9/136993742_3749756998379656_496491351021530940_n.jpg?_nc_cat=107&ccb=1-3&_nc_sid=09cbfe&_nc_ohc=kvndP9qcIusAX-iZQVs&_nc_ht=scontent-hkt1-1.xx&oh=5768c6a74d45c1c23b69b2ef86dfa77c&oe=6072A896",
@@ -42,6 +44,7 @@ func SeedDB(db *gorm.DB) {
 		{
 			ID:          uuid.New(),
 			Username:    "DucPhi",
+			Fullname:    "Phi Do Hong Duc",
 			Password:    "password",
 			Email:       "duc@phi.com",
 			Address:     "1722  Cody Ridge Road, Enid, Oklahoma",
@@ -52,6 +55,7 @@ func SeedDB(db *gorm.DB) {
 		{
 			ID:          uuid.New(),
 			Username:    "TuanNguyen",
+			Fullname:    "Nguyen Tran Quoc Tuan",
 			Password:    "password",
 			Email:       "tuan@nguyen.com",
 			Birthday:    time.Date(1998, 11, 12, 0, 0, 0, 0, time.Now().Location()),
@@ -62,6 +66,7 @@ func SeedDB(db *gorm.DB) {
 		{
 			ID:          uuid.New(),
 			Username:    "LocTr",
+			Fullname:    "Tran Thien Loc",
 			Password:    "password",
 			Email:       "loc@tr.com",
 			Birthday:    time.Date(1999, 12, 12, 0, 0, 0, 0, time.Now().Location()),
@@ -72,6 +77,8 @@ func SeedDB(db *gorm.DB) {
 	}
 	SeedAccounts(db, &accounts)
 	SeedRolesForAccounts(db, &accounts)
+	SeedPricings(db)
+	SeedCoinBundles(db)
 }
 
 //SeedAccounts will seed users to the DB
@@ -123,5 +130,65 @@ func SeedRolesForAccounts(db *gorm.DB, accounts *[]models.Account) {
 			}
 		}
 	}
-	fmt.Println("======= User seeded.")
+	fmt.Println("======= Role seeded.")
+}
+
+func SeedPricings(db *gorm.DB) {
+
+	pricings := []models.Pricing{
+
+		{
+			ServiceName:  "messaging_session",
+			Quantity:     1,
+			QuantityUnit: "session",
+			Price:        30,
+			PriceUnit:    "coin(s)",
+		},
+		{
+			ServiceName:  "translation_session",
+			Quantity:     1,
+			QuantityUnit: "session",
+			Price:        50,
+			PriceUnit:    "coin(s)",
+		},
+		{
+			ServiceName:  "private_call_session",
+			Quantity:     1,
+			QuantityUnit: "session",
+			Price:        40,
+			PriceUnit:    "coin(s)",
+		},
+	}
+	db.Create(&pricings)
+	fmt.Println("======= Pricings seeded.")
+}
+
+func SeedCoinBundles(db *gorm.DB) {
+
+	bundles := []models.CoinBundle{
+
+		{
+			Title:       "Pack of Coins",
+			Description: "Recommended for new users to try out.",
+			Quantity:    10,
+			Price:       10000,
+			PriceUnit:   "VND",
+		},
+		{
+			Title:       "Pocket of Coins",
+			Description: "Recommended for active users.",
+			Quantity:    20,
+			Price:       15000,
+			PriceUnit:   "VND",
+		},
+		{
+			Title:       "Bunch of Coins",
+			Description: "Best offer available at the moment.",
+			Quantity:    60,
+			Price:       30000,
+			PriceUnit:   "VND",
+		},
+	}
+	db.Create(&bundles)
+	fmt.Println("======= Coin bundles seeded.")
 }

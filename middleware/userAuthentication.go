@@ -52,17 +52,17 @@ func UserAuthentication(next http.HandlerFunc) http.HandlerFunc {
 		token, _ := jwt.Parse(customToken, nil)
 		if token == nil {
 			http.Error(w, "Forbidden", http.StatusForbidden)
-		}
-		claims, _ := token.Claims.(jwt.MapClaims)
-		userInfo := claims["claims"].(map[string]interface{})
-		if userInfo["role_name"] == "" {
-			http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
 		} else {
-			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
-			ctx = context.WithValue(ctx, "UUID", userInfo["username"])
-			next.ServeHTTP(w, r.WithContext(ctx))
+			claims, _ := token.Claims.(jwt.MapClaims)
+			userInfo := claims["claims"].(map[string]interface{})
+			if userInfo["role_name"] == "" {
+				http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
+			} else {
+				ctx := context.WithValue(r.Context(), "UserAccessToken", token)
+				ctx = context.WithValue(ctx, "UUID", userInfo["username"])
+				next.ServeHTTP(w, r.WithContext(ctx))
+			}
 		}
-
 	}
 }
 

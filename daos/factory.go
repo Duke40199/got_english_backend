@@ -3,7 +3,8 @@ package daos
 import "log"
 
 var (
-	userDAO = AccountDAO{}
+	accountDAO    = AccountDAO{}
+	coinBundleDAO = CoinBundleDAO{}
 )
 
 func init() {
@@ -12,5 +13,8 @@ func init() {
 }
 
 func GetAccountDAO() AccountDAO {
-	return userDAO
+	return accountDAO
+}
+func GetCoinBundleDAO() CoinBundleDAO {
+	return coinBundleDAO
 }
