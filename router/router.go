@@ -33,7 +33,8 @@ func init() {
 	//apiV1.HandleFunc("/cms/health-check", controller.GetHealthCHeck).Methods("GET")
 	//// For swagger
 	//apiV1.HandleFunc("/cms/swagger", middleware.ProductAuthentication(controller.GetSwaggerHandler)).Methods("GET")
-	log.Println("Initialed Router")
+	sh := http.StripPrefix("/swagger/", http.FileServer(http.Dir("./swagger/")))
+	r.PathPrefix("/swagger/").Handler(sh)
 }
 
 func GetRouter() *mux.Router {

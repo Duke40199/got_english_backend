@@ -14,4 +14,5 @@ go get github.com/BurntSushi/toml gopkg.in/mgo.v2 \
 	github.com/google/uuid\
   firebase.google.com/go\
   golang.org/x/crypto/bcrypt\
+  github.com/swaggo/swag/cmd/swag\
   github.com/dgrijalva/jwt-go

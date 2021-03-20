@@ -1,6 +1,6 @@
 #/bin/bash
 
-export GO_ENV=local PORT=4000
+export GO_ENV=local PORT=8080
 export FIREBASE_TYPE=service_account
 export FIREBASE_PROJECT_ID=gotenglish-app
 export FIREBASE_PRIVATE_KEY_ID=ca70da2e157bd556a37917ddf678872fa92668cd
