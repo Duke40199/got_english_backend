@@ -81,7 +81,7 @@ func ModeratorAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			} else {
 				claims, _ := token.Claims.(jwt.MapClaims)
 				userInfo := claims["claims"].(map[string]interface{})
-				if userInfo["role_name"] == roleNameConfig.Moderator {
+				if userInfo["role_name"] != roleNameConfig.Moderator {
 					http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
 				} else {
 					ctx := context.WithValue(r.Context(), "UserAccessToken", token)
@@ -108,7 +108,7 @@ func AdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			} else {
 				claims, _ := token.Claims.(jwt.MapClaims)
 				userInfo := claims["claims"].(map[string]interface{})
-				if userInfo["role_name"] == roleNameConfig.Admin {
+				if userInfo["role_name"] != roleNameConfig.Admin {
 					http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
 				} else {
 					ctx := context.WithValue(r.Context(), "UserAccessToken", token)
