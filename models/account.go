@@ -24,7 +24,7 @@ type Account struct {
 	AvatarURL   string     `gorm:"size:255" json:"avatar_url"`
 	Address     string     `gorm:"size:255;" json:"address"`
 	PhoneNumber string     `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
-	Birthday    time.Time  `gorm:"column:birthday" json:"birthday"`
+	Birthday    time.Time  `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
 	IsSuspended bool       `gorm:"column:isSuspended" json:"is_suspended"`
 	SuspendedAt *time.Time `gorm:"column:SuspendedAt" json:"suspended_at"`
 	//default timestamps

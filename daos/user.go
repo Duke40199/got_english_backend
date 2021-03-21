@@ -25,13 +25,15 @@ type AccountFullInfo struct {
 	//Login
 	ID       uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
 	Username string    `gorm:"size:255;not null;unique" json:"username"`
+	Fullname string    `gorm:"size:255;not null;unique" json:"fullname"`
 	Email    string    `gorm:"size:100;not null;unique" json:"email"`
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
 	//Info
 	AvatarURL   string     `gorm:"size:255" json:"avatar_url"`
 	Address     string     `gorm:"size:255;" json:"address"`
 	PhoneNumber string     `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
-	Birthday    time.Time  `gorm:"column:birthday;autoCreateTime" json:"birthday"`
+	Birthday    time.Time  `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
+	IsSuspended bool       `gorm:"column:isSuspended" json:"is_suspended"`
 	SuspendedAt *time.Time `gorm:"column:SuspendedAt" json:"suspended_at"`
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:CreatedAt;autoCreateTime" json:"created_at"`
@@ -103,7 +105,7 @@ func (u *AccountDAO) GetUsers(user models.Account) (*[]AccountFullInfo, error) {
 
 	accounts := []AccountFullInfo{}
 	db, err := database.ConnectToDB()
-	err = db.Debug().Model(&models.Account{}).Select("accounts.id, accounts.username, accounts.email, accounts.role_name, accounts.avatar_url, accounts.address,accounts.birthday, accounts.phone_number, accounts.SuspendedAt, accounts.deletedAt, experts.can_chat, experts.can_join_translation_session, experts.can_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
+	err = db.Debug().Model(&models.Account{}).Select("accounts.*, experts.can_chat, experts.can_join_translation_session, experts.can_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
 		Where("accounts.role_name LIKE ? AND accounts.username LIKE ?", user.RoleName+"%", user.Username+"%").
 		Joins("left join experts on experts.account_id = accounts.id").
 		Joins("left join learners on learners.account_id = learners.id").
