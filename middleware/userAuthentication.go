@@ -61,6 +61,7 @@ func UserAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			}
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
+			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			next.ServeHTTP(w, r.WithContext(ctx))
 
 		} else {
@@ -87,6 +88,7 @@ func ModeratorAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			}
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
+			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			next.ServeHTTP(w, r.WithContext(ctx))
 
 		} else {
@@ -115,6 +117,7 @@ func AdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			}
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
+			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)

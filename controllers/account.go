@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	responseConfig "github.com/golang/got_english_backend/config"
+	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
 	"github.com/golang/got_english_backend/utils"
@@ -24,7 +24,7 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
 		errMsg := "Malformed data"
-		responseConfig.ResponseWithError(w, errMsg, err)
+		config.ResponseWithError(w, errMsg, err)
 	}
 
 	_, err := accountDAO.CreateAccount(models.Account{
@@ -37,7 +37,7 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
-		responseConfig.ResponseWithSuccess(w, message, "Created Successfully.")
+		config.ResponseWithSuccess(w, message, "Created Successfully.")
 	}
 }
 
@@ -50,9 +50,10 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	//parse request param to get accountid
 	accountID, _ := uuid.Parse(params["account_id"])
 	currentSessionAccountID := r.Context().Value("id")
+	currentSessionRoleName := r.Context().Value("role_name")
 	//Validate if the account owner is requesting the update.
-	if params["account_id"] != currentSessionAccountID {
-		http.Error(w, "Only the account owner can update their info.", http.StatusForbidden)
+	if params["account_id"] != currentSessionAccountID && currentSessionRoleName != config.GetRoleNameConfig().Admin {
+		http.Error(w, "Only the account owner or an admin can update this info.", http.StatusForbidden)
 		return
 	}
 	var account = models.Account{
@@ -61,13 +62,13 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
 		errMsg := "Malformed data"
-		responseConfig.ResponseWithError(w, errMsg, err)
+		config.ResponseWithError(w, errMsg, err)
 	}
 	err := accountDAO.UpdateAccountByID(account)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
-		responseConfig.ResponseWithSuccess(w, message, 1)
+		config.ResponseWithSuccess(w, message, 1)
 	}
 }
 
@@ -86,7 +87,7 @@ func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
-		responseConfig.ResponseWithSuccess(w, message, userDetails)
+		config.ResponseWithSuccess(w, message, userDetails)
 	}
 }
 
@@ -116,6 +117,6 @@ func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
-		responseConfig.ResponseWithSuccess(w, message, userDetails)
+		config.ResponseWithSuccess(w, message, userDetails)
 	}
 }
