@@ -50,3 +50,13 @@ func (u *Account) BeforeSave(*gorm.DB) error {
 	u.Password = string(hashedPassword)
 	return nil
 }
+
+//BeforeSave checks Hash
+func (u *Account) BeforeUpdate(tx *gorm.DB) error {
+	hashedPassword, err := Hash(u.Password)
+	if err != nil {
+		return err
+	}
+	u.Password = string(hashedPassword)
+	return nil
+}

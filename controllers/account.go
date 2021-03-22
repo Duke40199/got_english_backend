@@ -14,20 +14,20 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		message = "OK"
 	)
 	var account = models.Account{}
 
-	userDAO := daos.GetAccountDAO()
+	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
 		errMsg := "Malformed data"
 		responseConfig.ResponseWithError(w, errMsg, err)
 	}
 
-	_, err := userDAO.CreateUser(models.Account{
+	_, err := accountDAO.CreateAccount(models.Account{
 		ID:       uuid.New(),
 		Username: account.Username,
 		Email:    account.Email,
@@ -35,32 +35,35 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	},
 	)
 	if err != nil {
-		panic(err)
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
-		resp := map[string]string{"id": "hello"}
-		responseConfig.ResponseWithSuccess(w, message, resp)
+		responseConfig.ResponseWithSuccess(w, message, "Created Successfully.")
 	}
 }
 
-func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		message = "OK"
 		params  = mux.Vars(r)
 	)
-	//parse request param to get userid
-	userID, err := uuid.Parse(params["user_id"])
-	var account = models.Account{
-		ID: userID,
+	//parse request param to get accountid
+	accountID, _ := uuid.Parse(params["account_id"])
+	currentSessionAccountID := r.Context().Value("id")
+	//Validate if the account owner is requesting the update.
+	if params["account_id"] != currentSessionAccountID {
+		http.Error(w, "Only the account owner can update their info.", http.StatusForbidden)
+		return
 	}
-
-	userDAO := daos.GetAccountDAO()
+	var account = models.Account{
+		ID: accountID,
+	}
+	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
 		errMsg := "Malformed data"
 		responseConfig.ResponseWithError(w, errMsg, err)
 	}
-	fmt.Print(account.Email)
-	err = userDAO.UpdateUserByID(account)
+	err := accountDAO.UpdateAccountByID(account)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
@@ -76,8 +79,8 @@ func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	loginResponse := utils.DecodeFirebaseCustomToken(w, r)
 	currentUsername := loginResponse.Username
-	userDAO := daos.GetAccountDAO()
-	userDetails, err := userDAO.FindUserByUsername(models.Account{
+	accountDAO := daos.GetAccountDAO()
+	userDetails, err := accountDAO.FindUserByUsername(models.Account{
 		Username: currentUsername,
 	})
 	if err != nil {
@@ -87,7 +90,7 @@ func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
+func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		// params   = mux.Vars(r)
@@ -105,8 +108,8 @@ func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		username = ""
 	}
-	userDAO := daos.GetAccountDAO()
-	userDetails, err := userDAO.GetUsers(models.Account{
+	accountDAO := daos.GetAccountDAO()
+	userDetails, err := accountDAO.GetAccounts(models.Account{
 		Username: username,
 		RoleName: role,
 	})

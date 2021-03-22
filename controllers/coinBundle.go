@@ -52,3 +52,28 @@ func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
 		responseConfig.ResponseWithSuccess(w, message, coinBundles)
 	}
 }
+
+// func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
+// 	defer r.Body.Close()
+// 	var (
+// 		message = "OK"
+// 		params  = mux.Vars(r)
+// 	)
+// 	//parse request param to get userid
+// 	coinBundleID, err := uuid.Parse(params["coin_bundle_id"])
+// 	var coinBundle = models.CoinBundle{
+// 		ID: userID,
+// 	}
+
+// 	userDAO := daos.GetAccountDAO()
+// 	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
+// 		errMsg := "Malformed data"
+// 		responseConfig.ResponseWithError(w, errMsg, err)
+// 	}
+// 	err = userDAO.UpdateUserByID(account)
+// 	if err != nil {
+// 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+// 	} else {
+// 		responseConfig.ResponseWithSuccess(w, message, 1)
+// 	}
+// }

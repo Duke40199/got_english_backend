@@ -21,23 +21,24 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var result = &models.Account{}
 	firebaseAuth, context := config.SetupFirebase()
 
-	userDAO := daos.GetAccountDAO()
+	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
 		errMsg := "Malformed data"
 		config.ResponseWithError(w, errMsg, err)
 	}
 	if account.Email == "" {
-		result, _ = userDAO.FindUserByUsernameAndPassword(account)
+		result, _ = accountDAO.FindAccountByUsernameAndPassword(account)
 	} else {
-		result, _ = userDAO.FindUserByEmailAndPassword(account)
+		result, _ = accountDAO.FindAccountByEmailAndPassword(account)
 	}
-	//user not found.
-	if *&result.Username == "" {
+	//account not found.
+	if result.Username == "" {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
-	//set user role for token
+	//set account role for token
 	claims := map[string]interface{}{
+		"id":        result.ID,
 		"role_name": result.RoleName,
 		"username":  &result.Username,
 	}

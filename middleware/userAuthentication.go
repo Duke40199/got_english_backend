@@ -48,21 +48,21 @@ func UserAuthentication(next http.HandlerFunc) http.HandlerFunc {
 		if r.Header.Get("Authorization") != "" {
 			authorizationToken := r.Header.Get("Authorization")
 			customToken := strings.TrimSpace(strings.Replace(authorizationToken, "Bearer", "", 1))
-			//parse
 			token, _ := jwt.Parse(customToken, nil)
 			if token == nil {
 				http.Error(w, "Forbidden", http.StatusForbidden)
-			} else {
-				claims, _ := token.Claims.(jwt.MapClaims)
-				userInfo := claims["claims"].(map[string]interface{})
-				if userInfo["role_name"] == "" {
-					http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
-				} else {
-					ctx := context.WithValue(r.Context(), "UserAccessToken", token)
-					ctx = context.WithValue(ctx, "UUID", userInfo["username"])
-					next.ServeHTTP(w, r.WithContext(ctx))
-				}
+				return
 			}
+			claims, _ := token.Claims.(jwt.MapClaims)
+			userInfo := claims["claims"].(map[string]interface{})
+			if userInfo["role_name"] == "" {
+				http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
+				return
+			}
+			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
+			ctx = context.WithValue(ctx, "id", userInfo["id"])
+			next.ServeHTTP(w, r.WithContext(ctx))
+
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
 		}
@@ -74,21 +74,21 @@ func ModeratorAuthentication(next http.HandlerFunc) http.HandlerFunc {
 		if r.Header.Get("Authorization") != "" {
 			authorizationToken := r.Header.Get("Authorization")
 			customToken := strings.TrimSpace(strings.Replace(authorizationToken, "Bearer", "", 1))
-			//parse
 			token, _ := jwt.Parse(customToken, nil)
 			if token == nil {
 				http.Error(w, "Forbidden", http.StatusForbidden)
-			} else {
-				claims, _ := token.Claims.(jwt.MapClaims)
-				userInfo := claims["claims"].(map[string]interface{})
-				if userInfo["role_name"] != roleNameConfig.Moderator {
-					http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
-				} else {
-					ctx := context.WithValue(r.Context(), "UserAccessToken", token)
-					ctx = context.WithValue(ctx, "UUID", userInfo["username"])
-					next.ServeHTTP(w, r.WithContext(ctx))
-				}
+				return
 			}
+			claims, _ := token.Claims.(jwt.MapClaims)
+			userInfo := claims["claims"].(map[string]interface{})
+			if userInfo["role_name"] != roleNameConfig.Moderator {
+				http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
+				return
+			}
+			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
+			ctx = context.WithValue(ctx, "id", userInfo["id"])
+			next.ServeHTTP(w, r.WithContext(ctx))
+
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
 		}
@@ -105,17 +105,17 @@ func AdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			token, _ := jwt.Parse(customToken, nil)
 			if token == nil {
 				http.Error(w, "Forbidden", http.StatusForbidden)
-			} else {
-				claims, _ := token.Claims.(jwt.MapClaims)
-				userInfo := claims["claims"].(map[string]interface{})
-				if userInfo["role_name"] != roleNameConfig.Admin {
-					http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
-				} else {
-					ctx := context.WithValue(r.Context(), "UserAccessToken", token)
-					ctx = context.WithValue(ctx, "UUID", userInfo["username"])
-					next.ServeHTTP(w, r.WithContext(ctx))
-				}
+				return
 			}
+			claims, _ := token.Claims.(jwt.MapClaims)
+			userInfo := claims["claims"].(map[string]interface{})
+			if userInfo["role_name"] != roleNameConfig.Admin {
+				http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
+				return
+			}
+			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
+			ctx = context.WithValue(ctx, "id", userInfo["id"])
+			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
 		}
