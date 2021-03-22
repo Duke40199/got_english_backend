@@ -27,6 +27,7 @@ func init() {
 	apiV1.HandleFunc("/users/register", middleware.FirebaseAuthentication(controllers.CreateUserHandler)).Methods("POST")
 	apiV1.HandleFunc("/users/{user_id}/update", middleware.UserAuthentication(controllers.UpdateUserHandler)).Methods("PUT")
 	//For coin bundle functions
+	apiV1.HandleFunc("/coin-bundles", middleware.UserAuthentication(controllers.GetCoinBundlesHandler)).Methods("GET")
 	apiV1.HandleFunc("/coin-bundles", middleware.ModeratorAuthentication(controllers.CreateCoinBundleHandler)).Methods("POST")
 	// For changelogs
 	//apiV1.HandleFunc("/cms/changelogs", controller.ShowChangelogsHandler).Methods("GET")

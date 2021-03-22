@@ -1,6 +1,7 @@
 package daos
 
 import (
+	"strings"
 	"time"
 
 	"github.com/golang/got_english_backend/database"
@@ -32,7 +33,7 @@ type AccountFullInfo struct {
 	AvatarURL   string     `gorm:"size:255" json:"avatar_url"`
 	Address     string     `gorm:"size:255;" json:"address"`
 	PhoneNumber string     `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
-	Birthday    time.Time  `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
+	Birthday    string     `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
 	IsSuspended bool       `gorm:"column:isSuspended" json:"is_suspended"`
 	SuspendedAt *time.Time `gorm:"column:SuspendedAt" json:"suspended_at"`
 	//default timestamps
@@ -55,25 +56,39 @@ type AccountFullInfo struct {
 
 func (u *AccountDAO) CreateUser(user models.Account) (*models.Account, error) {
 	db, err := database.ConnectToDB()
-	err = db.Debug().Create(&user).Error
 	if err != nil {
-		return &models.Account{}, err
+		return nil, err
 	}
-	return nil, nil
+	err = db.Debug().Create(&user).Error
+	return &models.Account{}, err
+
 }
 
-func (u *AccountDAO) FindUserByUsername(user models.Account) (*models.Account, error) {
+func (u *AccountDAO) FindUserByUsername(account models.Account) (*AccountFullInfo, error) {
+	accountResult := AccountFullInfo{}
 	db, err := database.ConnectToDB()
-	err = db.Where("username LIKE ?", user.Username).First(&user).Error
-	if err == nil {
-		return &user, err
+	if err != nil {
+		return nil, err
 	}
-	return nil, nil
+	err = db.Debug().Model(&models.Account{}).Select("accounts.*, experts.can_chat, experts.can_join_translation_session, experts.can_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
+		Where("accounts.username = ?", account.Username).
+		Joins("left join experts on experts.account_id = accounts.id").
+		Joins("left join learners on learners.account_id = learners.id").
+		Joins("left join moderators on moderators.account_id = accounts.id").
+		Joins("left join admins on admins.account_id = accounts.id").
+		First(&accountResult).Error
+	//Only get date from birthdays
+	accountResult.Birthday = strings.Split(accountResult.Birthday, "T")[0]
+
+	return &accountResult, err
 }
 
 func (u *AccountDAO) FindUserByUsernameAndPassword(user models.Account) (*models.Account, error) {
 	var result = models.Account{}
 	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
 	err = db.Debug().First(&result, "username=?", user.Username).Error
 	if err == nil {
 		err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password))
@@ -87,8 +102,10 @@ func (u *AccountDAO) FindUserByUsernameAndPassword(user models.Account) (*models
 
 func (u *AccountDAO) FindUserByEmailAndPassword(user models.Account) (*models.Account, error) {
 	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
 	result := models.Account{}
-
 	err = db.Debug().First(&result, "email=?", user.Email).Error
 	if err == nil {
 		err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password))
@@ -101,10 +118,11 @@ func (u *AccountDAO) FindUserByEmailAndPassword(user models.Account) (*models.Ac
 }
 
 func (u *AccountDAO) GetUsers(user models.Account) (*[]AccountFullInfo, error) {
-	// accounts := []models.Account{}
-
 	accounts := []AccountFullInfo{}
 	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
 	err = db.Debug().Model(&models.Account{}).Select("accounts.*, experts.can_chat, experts.can_join_translation_session, experts.can_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
 		Where("accounts.role_name LIKE ? AND accounts.username LIKE ?", user.RoleName+"%", user.Username+"%").
 		Joins("left join experts on experts.account_id = accounts.id").
@@ -112,18 +130,17 @@ func (u *AccountDAO) GetUsers(user models.Account) (*[]AccountFullInfo, error) {
 		Joins("left join moderators on moderators.account_id = accounts.id").
 		Joins("left join admins on admins.account_id = accounts.id").
 		Scan(&accounts).Error
-
-	if err == nil {
-		if err != nil {
-			return nil, err
-		}
-		return &accounts, err
+	//Only get date from birthdays
+	for i := 0; i < len(accounts); i++ {
+		accounts[i].Birthday = strings.Split(accounts[i].Birthday, "T")[0]
 	}
-	return &accounts, nil
+	return &accounts, err
 }
 func (u *AccountDAO) UpdateUserByID(account models.Account) error {
-
 	db, err := database.ConnectToDB()
+	if err != nil {
+		return err
+	}
 	err = db.Debug().Model(&account).Updates(account).Error
 	if err != nil {
 		return err

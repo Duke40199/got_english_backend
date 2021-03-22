@@ -8,8 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var currentTime = time.Now().Unix()
-
 // Account model struct
 type Account struct {
 	gorm.Model `json:"-"`

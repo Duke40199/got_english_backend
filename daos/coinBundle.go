@@ -16,9 +16,20 @@ type CoinBundleDAO struct {
 
 func (u *CoinBundleDAO) CreateCoinBundle(coinBundle models.CoinBundle) (*models.CoinBundle, error) {
 	db, err := database.ConnectToDB()
-	err = db.Debug().Create(&coinBundle).Error
 	if err != nil {
-		return &coinBundle, err
+		return nil, err
 	}
-	return nil, nil
+	err = db.Debug().Create(&coinBundle).Error
+	return &coinBundle, err
+
+}
+func (u *CoinBundleDAO) GetCoinBundles() (*[]models.CoinBundle, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	coinBundles := []models.CoinBundle{}
+	err = db.Debug().Model(&models.CoinBundle{}).Select("coin_bundles.*").Scan(&coinBundles).Error
+	return &coinBundles, err
+
 }

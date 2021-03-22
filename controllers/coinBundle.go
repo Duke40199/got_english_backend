@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	responseConfig "github.com/golang/got_english_backend/config"
@@ -31,8 +32,23 @@ func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	},
 	)
 	if err != nil {
-		panic(err)
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
 		responseConfig.ResponseWithSuccess(w, message, result)
+	}
+}
+
+func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params   = mux.Vars(r)
+		message = "OK"
+	)
+	coinBundleDAO := daos.GetCoinBundleDAO()
+	coinBundles, err := coinBundleDAO.GetCoinBundles()
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+	} else {
+		responseConfig.ResponseWithSuccess(w, message, coinBundles)
 	}
 }

@@ -17,11 +17,7 @@ import (
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
-		// params   = mux.Vars(r)
 		message = "OK"
-		// username = params["username"]
-		// //fullname = params["fullname"]
-		// email = params["email"]
 	)
 	var account = models.Account{}
 
@@ -66,7 +62,7 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Print(account.Email)
 	err = userDAO.UpdateUserByID(account)
 	if err != nil {
-		responseConfig.ResponseWithDetailedError(w, "error found", err, nil)
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
 		responseConfig.ResponseWithSuccess(w, message, 1)
 	}
@@ -85,7 +81,7 @@ func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 		Username: currentUsername,
 	})
 	if err != nil {
-		panic(err)
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
 		responseConfig.ResponseWithSuccess(w, message, userDetails)
 	}
@@ -115,7 +111,7 @@ func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 		RoleName: role,
 	})
 	if err != nil {
-		panic(err)
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	} else {
 		responseConfig.ResponseWithSuccess(w, message, userDetails)
 	}
