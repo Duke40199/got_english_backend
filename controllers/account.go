@@ -24,7 +24,8 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&accountInfo); err != nil {
 		errMsg := "Malformed data"
-		config.ResponseWithError(w, errMsg, err)
+		http.Error(w, errMsg, http.StatusBadRequest)
+		return
 	}
 	fmt.Print(accountInfo.Email)
 	if (accountInfo.Email) == "" {
@@ -136,14 +137,16 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
 		errMsg := "Malformed data"
-		config.ResponseWithError(w, errMsg, err)
+		http.Error(w, errMsg, http.StatusBadRequest)
+		return
 	}
 	err := accountDAO.UpdateAccountByID(account)
 	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-	} else {
-		config.ResponseWithSuccess(w, message, 1)
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
 	}
+	config.ResponseWithSuccess(w, message, 1)
+
 }
 
 func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
@@ -160,9 +163,10 @@ func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-	} else {
-		config.ResponseWithSuccess(w, message, userDetails)
+		return
 	}
+	config.ResponseWithSuccess(w, message, userDetails)
+
 }
 
 func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
