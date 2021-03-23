@@ -52,11 +52,11 @@ func (u *Account) BeforeSave(*gorm.DB) error {
 }
 
 //BeforeSave checks Hash
-func (u *Account) BeforeUpdate(tx *gorm.DB) error {
-	hashedPassword, err := Hash(u.Password)
-	if err != nil {
-		return err
-	}
-	u.Password = string(hashedPassword)
-	return nil
-}
+// func (u *Account) BeforeUpdate(*gorm.DB) error {
+// 	hashedPassword, err := Hash(u.Password)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	u.Password = string(hashedPassword)
+// 	return nil
+// }

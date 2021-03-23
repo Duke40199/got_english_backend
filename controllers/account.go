@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
@@ -19,26 +20,99 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		message = "OK"
 	)
-	var account = models.Account{}
-
+	var accountInfo = daos.AccountFullInfo{}
 	accountDAO := daos.GetAccountDAO()
-	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&accountInfo); err != nil {
 		errMsg := "Malformed data"
 		config.ResponseWithError(w, errMsg, err)
 	}
-
+	fmt.Print(accountInfo.Email)
+	if (accountInfo.Email) == "" {
+		http.Error(w, "Email invalid or missing", http.StatusBadRequest)
+		return
+	}
+	fmt.Println("BIRTHDAYSTRING" + accountInfo.Birthday)
+	birthday, _ := time.Parse("2006-01-02", accountInfo.Birthday)
+	fmt.Print(birthday)
+	accountID := uuid.New()
 	_, err := accountDAO.CreateAccount(models.Account{
-		ID:       uuid.New(),
-		Username: account.Username,
-		Email:    account.Email,
-		Password: "123456",
+		ID:       accountID,
+		Username: accountInfo.Username,
+		Email:    accountInfo.Email,
+		Password: accountInfo.Password,
+		Birthday: birthday,
 	},
 	)
+	//add role specific info
+	switch accountInfo.RoleName {
+	case config.GetRoleNameConfig().Admin:
+		{
+			admin := models.Admin{
+				CanManageExpert:  accountInfo.CanManageExpert,
+				CanManageLearner: accountInfo.CanManageLearner,
+				CanManageAdmin:   accountInfo.CanManageAdmin,
+				AccountID:        accountID,
+			}
+			adminDAO := daos.GetAdminDAO()
+			_, err = adminDAO.CreateAdmin(admin)
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+				return
+			}
+			break
+		}
+	case config.GetRoleNameConfig().Expert:
+		{
+			expert := models.Expert{
+				CanChat:                   accountInfo.CanChat,
+				CanJoinTranslationSession: accountInfo.CanJoinTranslationSession,
+				CanJoinPrivateCallSession: accountInfo.CanJoinPrivateCallSession,
+				AccountID:                 accountID,
+			}
+			expertDAO := daos.GetExpertDAO()
+			_, err = expertDAO.CreateExpert(expert)
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+				return
+			}
+			break
+		}
+	case config.GetRoleNameConfig().Learner:
+		{
+			learner := models.Learner{
+				AvailableCoinCount: 0,
+				AccountID:          accountID,
+			}
+			learnerDAO := daos.GetLearnerDAO()
+			_, err = learnerDAO.CreateLearner(learner)
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+				return
+			}
+			break
+		}
+	case config.GetRoleNameConfig().Moderator:
+		{
+			moderator := models.Moderator{
+				CanManageCoinBundle:      accountInfo.CanManageCoinBundle,
+				CanManagePricing:         accountInfo.CanManagePricing,
+				CanManageApplicationForm: accountInfo.CanManageApplicationForm,
+				AccountID:                accountID,
+			}
+			moderatorDAO := daos.GetModeratorDAO()
+			_, err = moderatorDAO.CreateModerator(moderator)
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+				return
+			}
+			break
+		}
+	}
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-	} else {
-		config.ResponseWithSuccess(w, message, "Created Successfully.")
+		return
 	}
+	config.ResponseWithSuccess(w, message, accountID)
 }
 
 func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {

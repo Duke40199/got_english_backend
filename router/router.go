@@ -24,11 +24,12 @@ func init() {
 
 	//For account functions
 	apiV1.HandleFunc("/accounts", middleware.AdminAuthentication(controllers.GetAccountsHandler)).Methods("GET")
-	apiV1.HandleFunc("/accounts", middleware.FirebaseAuthentication(controllers.CreateAccountHandler)).Methods("POST")
+	apiV1.HandleFunc("/accounts", controllers.CreateAccountHandler).Methods("POST")
 	apiV1.HandleFunc("/accounts/{account_id}/update", middleware.UserAuthentication(controllers.UpdateAccountHandler)).Methods("PUT")
 	//For coin bundle functions
 	apiV1.HandleFunc("/coin-bundles", middleware.UserAuthentication(controllers.GetCoinBundlesHandler)).Methods("GET")
 	apiV1.HandleFunc("/coin-bundles", middleware.ModeratorAuthentication(controllers.CreateCoinBundleHandler)).Methods("POST")
+	apiV1.HandleFunc("/coin-bundles/{coin_bundle_id}/update", middleware.ModeratorAuthentication(controllers.UpdateCoinBundleHandler)).Methods("PUT")
 	// For changelogs
 	//apiV1.HandleFunc("/cms/changelogs", controller.ShowChangelogsHandler).Methods("GET")
 	//apiV1.HandleFunc("/cms/health-check", controller.GetHealthCHeck).Methods("GET")

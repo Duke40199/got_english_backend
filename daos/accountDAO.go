@@ -28,6 +28,7 @@ type AccountFullInfo struct {
 	Username string    `gorm:"size:255;not null;unique" json:"username"`
 	Fullname string    `gorm:"size:255;not null;unique" json:"fullname"`
 	Email    string    `gorm:"size:100;not null;unique" json:"email"`
+	Password string    `gorm:"size:100;not null;" json:"-"`
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
 	//Info
 	AvatarURL   string     `gorm:"size:255" json:"avatar_url"`
@@ -110,9 +111,9 @@ func (u *AccountDAO) FindAccountByEmailAndPassword(account models.Account) (*mod
 	if err == nil {
 		err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(account.Password))
 		if err != nil {
-			return &models.Account{}, err
+			return nil, err
 		}
-		return &result, err
+		return nil, err
 	}
 	return &models.Account{}, nil
 }

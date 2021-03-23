@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/golang/got_english_backend/config"
 	responseConfig "github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
+	"github.com/gorilla/mux"
 )
 
 func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,27 +56,26 @@ func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
-// 	defer r.Body.Close()
-// 	var (
-// 		message = "OK"
-// 		params  = mux.Vars(r)
-// 	)
-// 	//parse request param to get userid
-// 	coinBundleID, err := uuid.Parse(params["coin_bundle_id"])
-// 	var coinBundle = models.CoinBundle{
-// 		ID: userID,
-// 	}
-
-// 	userDAO := daos.GetAccountDAO()
-// 	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
-// 		errMsg := "Malformed data"
-// 		responseConfig.ResponseWithError(w, errMsg, err)
-// 	}
-// 	err = userDAO.UpdateUserByID(account)
-// 	if err != nil {
-// 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-// 	} else {
-// 		responseConfig.ResponseWithSuccess(w, message, 1)
-// 	}
-// }
+func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+		params  = mux.Vars(r)
+	)
+	//parse request param to get accountid
+	coinBundleID, _ := strconv.ParseInt(params["coin_bundle_id"], 10, 0)
+	var coinBundle = models.CoinBundle{
+		ID: uint(coinBundleID),
+	}
+	coinBundleDAO := daos.GetCoinBundleDAO()
+	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
+		errMsg := "Malformed data"
+		config.ResponseWithError(w, errMsg, err)
+	}
+	err := coinBundleDAO.UpdateCoinBundleByID(coinBundle)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+	} else {
+		config.ResponseWithSuccess(w, message, 1)
+	}
+}

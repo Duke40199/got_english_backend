@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	database.SyncDB(false)
+	database.SyncDB(true)
 	config := config.GetConfig()
 	r := router.GetRouter()
 
