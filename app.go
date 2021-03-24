@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/database"
@@ -16,7 +17,9 @@ func main() {
 	database.SyncDB(false)
 	config := config.GetConfig()
 	r := router.GetRouter()
-
+	//set global timezone to GMT+7
+	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
+	time.Local = loc //
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
