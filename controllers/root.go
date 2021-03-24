@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -33,7 +32,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		result, _ = accountDAO.FindAccountByEmailAndPassword(account)
 	}
 	//account not found.
-	fmt.Print("USERNAME:" + result.Username)
 	if result.Username == "" {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return

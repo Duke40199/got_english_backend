@@ -8,8 +8,8 @@ import (
 
 // MessagingSession model struct
 type MessagingSession struct {
-	gorm.Model
-	ID uint `gorm:"column:id;autoIncrement;not null; unique; primaryKey;" json:"id"`
+	gorm.Model `json:"-"`
+	ID         uint `gorm:"column:id;autoIncrement;not null; unique; primaryKey;" json:"id"`
 	//A leaner can have many message sessions.
 	Learner   Learner `gorm:"foreignKey:LearnerID"`
 	LearnerID uint    `gorm:"size:255"`

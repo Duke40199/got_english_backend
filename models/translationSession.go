@@ -9,7 +9,7 @@ import (
 
 // TranslationSession model struct
 type TranslationSession struct {
-	gorm.Model
+	gorm.Model `json:"-"`
 	ID         uint      `gorm:"column:id;autoIncrement;not null; unique; primaryKey;" json:"id"`
 	Duration   time.Time `json:"duration"`
 	StartedAt  time.Time `gorm:"" json:"started_at"`

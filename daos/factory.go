@@ -3,12 +3,13 @@ package daos
 import "log"
 
 var (
-	adminDAO      = AdminDAO{}
-	accountDAO    = AccountDAO{}
-	coinBundleDAO = CoinBundleDAO{}
-	expertDAO     = ExpertDAO{}
-	learnerDAO    = LearnerDAO{}
-	moderatorDAO  = ModeratorDAO{}
+	adminDAO           = AdminDAO{}
+	accountDAO         = AccountDAO{}
+	applicationFormDAO = ApplicationFormDAO{}
+	coinBundleDAO      = CoinBundleDAO{}
+	expertDAO          = ExpertDAO{}
+	learnerDAO         = LearnerDAO{}
+	moderatorDAO       = ModeratorDAO{}
 )
 
 func init() {
@@ -20,6 +21,10 @@ func GetAdminDAO() AdminDAO {
 }
 func GetAccountDAO() AccountDAO {
 	return accountDAO
+}
+func GetApplicationFormDAO() ApplicationFormDAO {
+	return applicationFormDAO
+
 }
 func GetCoinBundleDAO() CoinBundleDAO {
 	return coinBundleDAO

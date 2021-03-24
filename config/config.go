@@ -24,7 +24,6 @@ type Config struct {
 	DatabaseSslMode  string `toml:"ge_database_ssl_mode"`
 	DatabaseDialect  string `toml:"ge_database_dialect"`
 	DatabaseTimezone string `toml:"ge_database_timezone"`
-	adminRoleID      int
 }
 
 func (c *Config) Read() {
@@ -80,4 +79,22 @@ var roleNameConfig = RoleNameConfig{
 //GetRoleNameConfig : export roleID config
 func GetRoleNameConfig() *RoleNameConfig {
 	return &roleNameConfig
+}
+
+//RoleNameConfig model
+type ApplicationFormStatusConfig struct {
+	Pending  string
+	Approved string
+	Declined string
+}
+
+var applicationFormStatusConfig = ApplicationFormStatusConfig{
+	Pending:  "Pending",
+	Approved: "Approved",
+	Declined: "Declined",
+}
+
+//GetRoleNameConfig : export roleID config
+func GetApplicationFormStatusConfig() *ApplicationFormStatusConfig {
+	return &applicationFormStatusConfig
 }

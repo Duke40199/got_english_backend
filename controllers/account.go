@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
@@ -32,16 +31,12 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Email invalid or missing", http.StatusBadRequest)
 		return
 	}
-	fmt.Println("BIRTHDAYSTRING" + accountInfo.Birthday)
-	birthday, _ := time.Parse("2006-01-02", accountInfo.Birthday)
-	fmt.Print(birthday)
 	accountID := uuid.New()
 	_, err := accountDAO.CreateAccount(models.Account{
 		ID:       accountID,
 		Username: accountInfo.Username,
 		Email:    accountInfo.Email,
 		Password: accountInfo.Password,
-		Birthday: birthday,
 	},
 	)
 	//add role specific info
@@ -131,21 +126,19 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only the account owner or an admin can update this info.", http.StatusForbidden)
 		return
 	}
-	var account = models.Account{
-		ID: accountID,
-	}
 	accountDAO := daos.GetAccountDAO()
-	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
+	updateInfo := map[string]interface{}{}
+	if err := json.NewDecoder(r.Body).Decode(&updateInfo); err != nil {
 		errMsg := "Malformed data"
 		http.Error(w, errMsg, http.StatusBadRequest)
 		return
 	}
-	err := accountDAO.UpdateAccountByID(account)
+	result, err := accountDAO.UpdateAccountByID(accountID, updateInfo)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	config.ResponseWithSuccess(w, message, 1)
+	config.ResponseWithSuccess(w, message, result)
 
 }
 

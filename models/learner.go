@@ -9,8 +9,8 @@ import (
 
 // Learner model struct
 type Learner struct {
-	gorm.Model
-	ID uint `gorm:"column:id;not null;unique; primaryKey;" json:"ID"`
+	gorm.Model `json:"-"`
+	ID         uint `gorm:"column:id;not null;unique; primaryKey;" json:"ID"`
 	//A learner can have only one account
 	AccountID          uuid.UUID `gorm:"size:225;column:account_id"`
 	Account            Account   `gorm:"foreignKey:AccountID"`

@@ -23,7 +23,8 @@ func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
 		errMsg := "Malformed data"
-		responseConfig.ResponseWithError(w, errMsg, err)
+		http.Error(w, errMsg, http.StatusBadRequest)
+		return
 	}
 	coinBundleDAO := daos.GetCoinBundleDAO()
 	result, err := coinBundleDAO.CreateCoinBundle(models.CoinBundle{
@@ -36,9 +37,9 @@ func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-	} else {
-		responseConfig.ResponseWithSuccess(w, message, result)
+		return
 	}
+	responseConfig.ResponseWithSuccess(w, message, result)
 }
 
 func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
@@ -51,9 +52,10 @@ func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
 	coinBundles, err := coinBundleDAO.GetCoinBundles()
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-	} else {
-		responseConfig.ResponseWithSuccess(w, message, coinBundles)
+		return
 	}
+	responseConfig.ResponseWithSuccess(w, message, coinBundles)
+
 }
 
 func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,12 +72,14 @@ func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	coinBundleDAO := daos.GetCoinBundleDAO()
 	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
 		errMsg := "Malformed data"
-		config.ResponseWithError(w, errMsg, err)
+		http.Error(w, errMsg, http.StatusBadRequest)
+		return
 	}
 	err := coinBundleDAO.UpdateCoinBundleByID(coinBundle)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-	} else {
-		config.ResponseWithSuccess(w, message, 1)
+		return
 	}
+	config.ResponseWithSuccess(w, message, 1)
+
 }

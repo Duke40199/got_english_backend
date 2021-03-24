@@ -9,8 +9,8 @@ import (
 
 // Invoice model struct
 type Invoice struct {
-	gorm.Model
-	ID uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
+	gorm.Model `json:"-"`
+	ID         uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
 	//A leaner can have many invoices.
 	Learner   Learner `gorm:"foreignKey:LearnerID"`
 	LearnerID uint    `gorm:"size:255"`

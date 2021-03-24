@@ -9,8 +9,8 @@ import (
 
 // Moderator model struct
 type Moderator struct {
-	gorm.Model
-	ID uint `gorm:"column:id;not null;unique; primaryKey;" json:"expert_id"`
+	gorm.Model `json:"-"`
+	ID         uint `gorm:"column:id;not null;unique; primaryKey;" json:"expert_id"`
 
 	//Moderator permissions
 	CanManageCoinBundle      bool `gorm:"column:can_manage_coin_bundle" json:"can_manage_coin_bundle"`
