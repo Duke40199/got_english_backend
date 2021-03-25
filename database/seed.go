@@ -6,8 +6,8 @@ import (
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/models"
-
 	"github.com/google/uuid"
+
 	"gorm.io/gorm"
 )
 
@@ -15,65 +15,50 @@ var roleNameConfig = config.GetRoleNameConfig()
 
 //SeedDB function will trigger all seed functions below
 func SeedDB(db *gorm.DB) {
-
-	accounts := []models.Account{
-		{
-			ID:          uuid.New(),
-			Username:    "SpacePotato",
-			Fullname:    "GotEnglish Admin 1",
-			Password:    "password",
-			Email:       "anhntse130266@fpt.edu.vn",
-			AvatarURL:   "https://scontent-hkt1-1.xx.fbcdn.net/v/t1.0-9/136993742_3749756998379656_496491351021530940_n.jpg?_nc_cat=107&ccb=1-3&_nc_sid=09cbfe&_nc_ohc=kvndP9qcIusAX-iZQVs&_nc_ht=scontent-hkt1-1.xx&oh=5768c6a74d45c1c23b69b2ef86dfa77c&oe=6072A896",
-			Address:     "139 Lac Long Quan, Ward 10,Tan Binh Dist.,Ho Chi Minh City",
-			Birthday:    time.Date(1987, 1, 12, 0, 0, 0, 0, time.Now().Location()),
-			PhoneNumber: "0123456789",
-			RoleName:    roleNameConfig.Admin,
-		},
-		{
-			ID:          uuid.New(),
-			Username:    "TuanAnh",
-			Fullname:    "Nguyen Tuan Anh",
-			Password:    "password",
-			Email:       "binguyentuananh@gmail.com",
-			AvatarURL:   "https://scontent-hkt1-1.xx.fbcdn.net/v/t1.0-9/136993742_3749756998379656_496491351021530940_n.jpg?_nc_cat=107&ccb=1-3&_nc_sid=09cbfe&_nc_ohc=kvndP9qcIusAX-iZQVs&_nc_ht=scontent-hkt1-1.xx&oh=5768c6a74d45c1c23b69b2ef86dfa77c&oe=6072A896",
-			Address:     "139 Lac Long Quan, Ward 10,Tan Binh Dist.,Ho Chi Minh City",
-			Birthday:    time.Date(1987, 1, 12, 0, 0, 0, 0, time.Now().Location()),
-			PhoneNumber: "0123456789",
-			RoleName:    roleNameConfig.Moderator,
-		},
-		{
-			ID:          uuid.New(),
-			Username:    "DucPhi",
-			Fullname:    "Phi Do Hong Duc",
-			Password:    "password",
-			Email:       "duc@phi.com",
-			Address:     "1722  Cody Ridge Road, Enid, Oklahoma",
-			Birthday:    time.Date(1999, 12, 12, 0, 0, 0, 0, time.Now().Location()),
-			PhoneNumber: "0987654321",
-			RoleName:    roleNameConfig.Expert,
-		},
-		{
-			ID:          uuid.New(),
-			Username:    "TuanNguyen",
-			Fullname:    "Nguyen Tran Quoc Tuan",
-			Password:    "password",
-			Email:       "tuan@nguyen.com",
-			Birthday:    time.Date(1998, 11, 12, 0, 0, 0, 0, time.Now().Location()),
-			Address:     "10/2 Dang Van Ngu St., Ward 10, Phu Nhuan Dist.,Ho Chi Minh City ",
-			PhoneNumber: "0777984632",
-			RoleName:    roleNameConfig.Admin,
-		},
-		{
-			ID:          uuid.New(),
-			Username:    "LocTr",
-			Fullname:    "Tran Thien Loc",
-			Password:    "password",
-			Email:       "loc@tr.com",
-			Birthday:    time.Date(1999, 12, 12, 0, 0, 0, 0, time.Now().Location()),
-			Address:     "4668  Delaware Avenue, San Francisco, California ",
-			PhoneNumber: "0334433221",
-			RoleName:    roleNameConfig.Learner,
-		},
+	accounts := []models.Account{}
+	usernames := []string{"TuanAnh", "DucPhi", "TuanNguyen", "LocTr"}
+	fullnames := []string{"Nguyen Tuan Anh", "Phi Do Hong Duc", "Nguyen Tran Quoc Tuan", "Tran Thien Loc"}
+	passwords := []string{"password", "password", "password", "password"}
+	emails := []string{"anhntse130266@fpt.edu.vn", "hongduc5412@gmail.com", "tuanntqse62351@fpt.edu.vn", "ttloc1999@gmail.com"}
+	avatarUrls := []string{
+		"https://scontent-hkt1-1.xx.fbcdn.net/v/t1.0-9/136993742_3749756998379656_496491351021530940_n.jpg?_nc_cat=107&ccb=1-3&_nc_sid=09cbfe&_nc_ohc=kvndP9qcIusAX-iZQVs&_nc_ht=scontent-hkt1-1.xx&oh=5768c6a74d45c1c23b69b2ef86dfa77c&oe=6072A896",
+		"",
+		"https://lh3.googleusercontent.com/a-/AOh14GjUZVucuFzLCa25tllc6tf2Oh8DZAr32hvbTXl5=s256",
+		"https://lh3.googleusercontent.com/a-/AOh14GignIoa0zabTMuuTD2iwR8H_Ph4KZBIReiXdOyF=s256",
+	}
+	phoneNumbers := []string{"0123456789", "0987654321", "0777984632", "0334433221"}
+	addresses := []string{
+		"139 Lac Long Quan, Ward 10,Tan Binh Dist.,Ho Chi Minh City",
+		"1722  Cody Ridge Road, Enid, Oklahoma",
+		"10/2 Dang Van Ngu St., Ward 10, Phu Nhuan Dist.,Ho Chi Minh City ",
+		"4668  Delaware Avenue, San Francisco, California ",
+	}
+	roleNames := []string{
+		roleNameConfig.Moderator,
+		roleNameConfig.Expert,
+		roleNameConfig.Admin,
+		roleNameConfig.Learner,
+	}
+	birthdays := []time.Time{
+		time.Date(1987, 1, 12, 0, 0, 0, 0, time.Now().Location()),
+		time.Date(1998, 04, 03, 0, 0, 0, 0, time.Now().Location()),
+		time.Date(1997, 11, 14, 0, 0, 0, 0, time.Now().Location()),
+		time.Date(1996, 05, 14, 0, 0, 0, 0, time.Now().Location()),
+	}
+	for i := 0; i < len(usernames); i++ {
+		accounts = append(accounts,
+			models.Account{
+				ID:          uuid.New(),
+				Username:    &usernames[i],
+				Password:    &passwords[i],
+				Fullname:    &fullnames[i],
+				Email:       &emails[i],
+				AvatarURL:   &avatarUrls[i],
+				Address:     &addresses[i],
+				Birthday:    &birthdays[i],
+				PhoneNumber: &phoneNumbers[i],
+				RoleName:    roleNames[i],
+			})
 	}
 	SeedAccounts(db, &accounts)
 	SeedRolesForAccounts(db, &accounts)

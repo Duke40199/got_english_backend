@@ -26,14 +26,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		errMsg := "Malformed data"
 		config.ResponseWithError(w, errMsg, err)
 	}
-	if account.Email == "" {
+	if account.Email == nil {
 		result, _ = accountDAO.FindAccountByUsernameAndPassword(account)
 	} else {
 		result, _ = accountDAO.FindAccountByEmailAndPassword(account)
 	}
 	//account not found.
-	if result.Username == "" {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if result.Username == nil {
+		http.Error(w, "Wrong username/email or password.", http.StatusForbidden)
 		return
 	}
 	//set account role for token

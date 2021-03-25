@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/golang/got_english_backend/config"
@@ -20,35 +21,52 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		message = "OK"
 	)
-	var accountInfo = daos.AccountFullInfo{}
 
 	accountDAO := daos.GetAccountDAO()
-	if err := json.NewDecoder(r.Body).Decode(&accountInfo); err != nil {
+	//parsing data
+	requestBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
 		errMsg := "Malformed data"
 		http.Error(w, errMsg, http.StatusBadRequest)
 		return
 	}
-	if (accountInfo.Email) == "" {
+
+	var account = models.Account{}
+	if err := json.Unmarshal(requestBody, &account); err != nil {
+		errMsg := "Malformed account data"
+		http.Error(w, errMsg, http.StatusBadRequest)
+		return
+	}
+
+	var accountPermission = models.AccountFullInfo{}
+	if err := json.Unmarshal(requestBody, &accountPermission); err != nil {
+		errMsg := "Malformed permission data"
+		http.Error(w, errMsg, http.StatusBadRequest)
+		return
+	}
+	if (account.Email) == nil {
 		http.Error(w, "Email invalid or missing", http.StatusBadRequest)
 		return
 	}
+	//Check null for new fi
 	accountID := uuid.New()
-	_, err := accountDAO.CreateAccount(models.Account{
+
+	_, err = accountDAO.CreateAccount(models.Account{
 		ID:       accountID,
-		Username: accountInfo.Username,
-		Email:    accountInfo.Email,
-		Password: accountInfo.Password,
-		RoleName: accountInfo.RoleName,
+		Username: account.Username,
+		Email:    account.Email,
+		Password: account.Password,
+		RoleName: account.RoleName,
 	},
 	)
 	//add role specific info
-	switch accountInfo.RoleName {
+	switch account.RoleName {
 	case config.GetRoleNameConfig().Admin:
 		{
 			admin := models.Admin{
-				CanManageExpert:  accountInfo.CanManageExpert,
-				CanManageLearner: accountInfo.CanManageLearner,
-				CanManageAdmin:   accountInfo.CanManageAdmin,
+				CanManageExpert:  accountPermission.CanManageExpert,
+				CanManageLearner: accountPermission.CanManageLearner,
+				CanManageAdmin:   accountPermission.CanManageAdmin,
 				AccountID:        accountID,
 			}
 			adminDAO := daos.GetAdminDAO()
@@ -62,9 +80,9 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	case config.GetRoleNameConfig().Expert:
 		{
 			expert := models.Expert{
-				CanChat:                   accountInfo.CanChat,
-				CanJoinTranslationSession: accountInfo.CanJoinTranslationSession,
-				CanJoinPrivateCallSession: accountInfo.CanJoinPrivateCallSession,
+				CanChat:                   accountPermission.CanChat,
+				CanJoinTranslationSession: accountPermission.CanJoinTranslationSession,
+				CanJoinPrivateCallSession: accountPermission.CanJoinPrivateCallSession,
 				AccountID:                 accountID,
 			}
 			expertDAO := daos.GetExpertDAO()
@@ -92,9 +110,9 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	case config.GetRoleNameConfig().Moderator:
 		{
 			moderator := models.Moderator{
-				CanManageCoinBundle:      accountInfo.CanManageCoinBundle,
-				CanManagePricing:         accountInfo.CanManagePricing,
-				CanManageApplicationForm: accountInfo.CanManageApplicationForm,
+				CanManageCoinBundle:      accountPermission.CanManageCoinBundle,
+				CanManagePricing:         accountPermission.CanManagePricing,
+				CanManageApplicationForm: accountPermission.CanManageApplicationForm,
 				AccountID:                accountID,
 			}
 			moderatorDAO := daos.GetModeratorDAO()
@@ -159,7 +177,7 @@ func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	currentUsername := loginResponse.Username
 	accountDAO := daos.GetAccountDAO()
 	userDetails, err := accountDAO.FindUserByUsername(models.Account{
-		Username: currentUsername,
+		Username: &currentUsername,
 	})
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
@@ -189,7 +207,7 @@ func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	accountDAO := daos.GetAccountDAO()
 	userDetails, err := accountDAO.GetAccounts(models.Account{
-		Username: username,
+		Username: &username,
 		RoleName: role,
 	})
 	if err != nil {
