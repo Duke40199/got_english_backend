@@ -14,9 +14,9 @@ type Account struct {
 	//Login
 	ID       uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
 	Username string    `gorm:"size:255;not null;unique" json:"username"`
-	Fullname string    `gorm:"size:255;not null;unique" json:"fullname"`
+	Fullname string    `gorm:"size:255;" json:"fullname"`
 	Email    string    `gorm:"size:100;not null;unique" json:"email"`
-	Password string    `gorm:"size:100;not null;" json:"password"`
+	Password string    `gorm:"size:100;" json:"password"`
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
 	//Info
 	AvatarURL   string     `gorm:"size:255" json:"avatar_url"`
@@ -51,12 +51,11 @@ func (u *Account) BeforeSave(*gorm.DB) error {
 	return nil
 }
 
-//BeforeSave checks Hash
-// func (u *Account) BeforeUpdate(*gorm.DB) error {
-// 	hashedPassword, err := Hash(u.Password)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	u.Password = string(hashedPassword)
-// 	return nil
-// }
+func (u *Account) BeforeUpdate(*gorm.DB) error {
+	hashedPassword, err := Hash(u.Password)
+	if err != nil {
+		return err
+	}
+	u.Password = string(hashedPassword)
+	return nil
+}

@@ -10,6 +10,7 @@ import (
 	"github.com/golang/got_english_backend/models"
 	"github.com/golang/got_english_backend/utils"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/google/uuid"
 )
@@ -133,6 +134,11 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errMsg, http.StatusBadRequest)
 		return
 	}
+	//hash password before update
+	if updateInfo["password"] != "" {
+		hashedPassword, _ := Hash(fmt.Sprint(updateInfo["password"]))
+		updateInfo["password"] = hashedPassword
+	}
 	result, err := accountDAO.UpdateAccountByID(accountID, updateInfo)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
@@ -190,4 +196,9 @@ func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		config.ResponseWithSuccess(w, message, userDetails)
 	}
+}
+
+//Hash password
+func Hash(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
