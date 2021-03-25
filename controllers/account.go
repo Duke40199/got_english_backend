@@ -21,13 +21,13 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 	)
 	var accountInfo = daos.AccountFullInfo{}
+
 	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&accountInfo); err != nil {
 		errMsg := "Malformed data"
 		http.Error(w, errMsg, http.StatusBadRequest)
 		return
 	}
-	fmt.Print(accountInfo.Email)
 	if (accountInfo.Email) == "" {
 		http.Error(w, "Email invalid or missing", http.StatusBadRequest)
 		return
@@ -38,6 +38,7 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		Username: accountInfo.Username,
 		Email:    accountInfo.Email,
 		Password: accountInfo.Password,
+		RoleName: accountInfo.RoleName,
 	},
 	)
 	//add role specific info
