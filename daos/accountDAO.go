@@ -62,9 +62,8 @@ func (u *AccountDAO) FindAccountByUsernameAndPassword(account models.Account) (*
 		if err != nil {
 			return &models.Account{}, err
 		}
-		return &result, err
 	}
-	return &models.Account{}, nil
+	return &result, nil
 }
 
 func (u *AccountDAO) FindAccountByEmailAndPassword(account models.Account) (*models.Account, error) {
@@ -77,7 +76,7 @@ func (u *AccountDAO) FindAccountByEmailAndPassword(account models.Account) (*mod
 	if err == nil {
 		err = bcrypt.CompareHashAndPassword([]byte(*result.Password), []byte(*account.Password))
 		if err != nil {
-			return nil, err
+			return &models.Account{}, err
 		}
 	}
 	return &result, nil
