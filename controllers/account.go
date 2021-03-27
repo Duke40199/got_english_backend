@@ -155,7 +155,8 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//hash password before update
-	if updateInfo["password"] != "" {
+	fmt.Print(updateInfo["password"])
+	if updateInfo["password"] != nil {
 		hashedPassword, _ := Hash(fmt.Sprint(updateInfo["password"]))
 		updateInfo["password"] = hashedPassword
 	}
