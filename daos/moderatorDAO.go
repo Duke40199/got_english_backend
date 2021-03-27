@@ -34,3 +34,12 @@ func (dao *ModeratorDAO) UpdateModeratorByAccountID(accountID uuid.UUID, moderat
 		Updates(moderatorPermissions)
 	return result.RowsAffected, result.Error
 }
+func (dao *ModeratorDAO) GetModeratorByAccountID(accountID uuid.UUID) (*models.Moderator, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := models.Moderator{}
+	err = db.Debug().First(&result, "account_id = ?", accountID).Error
+	return &result, err
+}

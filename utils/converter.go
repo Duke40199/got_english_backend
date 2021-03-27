@@ -17,3 +17,10 @@ func InterfaceFloat64ToInt(item interface{}) int {
 	}
 	return int(result)
 }
+
+func CheckIfNilBool(booleanValue *bool) bool {
+	if booleanValue == nil || *booleanValue == false {
+		return false
+	}
+	return *booleanValue
+}

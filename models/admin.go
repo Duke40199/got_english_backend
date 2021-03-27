@@ -21,5 +21,5 @@ type Admin struct {
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:CreatedAt;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time  `gorm:"column:UpdatedAt;autoCreateTime" json:"updated_at"`
-	DeletedAt *time.Time `gorm:"column:DeletedAt" sql:"index" json:"deleted_at";`
+	DeletedAt *time.Time `gorm:"column:DeletedAt" json:"deleted_at"`
 }
