@@ -20,7 +20,6 @@ func UpdateModeratorHandler(w http.ResponseWriter, r *http.Request) {
 	accountID, _ := uuid.Parse(params["account_id"])
 	moderatorPermissions := map[string]interface{}{}
 	if err := json.NewDecoder(r.Body).Decode(&moderatorPermissions); err != nil {
-		fmt.Print(err)
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}

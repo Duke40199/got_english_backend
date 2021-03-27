@@ -3,15 +3,24 @@ package utils
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/golang/got_english_backend/models"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
+// GetCurrentTime function is used to get the current time in milliseconds.
+func GetCurrentEpochTimeInMiliseconds() int64 {
+	var now = time.Now()
+	ts := now.UnixNano() / 1000000
+	return ts
+}
+
 //DecodeFirebaseIDToken will decode ID Token from firebase
-func DecodeFirebaseIDToken(w http.ResponseWriter, r *http.Request) models.LoginResponse {
+func DecodeGoogleIDToken(w http.ResponseWriter, r *http.Request) models.GoogleIDTokenStruct {
 	defer r.Body.Close()
 	//Split the header to only get the token
 	authorizationToken := r.Header.Get("Authorization")
@@ -19,20 +28,26 @@ func DecodeFirebaseIDToken(w http.ResponseWriter, r *http.Request) models.LoginR
 	//Parse the token here
 	token, _, err := new(jwt.Parser).ParseUnverified(idToken, jwt.MapClaims{})
 	if err != nil {
-		fmt.Println(err)
-		return models.LoginResponse{}
+		return models.GoogleIDTokenStruct{}
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		var loginResponse = models.LoginResponse{
-			Username: fmt.Sprintf("%v", claims["username"]),
-			RoleName: fmt.Sprintf("%v", claims["role_name"]),
-			Iss:      fmt.Sprintf("%v", claims["iss"]),
-			Aud:      fmt.Sprintf("%v", claims["aud"]),
+		emailVerified, _ := strconv.ParseBool(fmt.Sprintf("%v", claims["email"]))
+		var googleIDTokenStruct = models.GoogleIDTokenStruct{
+			Iss:           fmt.Sprintf("%v", claims["iss"]),
+			Azp:           fmt.Sprintf("%v", claims["azp"]),
+			Aud:           fmt.Sprintf("%v", claims["aud"]),
+			Sub:           fmt.Sprintf("%v", claims["sub"]),
+			Email:         fmt.Sprintf("%v", claims["email"]),
+			EmailVerified: emailVerified,
+			Name:          fmt.Sprintf("%v", claims["name"]),
+			Picture:       fmt.Sprintf("%v", claims["picture"]),
+			GivenName:     fmt.Sprintf("%v", claims["given_name"]),
+			FamilyName:    fmt.Sprintf("%v", claims["family_name"]),
+			Locale:        fmt.Sprintf("%v", claims["locale"]),
 		}
-		fmt.Print(loginResponse.Username)
-		return loginResponse
+		return googleIDTokenStruct
 	}
-	return models.LoginResponse{}
+	return models.GoogleIDTokenStruct{}
 }
 
 //DecodeFirebaseIDToken will decode ID Token from firebase
@@ -44,7 +59,6 @@ func DecodeFirebaseCustomToken(w http.ResponseWriter, r *http.Request) models.Lo
 	//Parse the token here
 	token, _, err := new(jwt.Parser).ParseUnverified(idToken, jwt.MapClaims{})
 	if err != nil {
-		fmt.Println(err)
 		return models.LoginResponse{}
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
@@ -55,7 +69,6 @@ func DecodeFirebaseCustomToken(w http.ResponseWriter, r *http.Request) models.Lo
 			Iss:      fmt.Sprintf("%v", claims["iss"]),
 			Aud:      fmt.Sprintf("%v", claims["aud"]),
 		}
-		fmt.Print(loginResponse.Username)
 		return loginResponse
 	}
 	return models.LoginResponse{}

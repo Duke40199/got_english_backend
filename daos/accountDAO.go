@@ -1,6 +1,7 @@
 package daos
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/golang/got_english_backend/config"
@@ -74,12 +75,26 @@ func (u *AccountDAO) FindAccountByEmailAndPassword(account models.Account) (*mod
 	result := models.Account{}
 	err = db.Debug().First(&result, "email=?", account.Email).Error
 	if err == nil {
-		err = bcrypt.CompareHashAndPassword([]byte(*result.Password), []byte(*account.Password))
+		//If someone logs into Google but haven't updated their password
+		if result.Password == nil || *result.Password == "" {
+			return &models.Account{}, errors.New("are you logging from google? if so, have you updated your password?")
+		}
+		err := bcrypt.CompareHashAndPassword([]byte(*result.Password), []byte(*account.Password))
 		if err != nil {
 			return &models.Account{}, err
 		}
 	}
 	return &result, nil
+}
+
+func (u *AccountDAO) FindAccountByEmail(account models.Account) (*models.Account, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := models.Account{}
+	err = db.Debug().First(&result, "email=?", account.Email).Error
+	return &result, err
 }
 
 func (u *AccountDAO) GetAccounts(account models.Account) (*[]models.AccountFullInfo, error) {

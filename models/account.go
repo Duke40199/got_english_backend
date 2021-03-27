@@ -20,7 +20,7 @@ type Account struct {
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
 	//credentials
 	//Access Token will be created when use logs in with Google
-	AccessToken *string `gorm:"column:access_token;size:255;" json:"access_token"`
+	LoginWithGoogle bool `gorm:"column:access_token;size:255;" json:"access_token"`
 	//Info
 	AvatarURL   *string    `gorm:"size:255" json:"avatar_url"`
 	Address     *string    `gorm:"size:255;" json:"address"`

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
@@ -48,8 +49,13 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Email invalid or missing", http.StatusBadRequest)
 		return
 	}
-	//Check null for new fi
 	accountID := uuid.New()
+	//Check null for new fields
+	if account.Username == nil {
+		currentTimeMillis := utils.GetCurrentEpochTimeInMiliseconds()
+		newUsername := account.RoleName + strconv.FormatInt(currentTimeMillis, 10)
+		account.Username = &newUsername
+	}
 
 	_, err = accountDAO.CreateAccount(models.Account{
 		ID:       accountID,
@@ -155,7 +161,6 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//hash password before update
-	fmt.Print(updateInfo["password"])
 	if updateInfo["password"] != nil {
 		hashedPassword, _ := Hash(fmt.Sprint(updateInfo["password"]))
 		updateInfo["password"] = hashedPassword

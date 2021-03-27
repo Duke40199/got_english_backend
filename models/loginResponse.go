@@ -21,3 +21,20 @@ type LoginResponse struct {
 		SignInProvider string `json:"sign_in_provider"`
 	} `json:"firebase"`
 }
+type GoogleIDTokenStruct struct {
+	Foo string `json:"foo"`
+	jwt.StandardClaims
+	Iss           string `json:"iss"`
+	Azp           string `json:"azp"`
+	Aud           string `json:"aud"`
+	Sub           string `json:"sub"`
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+	Name          string `json:"name"`
+	Picture       string `json:"picture"`
+	GivenName     string `json:"given_name"`
+	FamilyName    string `json:"family_name"`
+	Locale        string `json:"locale"`
+	Iat           int    `json:"iat"`
+	Exp           int    `json:"exp"`
+}

@@ -26,7 +26,7 @@ func SeedDB(db *gorm.DB) {
 		"https://lh3.googleusercontent.com/a-/AOh14GjUZVucuFzLCa25tllc6tf2Oh8DZAr32hvbTXl5=s256",
 		"https://lh3.googleusercontent.com/a-/AOh14GignIoa0zabTMuuTD2iwR8H_Ph4KZBIReiXdOyF=s256",
 	}
-	phoneNumbers := []string{"0123456789", "0987654321", "0777984632", "0334433221"}
+	phoneNumbers := []string{"+14155552671", "+44207183875044", "+8477984632", "+843344221"}
 	addresses := []string{
 		"139 Lac Long Quan, Ward 10,Tan Binh Dist.,Ho Chi Minh City",
 		"1722  Cody Ridge Road, Enid, Oklahoma",
