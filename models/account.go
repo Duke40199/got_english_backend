@@ -18,6 +18,9 @@ type Account struct {
 	Email    *string   `gorm:"size:100;not null;unique" json:"email"`
 	Password *string   `gorm:"size:100;" json:"password"`
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
+	//credentials
+	//Access Token will be created when use logs in with Google
+	AccessToken *string `gorm:"column:access_token;size:255;" json:"access_token"`
 	//Info
 	AvatarURL   *string    `gorm:"size:255" json:"avatar_url"`
 	Address     *string    `gorm:"size:255;" json:"address"`
@@ -28,39 +31,43 @@ type Account struct {
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:CreatedAt;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time  `gorm:"column:UpdatedAt;autoCreateTime" json:"updated_at"`
-	DeletedAt *time.Time `gorm:"column:DeletedAt" json:"deleted_at";sql:"index"`
+	DeletedAt *time.Time `gorm:"column:DeletedAt" json:"deleted_at"`
 }
 
 type AccountFullInfo struct {
 	//Login
-	ID       uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
-	Username string    `gorm:"size:255;not null;unique" json:"username"`
-	Fullname string    `gorm:"size:255;not null;unique" json:"fullname"`
-	Email    string    `gorm:"size:100;not null;unique" json:"email"`
-	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
+	ID          uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
+	Username    string    `gorm:"size:255;not null;unique" json:"username"`
+	Fullname    string    `gorm:"size:255;not null;unique" json:"fullname"`
+	Email       string    `gorm:"size:100;not null;unique" json:"email"`
+	RoleName    string    `gorm:"size:100;not null;" json:"role_name"`
+	LearnerID   uint      `json:"learner_id,omitempty"`
+	ExpertID    uint      `json:"expert_id,omitempty"`
+	ModeratorID uint      `json:"moderator_id,omitempty"`
+	AdminID     uint      `json:"admin_id,omitempty"`
 	//Info
-	AvatarURL   string     `gorm:"size:255" json:"avatar_url"`
-	Address     string     `gorm:"size:255;" json:"address"`
-	PhoneNumber string     `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
-	Birthday    string     `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
-	IsSuspended bool       `gorm:"column:isSuspended" json:"is_suspended"`
-	SuspendedAt *time.Time `gorm:"column:SuspendedAt" json:"suspended_at"`
+	AvatarURL   string     `json:"avatar_url"`
+	Address     string     `json:"address"`
+	PhoneNumber string     `json:"phone_number"`
+	Birthday    string     `json:"birthday" sql:"date"`
+	IsSuspended bool       `json:"is_suspended"`
+	SuspendedAt *time.Time `json:"suspended_at"`
 	//default timestamps
-	CreatedAt time.Time  `gorm:"column:CreatedAt;autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time  `gorm:"column:UpdatedAt;autoCreateTime" json:"updated_at"`
-	DeletedAt *time.Time `gorm:"column:DeletedAt" json:"deleted_at"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 	//expert perms
-	CanChat                   bool `gorm:"column:can_chat" json:"can_chat"`
-	CanJoinTranslationSession bool `gorm:"column:can_join_translation_session" json:"can_join_translation_session"`
-	CanJoinPrivateCallSession bool `gorm:"column:can_private_call_session" json:"can_private_call_session"`
+	CanChat                   *bool `json:"can_chat,omitempty"`
+	CanJoinTranslationSession *bool `json:"can_join_translation_session,omitempty"`
+	CanJoinPrivateCallSession *bool `json:"can_private_call_session,omitempty"`
 	//admin perms
-	CanManageExpert  bool `gorm:"column:can_manage_expert" json:"can_manage_expert"`
-	CanManageLearner bool `gorm:"column:can_manage_learner" json:"can_manage_learner"`
-	CanManageAdmin   bool `gorm:"column:can_manage_admin" json:"can_manage_admin"`
+	CanManageExpert  *bool `json:"can_manage_expert,omitempty"`
+	CanManageLearner *bool `json:"can_manage_learner,omitempty"`
+	CanManageAdmin   *bool `json:"can_manage_admin,omitempty"`
 	//moderator perms
-	CanManageCoinBundle      bool `gorm:"column:can_manage_coin_bundle" json:"can_manage_coin_bundle"`
-	CanManagePricing         bool `gorm:"column:can_manage_pricing" json:"can_manage_pricing"`
-	CanManageApplicationForm bool `gorm:"column:can_manage_application_form" json:"can_manage_application_form"`
+	CanManageCoinBundle      *bool `json:"can_manage_coin_bundle,omitempty"`
+	CanManagePricing         *bool `json:"can_manage_pricing,omitempty"`
+	CanManageApplicationForm *bool `json:"can_manage_application_form,omitempty"`
 }
 
 //Hash password

@@ -1,5 +1,11 @@
 package daos
 
+import (
+	"github.com/golang/got_english_backend/database"
+	models "github.com/golang/got_english_backend/models"
+	"github.com/google/uuid"
+)
+
 type InvoiceDAO struct {
 	Host      string
 	Port      int
@@ -9,33 +15,31 @@ type InvoiceDAO struct {
 	TableName string
 }
 
-// func (dao *CoinBundleDAO) CreateCoinBundle(coinBundle models.CoinBundle) (*models.CoinBundle, error) {
-// 	db, err := database.ConnectToDB()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	err = db.Debug().Create(&coinBundle).Error
-// 	return &coinBundle, err
+func (dao *InvoiceDAO) CreateInvoice(invoice models.Invoice) (*models.Invoice, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	err = db.Debug().Create(&invoice).Error
+	return &invoice, err
 
-// }
-// func (dao *CoinBundleDAO) GetCoinBundles() (*[]models.CoinBundle, error) {
-// 	db, err := database.ConnectToDB()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	coinBundles := []models.CoinBundle{}
-// 	err = db.Debug().Model(&models.CoinBundle{}).Select("coin_bundles.*").Scan(&coinBundles).Error
-// 	return &coinBundles, err
+}
+func (dao *InvoiceDAO) GetExpertByAccountID(accountID uuid.UUID) (*models.Expert, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := models.Expert{}
+	err = db.Debug().First(&result, "account_id = ?", accountID).Error
+	return &result, err
+}
 
-// }
-// func (dao *CoinBundleDAO) UpdateCoinBundleByID(coinBundle models.CoinBundle) error {
-// 	db, err := database.ConnectToDB()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = db.Debug().Model(&coinBundle).Updates(&coinBundle).Error
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func (dao *InvoiceDAO) UpdateExpertByAccountID(accountID uuid.UUID, expertPermissions map[string]interface{}) (int64, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.Expert{}).Where("account_id = ?", accountID).
+		Updates(expertPermissions)
+	return result.RowsAffected, result.Error
+}

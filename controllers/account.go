@@ -64,9 +64,9 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	case config.GetRoleNameConfig().Admin:
 		{
 			admin := models.Admin{
-				CanManageExpert:  accountPermission.CanManageExpert,
-				CanManageLearner: accountPermission.CanManageLearner,
-				CanManageAdmin:   accountPermission.CanManageAdmin,
+				CanManageExpert:  utils.CheckIfNilBool(accountPermission.CanManageExpert),
+				CanManageLearner: utils.CheckIfNilBool(accountPermission.CanManageLearner),
+				CanManageAdmin:   utils.CheckIfNilBool(accountPermission.CanManageAdmin),
 				AccountID:        accountID,
 			}
 			adminDAO := daos.GetAdminDAO()
@@ -79,10 +79,11 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case config.GetRoleNameConfig().Expert:
 		{
+
 			expert := models.Expert{
-				CanChat:                   accountPermission.CanChat,
-				CanJoinTranslationSession: accountPermission.CanJoinTranslationSession,
-				CanJoinPrivateCallSession: accountPermission.CanJoinPrivateCallSession,
+				CanChat:                   utils.CheckIfNilBool(accountPermission.CanChat),
+				CanJoinTranslationSession: utils.CheckIfNilBool(accountPermission.CanJoinTranslationSession),
+				CanJoinPrivateCallSession: utils.CheckIfNilBool(accountPermission.CanJoinPrivateCallSession),
 				AccountID:                 accountID,
 			}
 			expertDAO := daos.GetExpertDAO()
@@ -110,9 +111,9 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	case config.GetRoleNameConfig().Moderator:
 		{
 			moderator := models.Moderator{
-				CanManageCoinBundle:      accountPermission.CanManageCoinBundle,
-				CanManagePricing:         accountPermission.CanManagePricing,
-				CanManageApplicationForm: accountPermission.CanManageApplicationForm,
+				CanManageCoinBundle:      utils.CheckIfNilBool(accountPermission.CanManageCoinBundle),
+				CanManagePricing:         utils.CheckIfNilBool(accountPermission.CanManagePricing),
+				CanManageApplicationForm: utils.CheckIfNilBool(accountPermission.CanManageApplicationForm),
 				AccountID:                accountID,
 			}
 			moderatorDAO := daos.GetModeratorDAO()
@@ -154,7 +155,8 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//hash password before update
-	if updateInfo["password"] != "" {
+	fmt.Print(updateInfo["password"])
+	if updateInfo["password"] != nil {
 		hashedPassword, _ := Hash(fmt.Sprint(updateInfo["password"]))
 		updateInfo["password"] = hashedPassword
 	}

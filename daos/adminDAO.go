@@ -3,6 +3,7 @@ package daos
 import (
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
+	"github.com/google/uuid"
 )
 
 type AdminDAO struct {
@@ -22,6 +23,15 @@ func (dao *AdminDAO) CreateAdmin(admin models.Admin) (*models.Admin, error) {
 	err = db.Debug().Create(&admin).Error
 	return &admin, err
 
+}
+func (dao *AdminDAO) GetAdminByAccountID(accountID uuid.UUID) (*models.Admin, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := models.Admin{}
+	err = db.Debug().First(&result, "account_id = ?", accountID).Error
+	return &result, err
 }
 
 // func (dao *CoinBundleDAO) GetCoinBundles() (*[]models.CoinBundle, error) {
