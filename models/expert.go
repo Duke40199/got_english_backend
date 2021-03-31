@@ -20,6 +20,7 @@ type Expert struct {
 	AccountID uuid.UUID `gorm:"size:225;column:account_id;unique"`
 	Account   Account   `gorm:"foreignKey:AccountID;"`
 	//default timestamps
-	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
-	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`
+	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 }

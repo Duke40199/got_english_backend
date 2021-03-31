@@ -14,9 +14,6 @@ type TranslationSession struct {
 	Duration   time.Time `json:"duration"`
 	StartedAt  time.Time `gorm:"" json:"started_at"`
 	FinishedAt time.Time `gorm:"" json:"finished_at"`
-	//Rating attributes
-	Rating            float32
-	RatingDescription string
 	//A translation session can have many learners
 	Learners []*Learner `gorm:"many2many:translation_session_learners;"`
 	//A translation session can have only one expert.
@@ -25,6 +22,9 @@ type TranslationSession struct {
 	//An messaging session can only have one pricing.
 	Pricing   Pricing `gorm:"foreignKey:PricingID"`
 	PricingID uint    `gorm:"size:255"`
+	//A tranlsation session can have only one rating
+	Rating   Rating `gorm:"foreignKey:RatingID"`
+	RatingID uint   `gorm:"size:255"`
 	//default timestamps
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`

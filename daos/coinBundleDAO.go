@@ -33,14 +33,12 @@ func (dao *CoinBundleDAO) GetCoinBundles() (*[]models.CoinBundle, error) {
 	return &coinBundles, err
 
 }
-func (dao *CoinBundleDAO) UpdateCoinBundleByID(coinBundle models.CoinBundle) error {
+func (dao *CoinBundleDAO) UpdateCoinBundleByID(coinBundle models.CoinBundle) (int64, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
-		return err
+		return db.RowsAffected, err
 	}
-	err = db.Debug().Model(&coinBundle).Updates(&coinBundle).Error
-	if err != nil {
-		return err
-	}
-	return nil
+	result := db.Model(&coinBundle).Updates(&coinBundle)
+
+	return result.RowsAffected, result.Error
 }

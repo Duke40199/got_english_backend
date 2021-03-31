@@ -15,7 +15,9 @@ type Pricing struct {
 	QuantityUnit string `gorm:"column:quantity_unit;" json:"quantity_unit"`
 	Price        uint   `gorm:"column:price;" json:"price"`
 	PriceUnit    string `gorm:"column:price_unit;" json:"price_unit"`
+
 	//default timestamps
-	CreatedAt time.Time ` json:"created_at"`
-	UpdatedAt time.Time ` json:"updated_at"`
+	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 }
