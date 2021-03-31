@@ -59,11 +59,24 @@ func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		// params  = mux.Vars(r)
-		message = "OK"
-		id, _   = strconv.ParseInt(fmt.Sprint(r.URL.Query()["id"][0]), 10, 0)
+		message           = "OK"
+		queryCoinBundleID = r.URL.Query()["id"]
 	)
+	//If user input id
+	var coinBundleID int64
+	var err error
+	if len(queryCoinBundleID) > 0 {
+		coinBundleID, err = strconv.ParseInt(fmt.Sprint(queryCoinBundleID), 10, 0)
+		if err != nil {
+			errMsg := "Incorrect coin bundle input"
+			http.Error(w, errMsg, http.StatusBadRequest)
+			return
+		}
+	} else {
+		coinBundleID = 0
+	}
 	coinBundleDAO := daos.GetCoinBundleDAO()
-	coinBundles, err := coinBundleDAO.GetCoinBundles(uint(id))
+	coinBundles, err := coinBundleDAO.GetCoinBundles(uint(coinBundleID))
 
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
