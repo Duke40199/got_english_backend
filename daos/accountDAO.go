@@ -37,7 +37,7 @@ func (u *AccountDAO) FindUserByUsername(account models.Account) (*models.Account
 	if err != nil {
 		return nil, err
 	}
-	err = db.Debug().Model(&models.Account{}).Select("accounts.*, experts.can_chat, experts.can_join_translation_session, experts.can_join_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
+	err = db.Debug().Model(&models.Account{}).Select("accounts.*, experts.can_chat, experts.can_join_translation_session, experts.can_join_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, admins.can_manage_moderator, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
 		Where("accounts.username = ?", account.Username).
 		Joins("left join experts on experts.account_id = accounts.id").
 		Joins("left join learners on learners.account_id = accounts.id").
@@ -103,7 +103,7 @@ func (u *AccountDAO) GetAccounts(account models.Account) (*[]models.AccountFullI
 	if err != nil {
 		return nil, err
 	}
-	err = db.Debug().Model(&models.Account{}).Select("accounts.*, experts.can_chat, experts.can_join_translation_session, experts.can_join_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
+	err = db.Debug().Model(&models.Account{}).Select("accounts.*, experts.can_chat, experts.can_join_translation_session, experts.can_join_private_call_session, admins.can_manage_expert,admins.can_manage_learner,admins.can_manage_admin, admins.can_manage_moderator, moderators.can_manage_coin_bundle,moderators.can_manage_pricing,moderators.can_manage_application_form").
 		Where("accounts.role_name LIKE ? AND accounts.username LIKE ?", account.RoleName+"%", *account.Username+"%").
 		Joins("left join experts on experts.account_id = accounts.id").
 		Joins("left join learners on learners.account_id = accounts.id").
