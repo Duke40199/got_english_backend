@@ -29,7 +29,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var result = &models.Account{}
 	var err error
 	firebaseAuth, context := config.SetupFirebase()
-
 	accountDAO := daos.GetAccountDAO()
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
 		errMsg := "Malformed data"
@@ -38,7 +37,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//Login with Google but no password.
 	if account.Password == nil || *account.Password == "" {
-		http.Error(w, "Detected login with no password. Maybe you are logging in using Google but haven't updated the password?", http.StatusForbidden)
+		http.Error(w, "Detected login with no password.", http.StatusForbidden)
 		return
 	}
 	if account.Email == nil {

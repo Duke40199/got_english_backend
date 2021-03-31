@@ -70,10 +70,11 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	case config.GetRoleNameConfig().Admin:
 		{
 			admin := models.Admin{
-				CanManageExpert:  utils.CheckIfNilBool(accountPermission.CanManageExpert),
-				CanManageLearner: utils.CheckIfNilBool(accountPermission.CanManageLearner),
-				CanManageAdmin:   utils.CheckIfNilBool(accountPermission.CanManageAdmin),
-				AccountID:        accountID,
+				CanManageExpert:    utils.CheckIfNilBool(accountPermission.CanManageExpert),
+				CanManageLearner:   utils.CheckIfNilBool(accountPermission.CanManageLearner),
+				CanManageAdmin:     utils.CheckIfNilBool(accountPermission.CanManageAdmin),
+				CanManageModerator: utils.CheckIfNilBool(accountPermission.CanManageModerator),
+				AccountID:          accountID,
 			}
 			adminDAO := daos.GetAdminDAO()
 			_, err = adminDAO.CreateAdmin(admin)

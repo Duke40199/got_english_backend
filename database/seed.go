@@ -84,10 +84,11 @@ func SeedRolesForAccounts(db *gorm.DB, accounts *[]models.Account) {
 		case roleNameConfig.Admin:
 			{
 				db.Create(&models.Admin{
-					AccountID:        (*accounts)[i].ID,
-					CanManageExpert:  true,
-					CanManageLearner: true,
-					CanManageAdmin:   true,
+					AccountID:          (*accounts)[i].ID,
+					CanManageExpert:    true,
+					CanManageLearner:   true,
+					CanManageAdmin:     true,
+					CanManageModerator: true,
 				})
 				break
 			}

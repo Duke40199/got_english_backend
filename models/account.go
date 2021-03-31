@@ -15,12 +15,9 @@ type Account struct {
 	ID       uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
 	Username *string   `gorm:"size:255;unique" json:"username"`
 	Fullname *string   `gorm:"size:255;" json:"fullname"`
-	Email    *string   `gorm:"size:100;not null;unique" json:"email"`
+	Email    *string   `gorm:"size:100;not null;unique;" json:"email"`
 	Password *string   `gorm:"size:100;" json:"password"`
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
-	//credentials
-	//Access Token will be created when use logs in with Google
-	LoginWithGoogle bool `gorm:"column:access_token;size:255;" json:"access_token"`
 	//Info
 	AvatarURL   *string    `gorm:"size:255" json:"avatar_url"`
 	Address     *string    `gorm:"size:255;" json:"address"`
@@ -61,9 +58,10 @@ type AccountFullInfo struct {
 	CanJoinTranslationSession *bool `json:"can_join_translation_session,omitempty"`
 	CanJoinPrivateCallSession *bool `json:"can_private_call_session,omitempty"`
 	//admin perms
-	CanManageExpert  *bool `json:"can_manage_expert,omitempty"`
-	CanManageLearner *bool `json:"can_manage_learner,omitempty"`
-	CanManageAdmin   *bool `json:"can_manage_admin,omitempty"`
+	CanManageExpert    *bool `json:"can_manage_expert,omitempty"`
+	CanManageLearner   *bool `json:"can_manage_learner,omitempty"`
+	CanManageAdmin     *bool `json:"can_manage_admin,omitempty"`
+	CanManageModerator *bool `json:"can_manage_moderator,omitempty"`
 	//moderator perms
 	CanManageCoinBundle      *bool `json:"can_manage_coin_bundle,omitempty"`
 	CanManagePricing         *bool `json:"can_manage_pricing,omitempty"`
