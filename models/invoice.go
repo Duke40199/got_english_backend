@@ -18,6 +18,8 @@ type Invoice struct {
 	CoinBundle   CoinBundle `gorm:"foreignKey:CoinBundleID"`
 	CoinBundleID uint       `gorm:"size:255"`
 
-	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
-	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`
+	//default timestamps
+	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 }

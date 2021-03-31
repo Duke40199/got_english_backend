@@ -18,6 +18,7 @@ var modelList = []interface{}{
 	Message{},
 	TranslationSession{},
 	PrivateCallSession{},
+	Rating{},
 
 	//Finance-related
 	Pricing{},

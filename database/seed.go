@@ -16,6 +16,11 @@ var roleNameConfig = config.GetRoleNameConfig()
 //SeedDB function will trigger all seed functions below
 func SeedDB(db *gorm.DB) {
 	accounts := []models.Account{}
+	uuid1, _ := uuid.Parse("1f78cabc-b268-43cb-9935-c3a0a53f4f82")
+	uuid2, _ := uuid.Parse("0edb6398-fa61-43c9-9ffd-e83127fc6060")
+	uuid3, _ := uuid.Parse("785ee73e-8f0b-4c8d-b6cc-250eb4d4e118")
+	uuid4, _ := uuid.Parse("4b481c87-f208-4dfe-bc44-18c631a95a34")
+	ids := []uuid.UUID{uuid1, uuid2, uuid3, uuid4}
 	usernames := []string{"TuanAnh", "DucPhi", "TuanNguyen", "LocTr"}
 	fullnames := []string{"Nguyen Tuan Anh", "Phi Do Hong Duc", "Nguyen Tran Quoc Tuan", "Tran Thien Loc"}
 	passwords := []string{"password", "password", "password", "password"}
@@ -48,7 +53,7 @@ func SeedDB(db *gorm.DB) {
 	for i := 0; i < len(usernames); i++ {
 		accounts = append(accounts,
 			models.Account{
-				ID:          uuid.New(),
+				ID:          ids[i],
 				Username:    &usernames[i],
 				Password:    &passwords[i],
 				Fullname:    &fullnames[i],

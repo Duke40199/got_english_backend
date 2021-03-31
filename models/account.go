@@ -26,12 +26,12 @@ type Account struct {
 	Address     *string    `gorm:"size:255;" json:"address"`
 	PhoneNumber *string    `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
 	Birthday    *time.Time `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
-	IsSuspended *bool      `gorm:"column:isSuspended" json:"is_suspended"`
-	SuspendedAt *time.Time `gorm:"column:SuspendedAt" json:"suspended_at"`
+	IsSuspended *bool      `gorm:"column:is_suspended" json:"is_suspended"`
+	SuspendedAt *time.Time `gorm:"column:suspended_at" json:"suspended_at"`
 	//default timestamps
-	CreatedAt time.Time  `gorm:"column:CreatedAt;autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time  `gorm:"column:UpdatedAt;autoCreateTime" json:"updated_at"`
-	DeletedAt *time.Time `gorm:"column:DeletedAt" json:"deleted_at"`
+	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 }
 
 type AccountFullInfo struct {

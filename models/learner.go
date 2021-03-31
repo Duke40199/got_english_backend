@@ -16,7 +16,9 @@ type Learner struct {
 	Account            Account   `gorm:"foreignKey:AccountID"`
 	AvailableCoinCount uint
 	TranslationSession []*TranslationSession `gorm:"many2many:translation_session_learners;"`
+
 	//default timestamps
-	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
-	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`
+	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 }

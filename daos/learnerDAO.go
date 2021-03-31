@@ -27,11 +27,12 @@ func (dao *LearnerDAO) CreateLearner(learner models.Learner) (*models.Learner, e
 
 func (dao *LearnerDAO) GetLearnerInfoByAccountID(accountID uuid.UUID) (*models.Learner, error) {
 	db, err := database.ConnectToDB()
-	learner := models.Learner{}
 	if err != nil {
 		return nil, err
 	}
-	err = db.Debug().Model(&learner).Select("*").Where("account_id = ", accountID).Error
+
+	learner := models.Learner{}
+	err = db.Debug().First(&learner, "account_id=?", accountID).Error
 	return &learner, err
 
 }

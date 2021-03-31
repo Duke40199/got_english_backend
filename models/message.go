@@ -18,7 +18,9 @@ type Message struct {
 	//A conversation can have many messages
 	MessagingSession   MessagingSession `gorm:"foreignKey:MessagingSessionID"`
 	MessagingSessionID uint             `json:"messaging_session_id"`
+
 	//default timestamps
-	CreatedAt time.Time ` json:"created_at"`
-	UpdatedAt time.Time ` json:"updated_at"`
+	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 }
