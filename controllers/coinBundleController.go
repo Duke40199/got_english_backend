@@ -66,8 +66,9 @@ func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
 	var coinBundleID int64
 	var err error
 	if len(queryCoinBundleID) > 0 {
-		coinBundleID, err = strconv.ParseInt(fmt.Sprint(queryCoinBundleID), 10, 0)
+		coinBundleID, err = strconv.ParseInt(fmt.Sprint(queryCoinBundleID[0]), 10, 0)
 		if err != nil {
+			fmt.Print(err)
 			errMsg := "Incorrect coin bundle input"
 			http.Error(w, errMsg, http.StatusBadRequest)
 			return
