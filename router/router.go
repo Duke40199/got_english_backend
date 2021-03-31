@@ -46,7 +46,7 @@ func init() {
 	apiV1.HandleFunc("/moderators/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateModeratorHandler)).Methods("PUT")
 
 	//For ratings functions
-	apiV1.HandleFunc("/ratings", middleware.AdminAuthentication(controllers.UpdateModeratorHandler)).Methods("POST")
+	apiV1.HandleFunc("/ratings", middleware.LearnerAuthentication(controllers.CreateRatingHandler)).Methods("POST")
 	// For changelogs
 	//apiV1.HandleFunc("/cms/changelogs", controller.ShowChangelogsHandler).Methods("GET")
 	//apiV1.HandleFunc("/cms/health-check", controller.GetHealthCHeck).Methods("GET")

@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/golang/got_english_backend/config"
-	responseConfig "github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
 	"github.com/gorilla/mux"
@@ -53,22 +52,24 @@ func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	responseConfig.ResponseWithSuccess(w, message, result)
+	config.ResponseWithSuccess(w, message, result)
 }
 
 func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
-		// params   = mux.Vars(r)
+		// params  = mux.Vars(r)
 		message = "OK"
+		id, _   = strconv.ParseInt(fmt.Sprint(r.URL.Query()["id"][0]), 10, 0)
 	)
 	coinBundleDAO := daos.GetCoinBundleDAO()
-	coinBundles, err := coinBundleDAO.GetCoinBundles()
+	coinBundles, err := coinBundleDAO.GetCoinBundles(uint(id))
+
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	responseConfig.ResponseWithSuccess(w, message, coinBundles)
+	config.ResponseWithSuccess(w, message, coinBundles)
 
 }
 

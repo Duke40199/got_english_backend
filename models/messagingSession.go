@@ -21,7 +21,9 @@ type MessagingSession struct {
 	//An messaging session can only have one pricing.
 	Pricing   *Pricing `gorm:"foreignKey:PricingID"`
 	PricingID *uint    `gorm:"size:255" json:"pricing_id"`
-
+	//An messaging session can only be rated once.
+	Rating   *Rating `gorm:"foreignKey:RatingID"`
+	RatingID *uint   `gorm:"size:255" json:"rating_id"`
 	//MessageSession status
 	IsCancelled bool       `gorm:"default:false;" json:"is_cancelled"`
 	IsFinished  bool       `gorm:"default:false;" json:"is_finished"`

@@ -23,15 +23,19 @@ func (dao *CoinBundleDAO) CreateCoinBundle(coinBundle models.CoinBundle) (*model
 	return &coinBundle, err
 
 }
-func (dao *CoinBundleDAO) GetCoinBundles() (*[]models.CoinBundle, error) {
+func (dao *CoinBundleDAO) GetCoinBundles(id uint) (*[]models.CoinBundle, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
 	}
 	coinBundles := []models.CoinBundle{}
-	err = db.Debug().Model(&models.CoinBundle{}).Select("coin_bundles.*").Scan(&coinBundles).Error
+	// if id ==0 => get all
+	if id == 0 {
+		err = db.Debug().Model(&models.CoinBundle{}).Select("coin_bundles.*").Scan(&coinBundles).Error
+		return &coinBundles, err
+	}
+	err = db.Debug().Model(&models.CoinBundle{}).Select("coin_bundles.*").Where("id = ?", id).Scan(&coinBundles).Error
 	return &coinBundles, err
-
 }
 func (dao *CoinBundleDAO) UpdateCoinBundleByID(coinBundle models.CoinBundle) (int64, error) {
 	db, err := database.ConnectToDB()
