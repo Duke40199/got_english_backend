@@ -3,15 +3,16 @@ package daos
 import "log"
 
 var (
-	adminDAO            = AdminDAO{}
-	accountDAO          = AccountDAO{}
-	applicationFormDAO  = ApplicationFormDAO{}
-	coinBundleDAO       = CoinBundleDAO{}
-	expertDAO           = ExpertDAO{}
-	invoiceDAO          = InvoiceDAO{}
-	learnerDAO          = LearnerDAO{}
-	messagingSessionDAO = MessagingSessionDAO{}
-	moderatorDAO        = ModeratorDAO{}
+	adminDAO              = AdminDAO{}
+	accountDAO            = AccountDAO{}
+	applicationFormDAO    = ApplicationFormDAO{}
+	coinBundleDAO         = CoinBundleDAO{}
+	expertDAO             = ExpertDAO{}
+	invoiceDAO            = InvoiceDAO{}
+	learnerDAO            = LearnerDAO{}
+	messagingSessionDAO   = MessagingSessionDAO{}
+	moderatorDAO          = ModeratorDAO{}
+	privateCallSessionDAO = PrivateCallSessionDAO{}
 )
 
 func init() {
@@ -44,4 +45,7 @@ func GetMessagingSessionDAO() MessagingSessionDAO {
 }
 func GetModeratorDAO() ModeratorDAO {
 	return moderatorDAO
+}
+func GetPrivateCallSessionDAO() PrivateCallSessionDAO {
+	return privateCallSessionDAO
 }

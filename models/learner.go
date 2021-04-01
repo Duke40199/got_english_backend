@@ -13,7 +13,7 @@ type Learner struct {
 	ID         uint `gorm:"column:id;not null;unique; primaryKey;" json:"ID"`
 	//A learner can have only one account
 	AccountID          uuid.UUID `gorm:"size:225;column:account_id"`
-	Account            Account   `gorm:"foreignKey:AccountID"`
+	Account            Account   `gorm:"foreignKey:AccountID" json:"-"`
 	AvailableCoinCount uint
 	TranslationSession []*TranslationSession `gorm:"many2many:translation_session_learners;"`
 

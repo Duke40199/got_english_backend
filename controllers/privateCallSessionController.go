@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
+func CreatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		// params  = mux.Vars(r)
@@ -24,13 +24,13 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	learnerDAO := daos.GetLearnerDAO()
 	learner, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
 
-	messagingSessionDAO := daos.GetMessagingSessionDAO()
-	messagingSession := models.MessagingSession{
+	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
+	privateCallSession := models.PrivateCallSession{
 		LearnerID: learner.ID,
 		PricingID: &config.GetPricingIDConfig().MessagingSessionPricingID,
 	}
 
-	result, err := messagingSessionDAO.CreateMessagingSession(messagingSession)
+	result, err := privateCallSessionDAO.CreatePrivateCallSession(privateCallSession)
 
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
@@ -39,7 +39,7 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 
 }
-func UpdateMessagingSession(w http.ResponseWriter, r *http.Request) {
+func UpdatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		params  = mux.Vars(r)
@@ -48,21 +48,21 @@ func UpdateMessagingSession(w http.ResponseWriter, r *http.Request) {
 	//parse accountID
 
 	accountID, _ := uuid.Parse(fmt.Sprint(r.Context().Value("id")))
-	messagingSession := models.MessagingSession{}
+	privateCallSession := models.PrivateCallSession{}
 	//parse body
-	messagingSessionID, _ := strconv.ParseInt(params["messaging_session_id"], 10, 0)
-	if err := json.NewDecoder(r.Body).Decode(&messagingSession); err != nil {
+	privateCallSessionID, _ := strconv.ParseInt(params["private_call_session_id"], 10, 0)
+	if err := json.NewDecoder(r.Body).Decode(&privateCallSession); err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	messagingSession.ID = uint(messagingSessionID)
+	privateCallSession.ID = uint(privateCallSessionID)
 	learnerDAO := daos.GetLearnerDAO()
 	learner, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
 
-	messagingSessionDAO := daos.GetMessagingSessionDAO()
-	messagingSession.LearnerID = learner.ID
+	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
+	privateCallSession.LearnerID = learner.ID
 
-	result, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSession)
+	result, err := privateCallSessionDAO.UpdatePrivateCallSessionByID(privateCallSession)
 
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)

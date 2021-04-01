@@ -23,34 +23,47 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		// params   = mux.Vars(r)
 		message = "OK"
 	)
-	//For collecting data
 	var account = models.Account{}
-	//For responding
+	accountDAO := daos.GetAccountDAO()
 	var result = &models.Account{}
 	var err error
 	firebaseAuth, context := config.SetupFirebase()
-	accountDAO := daos.GetAccountDAO()
-	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
-		errMsg := "Malformed data"
-		config.ResponseWithError(w, errMsg, err)
-		return
-	}
-	//Login with Google but no password.
-	if account.Password == nil || *account.Password == "" {
-		http.Error(w, "Detected login with no password.", http.StatusForbidden)
-		return
-	}
-	if account.Email == nil {
-		result, err = accountDAO.FindAccountByUsernameAndPassword(account)
+
+	//Login with firebase's IDToken
+	if r.Header.Get("Authorization") != "" {
+		firebaseIDTokenStruct := utils.DecodeFirebaseIDToken(w, r)
+		if firebaseIDTokenStruct.Email == "" {
+			http.Error(w, "Invalid or expired ID token.", http.StatusForbidden)
+			return
+		}
+		result, err = accountDAO.FindAccountByEmail(models.Account{Email: &firebaseIDTokenStruct.Email})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusForbidden)
+			http.Error(w, fmt.Sprint(err.Error()), http.StatusForbidden)
 			return
 		}
 	} else {
-		result, err = accountDAO.FindAccountByEmailAndPassword(account)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusForbidden)
+		//Login with email and password
+		if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
+			errMsg := "Malformed data"
+			config.ResponseWithError(w, errMsg, err)
 			return
+		}
+		if account.Password == nil || *account.Password == "" {
+			http.Error(w, "Password missing", http.StatusForbidden)
+			return
+		}
+		if account.Email == nil {
+			result, err = accountDAO.FindAccountByUsername(account)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusForbidden)
+				return
+			}
+		} else {
+			result, err = accountDAO.FindAccountByEmail(account)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusForbidden)
+				return
+			}
 		}
 	}
 	//account not found.
@@ -64,19 +77,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		"email":     result.Email,
 		"role_name": result.RoleName,
 		"username":  &result.Username,
-	}
-	ctx := r.Context()
-	//if login for the first time
-	params := (&auth.UserToCreate{}).
-		UID(result.ID.String()).
-		Email(*result.Email).
-		EmailVerified(true).
-		Password(*result.Password).
-		DisplayName(*result.Username).
-		Disabled(false)
-	_, err = firebaseAuth.CreateUser(ctx, params)
-	if err != nil {
-		fmt.Print("Firebase account already existed.")
 	}
 	token, err := firebaseAuth.CustomTokenWithClaims(context, result.ID.String(), claims)
 	if err != nil {
@@ -104,7 +104,7 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 		config.ResponseWithError(w, errMsg, err)
 	}
 	//Get Google IDToken
-	decodedIDToken := utils.DecodeGoogleIDToken(w, r)
+	decodedIDToken := utils.DecodeGoogleToken(w, r)
 	if decodedIDToken.Email == "" {
 		errMsg := "Invalid or expired id_token"
 		http.Error(w, errMsg, http.StatusForbidden)

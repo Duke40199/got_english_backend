@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 
+	"firebase.google.com/go/auth"
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
@@ -24,6 +26,7 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	accountDAO := daos.GetAccountDAO()
+	accountID := uuid.New()
 	//parsing data
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -31,7 +34,6 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errMsg, http.StatusBadRequest)
 		return
 	}
-
 	var account = models.Account{}
 	if err := json.Unmarshal(requestBody, &account); err != nil {
 		errMsg := "Malformed account data"
@@ -45,26 +47,57 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errMsg, http.StatusBadRequest)
 		return
 	}
-	if (account.Email) == nil {
-		http.Error(w, "Email invalid or missing", http.StatusBadRequest)
+	if account.Email == nil || account.Password == nil {
+		http.Error(w, "Email or password is invalid or missing", http.StatusBadRequest)
 		return
 	}
-	accountID := uuid.New()
-	//Check null for new fields
+	//Generate username if reqbody doesn't have one
 	if account.Username == nil {
 		currentTimeMillis := utils.GetCurrentEpochTimeInMiliseconds()
 		newUsername := account.RoleName + strconv.FormatInt(currentTimeMillis, 10)
 		account.Username = &newUsername
 	}
-
-	_, err = accountDAO.CreateAccount(models.Account{
+	//create account on db
+	result, err := accountDAO.CreateAccount(models.Account{
 		ID:       accountID,
 		Username: account.Username,
 		Email:    account.Email,
-		Password: account.Password,
 		RoleName: account.RoleName,
-	},
-	)
+	})
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	//create account on firebase
+	claims := map[string]interface{}{
+		"id":        result.ID,
+		"email":     result.Email,
+		"role_name": result.RoleName,
+		"username":  result.Username,
+	}
+	ctx := r.Context()
+	params := (&auth.UserToCreate{}).
+		UID(result.ID.String()).
+		Email(*result.Email).
+		EmailVerified(true).
+		DisplayName(*result.Username).
+		Password(*account.Password).
+		Disabled(false)
+	firebaseAuth, context := config.SetupFirebase()
+	_, err = firebaseAuth.CreateUser(ctx, params)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	token, err := firebaseAuth.CustomTokenWithClaims(context, result.ID.String(), claims)
+	if err != nil {
+		log.Fatalf("error minting custom token: %v\n", err)
+		config.ResponseWithError(w, message, err)
+	}
+	resp := map[string]interface{}{
+		"username": &result.Username,
+		"token":    token,
+	}
 	//add role specific info
 	switch account.RoleName {
 	case config.GetRoleNameConfig().Admin:
@@ -136,7 +169,7 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	config.ResponseWithSuccess(w, message, accountID)
+	config.ResponseWithSuccess(w, message, resp)
 }
 
 func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {

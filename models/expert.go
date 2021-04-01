@@ -13,9 +13,9 @@ type Expert struct {
 	ID         uint   `gorm:"column:id;not null;unique; primaryKey;" json:"expert_id"`
 	Profession string `gorm:"column:profession" json:"professtion"`
 	//Expert permissions
-	CanChat                   bool `gorm:"column:can_chat" json:"can_chat;omitempty"`
-	CanJoinTranslationSession bool `gorm:"column:can_join_translation_session" json:"can_join_translation_session;omitempty"`
-	CanJoinPrivateCallSession bool `gorm:"column:can_join_private_call_session" json:"can_join_private_call_session;omitempty"`
+	CanChat                   bool `gorm:"column:can_chat" json:"can_chat,omitempty"`
+	CanJoinTranslationSession bool `gorm:"column:can_join_translation_session" json:"can_join_translation_session,omitempty"`
+	CanJoinPrivateCallSession bool `gorm:"column:can_join_private_call_session" json:"can_join_private_call_session,omitempty"`
 	//An expert can have only one account
 	AccountID uuid.UUID `gorm:"size:225;column:account_id;unique"`
 	Account   Account   `gorm:"foreignKey:AccountID;"`

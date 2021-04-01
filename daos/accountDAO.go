@@ -66,6 +66,15 @@ func (u *AccountDAO) FindAccountByUsernameAndPassword(account models.Account) (*
 	}
 	return &result, nil
 }
+func (u *AccountDAO) FindAccountByUsername(account models.Account) (*models.Account, error) {
+	var result = models.Account{}
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	err = db.Debug().First(&result, "username=?", account.Username).Error
+	return &result, err
+}
 
 func (u *AccountDAO) FindAccountByEmailAndPassword(account models.Account) (*models.Account, error) {
 	db, err := database.ConnectToDB()

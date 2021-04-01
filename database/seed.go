@@ -129,6 +129,7 @@ func SeedPricings(db *gorm.DB) {
 	pricings := []models.Pricing{
 
 		{
+			ID:           config.GetPricingIDConfig().MessagingSessionPricingID,
 			ServiceName:  "messaging_session",
 			Quantity:     1,
 			QuantityUnit: "session",
@@ -136,6 +137,7 @@ func SeedPricings(db *gorm.DB) {
 			PriceUnit:    "coin(s)",
 		},
 		{
+			ID:           config.GetPricingIDConfig().TranslationSessionPricingID,
 			ServiceName:  "translation_session",
 			Quantity:     1,
 			QuantityUnit: "session",
@@ -143,6 +145,7 @@ func SeedPricings(db *gorm.DB) {
 			PriceUnit:    "coin(s)",
 		},
 		{
+			ID:           config.GetPricingIDConfig().PrivateCallSessionPricingID,
 			ServiceName:  "private_call_session",
 			Quantity:     1,
 			QuantityUnit: "session",

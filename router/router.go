@@ -17,6 +17,7 @@ var r = mux.NewRouter()
 func init() {
 	log.Println("Initializing Router")
 	apiV1 := r.PathPrefix("/").Subrouter()
+
 	//For root functions
 	apiV1.HandleFunc("/", RootRoute).Methods("GET")
 	apiV1.HandleFunc("/login", controllers.LoginHandler).Methods("POST")
@@ -40,10 +41,26 @@ func init() {
 
 	//For expert functions
 	apiV1.HandleFunc("/experts/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
+
+	//For invoice functions
+	apiV1.HandleFunc("/invoices", middleware.LearnerAuthentication(controllers.CreateInvoiceHandler)).Methods("POST")
+	apiV1.HandleFunc("/invoices/history", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/invoices/{invoice_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
+
+	//For private call session functions
+	apiV1.HandleFunc("/private-call-sessions", middleware.LearnerAuthentication(controllers.CreatePrivateCallSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/private-call-sessions/{private_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdatePrivateCallSessionHandler)).Methods("PUT")
+
 	//For messaging session functions
 	apiV1.HandleFunc("/messaging-sessions", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
+
 	//For moderator functions
 	apiV1.HandleFunc("/moderators/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateModeratorHandler)).Methods("PUT")
+
+	//For private call session functions
+	apiV1.HandleFunc("/private-call-sessions", middleware.LearnerAuthentication(controllers.CreatePrivateCallSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/private-call-sessions/{private_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdatePrivateCallSessionHandler)).Methods("PUT")
 
 	//For ratings functions
 	apiV1.HandleFunc("/ratings", middleware.LearnerAuthentication(controllers.CreateRatingHandler)).Methods("POST")
