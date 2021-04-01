@@ -10,15 +10,14 @@ import (
 // Moderator model struct
 type Moderator struct {
 	gorm.Model `json:"-"`
-	ID         uint `gorm:"column:id;not null;unique; primaryKey;" json:"expert_id"`
+	ID         uint `gorm:"column:id;not null;unique; primaryKey;" json:"id"`
 
 	//Moderator permissions
 	CanManageCoinBundle      bool `gorm:"column:can_manage_coin_bundle" json:"can_manage_coin_bundle"`
 	CanManagePricing         bool `gorm:"column:can_manage_pricing" json:"can_manage_pricing"`
 	CanManageApplicationForm bool `gorm:"column:can_manage_application_form" json:"can_manage_application_form"`
 	//An expert can have only one account
-	AccountID uuid.UUID `gorm:"size:225;column:account_id"`
-	Account   Account   `gorm:"foreignKey:AccountID"`
+	AccountID uuid.UUID `gorm:"column:account_id" json:"account_id"`
 
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`

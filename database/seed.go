@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/models"
@@ -44,11 +43,11 @@ func SeedDB(db *gorm.DB) {
 		roleNameConfig.Admin,
 		roleNameConfig.Learner,
 	}
-	birthdays := []time.Time{
-		time.Date(1987, 1, 12, 0, 0, 0, 0, time.Now().Location()),
-		time.Date(1998, 04, 03, 0, 0, 0, 0, time.Now().Location()),
-		time.Date(1997, 11, 14, 0, 0, 0, 0, time.Now().Location()),
-		time.Date(1996, 05, 14, 0, 0, 0, 0, time.Now().Location()),
+	birthdays := []string{
+		"1987-01-12",
+		"1998-02-23",
+		"1999-03-14",
+		"1991-10-12",
 	}
 	for i := 0; i < len(usernames); i++ {
 		accounts = append(accounts,

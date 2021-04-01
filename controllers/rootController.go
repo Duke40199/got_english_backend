@@ -44,8 +44,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		//Login with email and password
 		if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
-			errMsg := "Malformed data"
-			config.ResponseWithError(w, errMsg, err)
+			config.ResponseWithError(w, "Malformed data", err)
 			return
 		}
 		if account.Password == nil || *account.Password == "" {
@@ -100,14 +99,13 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 	firebaseAuth, context := config.SetupFirebase()
 
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
-		errMsg := "Malformed data"
-		config.ResponseWithError(w, errMsg, err)
+		http.Error(w, "Malformed data", http.StatusBadRequest)
+		return
 	}
 	//Get Google IDToken
 	decodedIDToken := utils.DecodeGoogleToken(w, r)
 	if decodedIDToken.Email == "" {
-		errMsg := "Invalid or expired id_token"
-		http.Error(w, errMsg, http.StatusForbidden)
+		http.Error(w, "Invalid or expired id_token", http.StatusForbidden)
 		return
 	}
 	//Create a user based on google IDToken
@@ -127,31 +125,7 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 	accountDAO := daos.GetAccountDAO()
 	result, _ = accountDAO.FindAccountByEmail(account)
 	if result.Email == nil {
-		result, _ = accountDAO.CreateAccount(account)
-		switch result.RoleName {
-		case config.GetRoleNameConfig().Learner:
-			{
-				learner := models.Learner{
-					AvailableCoinCount: 0,
-					AccountID:          result.ID,
-				}
-				learnerDAO := daos.GetLearnerDAO()
-				_, _ = learnerDAO.CreateLearner(learner)
-				break
-			}
-		case config.GetRoleNameConfig().Expert:
-			{
-				expert := models.Expert{
-					CanChat:                   false,
-					CanJoinTranslationSession: false,
-					CanJoinPrivateCallSession: false,
-					AccountID:                 result.ID,
-				}
-				expertDAO := daos.GetExpertDAO()
-				_, _ = expertDAO.CreateExpert(expert)
-				break
-			}
-		}
+		result, _ = accountDAO.CreateAccount(account, models.PermissionStruct{})
 	}
 	//set account role for token
 	claims := map[string]interface{}{

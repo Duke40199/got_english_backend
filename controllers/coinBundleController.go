@@ -15,8 +15,7 @@ import (
 func ValidateManageCoinBundlePermission(w http.ResponseWriter, r *http.Request) bool {
 	canManageCoinBundle, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_coin_bundle")))
 	if !canManageCoinBundle {
-		errMsg := "Your account's permission to 'manage coin bundle' has been disabled."
-		http.Error(w, errMsg, http.StatusForbidden)
+		http.Error(w, "Your account's permission to 'manage coin bundle' has been disabled.", http.StatusForbidden)
 		return false
 	}
 	return true
@@ -35,8 +34,7 @@ func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var coinBundle = models.CoinBundle{}
 	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
-		errMsg := "Malformed data"
-		http.Error(w, errMsg, http.StatusBadRequest)
+		http.Error(w, "Malformed data", http.StatusBadRequest)
 		return
 	}
 	coinBundleDAO := daos.GetCoinBundleDAO()
@@ -68,9 +66,7 @@ func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryCoinBundleID) > 0 {
 		coinBundleID, err = strconv.ParseInt(fmt.Sprint(queryCoinBundleID[0]), 10, 0)
 		if err != nil {
-			fmt.Print(err)
-			errMsg := "Incorrect coin bundle input"
-			http.Error(w, errMsg, http.StatusBadRequest)
+			http.Error(w, "Incorrect coin bundle input", http.StatusBadRequest)
 			return
 		}
 	} else {
@@ -105,8 +101,7 @@ func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	coinBundleDAO := daos.GetCoinBundleDAO()
 	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
-		errMsg := "Malformed data"
-		http.Error(w, errMsg, http.StatusBadRequest)
+		http.Error(w, "Malformed data", http.StatusBadRequest)
 		return
 	}
 	result, err := coinBundleDAO.UpdateCoinBundleByID(coinBundle)

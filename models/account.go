@@ -22,50 +22,36 @@ type Account struct {
 	AvatarURL   *string    `gorm:"size:255" json:"avatar_url"`
 	Address     *string    `gorm:"size:255;" json:"address"`
 	PhoneNumber *string    `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
-	Birthday    *time.Time `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
+	Birthday    *string    `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
 	IsSuspended *bool      `gorm:"column:is_suspended" json:"is_suspended"`
 	SuspendedAt *time.Time `gorm:"column:suspended_at" json:"suspended_at"`
+	//Role
+	Learner   *Learner   `gorm:"foreignKey:AccountID" json:"learner_details,omitempty"`
+	Expert    *Expert    `gorm:"foreignKey:AccountID" json:"expert_permissions,omitempty"`
+	Moderator *Moderator `gorm:"foreignKey:AccountID" json:"moderator_permissions,omitempty"`
+	Admin     *Admin     `gorm:"foreignKey:AccountID" json:"admin_permissions,omitempty"`
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
 	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 }
 
-type AccountFullInfo struct {
-	//Login
-	ID          uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
-	Username    string    `gorm:"size:255;not null;unique" json:"username"`
-	Fullname    string    `gorm:"size:255;not null;unique" json:"fullname"`
-	Email       string    `gorm:"size:100;not null;unique" json:"email"`
-	RoleName    string    `gorm:"size:100;not null;" json:"role_name"`
-	LearnerID   uint      `json:"learner_id,omitempty"`
-	ExpertID    uint      `json:"expert_id,omitempty"`
-	ModeratorID uint      `json:"moderator_id,omitempty"`
-	AdminID     uint      `json:"admin_id,omitempty"`
-	//Info
-	AvatarURL   string     `json:"avatar_url"`
-	Address     string     `json:"address"`
-	PhoneNumber string     `json:"phone_number"`
-	Birthday    string     `json:"birthday" sql:"date"`
-	IsSuspended bool       `json:"is_suspended"`
-	SuspendedAt *time.Time `json:"suspended_at"`
-	//default timestamps
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at"`
+type PermissionStruct struct {
+	//learner info
+	AvailableCoinCount uint `gorm:"column:account_id" json:"available_coin_count"`
 	//expert perms
-	CanChat                   *bool `json:"can_chat,omitempty"`
-	CanJoinTranslationSession *bool `json:"can_join_translation_session,omitempty"`
-	CanJoinPrivateCallSession *bool `json:"can_private_call_session,omitempty"`
+	CanChat                   bool `json:"can_chat,omitempty"`
+	CanJoinTranslationSession bool `json:"can_join_translation_session,omitempty"`
+	CanJoinPrivateCallSession bool `json:"can_private_call_session,omitempty"`
 	//admin perms
-	CanManageExpert    *bool `json:"can_manage_expert,omitempty"`
-	CanManageLearner   *bool `json:"can_manage_learner,omitempty"`
-	CanManageAdmin     *bool `json:"can_manage_admin,omitempty"`
-	CanManageModerator *bool `json:"can_manage_moderator,omitempty"`
+	CanManageExpert    bool `json:"can_manage_expert,omitempty"`
+	CanManageLearner   bool `json:"can_manage_learner,omitempty"`
+	CanManageAdmin     bool `json:"can_manage_admin,omitempty"`
+	CanManageModerator bool `json:"can_manage_moderator,omitempty"`
 	//moderator perms
-	CanManageCoinBundle      *bool `json:"can_manage_coin_bundle,omitempty"`
-	CanManagePricing         *bool `json:"can_manage_pricing,omitempty"`
-	CanManageApplicationForm *bool `json:"can_manage_application_form,omitempty"`
+	CanManageCoinBundle      bool `json:"can_manage_coin_bundle,omitempty"`
+	CanManagePricing         bool `json:"can_manage_pricing,omitempty"`
+	CanManageApplicationForm bool `json:"can_manage_application_form,omitempty"`
 }
 
 //Hash password

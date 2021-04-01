@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	database.SyncDB(false)
+	database.SyncDB(true)
 	config := config.GetConfig()
 	r := router.GetRouter()
 	//set global timezone to GMT+7

@@ -30,21 +30,18 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	//parsing data
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		errMsg := "Malformed data"
-		http.Error(w, errMsg, http.StatusBadRequest)
+		http.Error(w, "Malformed data", http.StatusBadRequest)
 		return
 	}
 	var account = models.Account{}
 	if err := json.Unmarshal(requestBody, &account); err != nil {
-		errMsg := "Malformed account data"
-		http.Error(w, errMsg, http.StatusBadRequest)
+		http.Error(w, "Malformed account data", http.StatusBadRequest)
 		return
 	}
 
-	var accountPermission = models.AccountFullInfo{}
+	var accountPermission = models.PermissionStruct{}
 	if err := json.Unmarshal(requestBody, &accountPermission); err != nil {
-		errMsg := "Malformed permission data"
-		http.Error(w, errMsg, http.StatusBadRequest)
+		http.Error(w, "Malformed permission data", http.StatusBadRequest)
 		return
 	}
 	if account.Email == nil || account.Password == nil {
@@ -63,7 +60,7 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		Username: account.Username,
 		Email:    account.Email,
 		RoleName: account.RoleName,
-	})
+	}, accountPermission)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
@@ -86,8 +83,7 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	firebaseAuth, context := config.SetupFirebase()
 	_, err = firebaseAuth.CreateUser(ctx, params)
 	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
+		fmt.Print("Firebase account already existed.")
 	}
 	token, err := firebaseAuth.CustomTokenWithClaims(context, result.ID.String(), claims)
 	if err != nil {
@@ -97,73 +93,6 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	resp := map[string]interface{}{
 		"username": &result.Username,
 		"token":    token,
-	}
-	//add role specific info
-	switch account.RoleName {
-	case config.GetRoleNameConfig().Admin:
-		{
-			admin := models.Admin{
-				CanManageExpert:    utils.CheckIfNilBool(accountPermission.CanManageExpert),
-				CanManageLearner:   utils.CheckIfNilBool(accountPermission.CanManageLearner),
-				CanManageAdmin:     utils.CheckIfNilBool(accountPermission.CanManageAdmin),
-				CanManageModerator: utils.CheckIfNilBool(accountPermission.CanManageModerator),
-				AccountID:          accountID,
-			}
-			adminDAO := daos.GetAdminDAO()
-			_, err = adminDAO.CreateAdmin(admin)
-			if err != nil {
-				http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-				return
-			}
-			break
-		}
-	case config.GetRoleNameConfig().Expert:
-		{
-
-			expert := models.Expert{
-				CanChat:                   utils.CheckIfNilBool(accountPermission.CanChat),
-				CanJoinTranslationSession: utils.CheckIfNilBool(accountPermission.CanJoinTranslationSession),
-				CanJoinPrivateCallSession: utils.CheckIfNilBool(accountPermission.CanJoinPrivateCallSession),
-				AccountID:                 accountID,
-			}
-			expertDAO := daos.GetExpertDAO()
-			_, err = expertDAO.CreateExpert(expert)
-			if err != nil {
-				http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-				return
-			}
-			break
-		}
-	case config.GetRoleNameConfig().Learner:
-		{
-			learner := models.Learner{
-				AvailableCoinCount: 0,
-				AccountID:          accountID,
-			}
-			learnerDAO := daos.GetLearnerDAO()
-			_, err = learnerDAO.CreateLearner(learner)
-			if err != nil {
-				http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-				return
-			}
-			break
-		}
-	case config.GetRoleNameConfig().Moderator:
-		{
-			moderator := models.Moderator{
-				CanManageCoinBundle:      utils.CheckIfNilBool(accountPermission.CanManageCoinBundle),
-				CanManagePricing:         utils.CheckIfNilBool(accountPermission.CanManagePricing),
-				CanManageApplicationForm: utils.CheckIfNilBool(accountPermission.CanManageApplicationForm),
-				AccountID:                accountID,
-			}
-			moderatorDAO := daos.GetModeratorDAO()
-			_, err = moderatorDAO.CreateModerator(moderator)
-			if err != nil {
-				http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-				return
-			}
-			break
-		}
 	}
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
@@ -190,8 +119,7 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	accountDAO := daos.GetAccountDAO()
 	updateInfo := map[string]interface{}{}
 	if err := json.NewDecoder(r.Body).Decode(&updateInfo); err != nil {
-		errMsg := "Malformed data"
-		http.Error(w, errMsg, http.StatusBadRequest)
+		http.Error(w, "Malformed data", http.StatusBadRequest)
 		return
 	}
 	//hash password before update

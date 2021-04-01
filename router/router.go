@@ -44,7 +44,8 @@ func init() {
 
 	//For invoice functions
 	apiV1.HandleFunc("/invoices", middleware.LearnerAuthentication(controllers.CreateInvoiceHandler)).Methods("POST")
-	apiV1.HandleFunc("/invoices/history", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/invoices/history", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("GET")
+	apiV1.HandleFunc("/invoices/{invoice_id}", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("GET")
 	apiV1.HandleFunc("/invoices/{invoice_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
 
 	//For private call session functions

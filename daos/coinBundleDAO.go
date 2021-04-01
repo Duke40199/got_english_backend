@@ -37,13 +37,14 @@ func (dao *CoinBundleDAO) GetCoinBundles(id uint) (*[]models.CoinBundle, error) 
 	err = db.Debug().Model(&models.CoinBundle{}).Select("coin_bundles.*").Where("id = ?", id).Scan(&coinBundles).Error
 	return &coinBundles, err
 }
-func (dao *CoinBundleDAO) GetCoinBundlesByID(id uint) (*models.CoinBundle, error) {
+
+func (dao *CoinBundleDAO) GetCoinBundleByID(id uint) (*models.CoinBundle, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
 	}
 	coinBundle := models.CoinBundle{}
-	err = db.Debug().Model(&models.CoinBundle{}).First("coin_bundles.*").Where("id = ?", id).Scan(&coinBundle).Error
+	err = db.Debug().First(&coinBundle, "id=?", id).Error
 	return &coinBundle, err
 }
 

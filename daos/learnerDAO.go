@@ -32,7 +32,17 @@ func (dao *LearnerDAO) GetLearnerInfoByAccountID(accountID uuid.UUID) (*models.L
 	}
 
 	learner := models.Learner{}
-	err = db.Debug().First(&learner, "account_id=?", accountID).Error
+	err = db.Debug().First(&learner, "account_id = ?", accountID).Error
 	return &learner, err
 
+}
+
+func (dao *LearnerDAO) UpdateLearnerByLearnerID(learner models.Learner) (int64, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.Learner{}).Where("id = ?", learner.ID).
+		Updates(&learner)
+	return result.RowsAffected, result.Error
 }
