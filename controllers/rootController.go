@@ -167,7 +167,6 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 		Email(*result.Email).
 		EmailVerified(true).
 		DisplayName(*result.Username).
-		PhotoURL(*result.AvatarURL).
 		Disabled(false)
 	_, err := firebaseAuth.CreateUser(ctx, params)
 	if err != nil {
