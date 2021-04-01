@@ -53,13 +53,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if account.Email == nil {
-			result, err = accountDAO.FindAccountByUsername(account)
+			result, err = accountDAO.FindAccountByUsernameAndPassword(account)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusForbidden)
 				return
 			}
 		} else {
-			result, err = accountDAO.FindAccountByEmail(account)
+			result, err = accountDAO.FindAccountByEmailAndPassword(account)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusForbidden)
 				return
