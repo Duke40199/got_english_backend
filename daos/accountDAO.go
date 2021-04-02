@@ -1,15 +1,12 @@
 package daos
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 	"github.com/google/uuid"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type AccountDAO struct {
@@ -84,22 +81,6 @@ func (u *AccountDAO) FindUserByUsername(account models.Account) (*models.Account
 	}
 	return &accountResult, err
 }
-
-func (u *AccountDAO) FindAccountByUsernameAndPassword(account models.Account) (*models.Account, error) {
-	var result = models.Account{}
-	db, err := database.ConnectToDB()
-	if err != nil {
-		return nil, err
-	}
-	err = db.Debug().First(&result, "username=?", account.Username).Error
-	if err == nil {
-		err = bcrypt.CompareHashAndPassword([]byte(*result.Password), []byte(*account.Password))
-		if err != nil {
-			return &models.Account{}, err
-		}
-	}
-	return &result, nil
-}
 func (u *AccountDAO) FindAccountByUsername(account models.Account) (*models.Account, error) {
 	var result = models.Account{}
 	db, err := database.ConnectToDB()
@@ -108,26 +89,6 @@ func (u *AccountDAO) FindAccountByUsername(account models.Account) (*models.Acco
 	}
 	err = db.Debug().First(&result, "username=?", account.Username).Error
 	return &result, err
-}
-
-func (u *AccountDAO) FindAccountByEmailAndPassword(account models.Account) (*models.Account, error) {
-	db, err := database.ConnectToDB()
-	if err != nil {
-		return nil, err
-	}
-	result := models.Account{}
-	err = db.Debug().First(&result, "email=?", account.Email).Error
-	if err == nil {
-		//If someone logs into Google but haven't updated their password
-		if result.Password == nil || *result.Password == "" {
-			return &models.Account{}, errors.New("are you logging from google? if so, have you updated your password?")
-		}
-		err := bcrypt.CompareHashAndPassword([]byte(*result.Password), []byte(*account.Password))
-		if err != nil {
-			return &models.Account{}, err
-		}
-	}
-	return &result, nil
 }
 
 func (u *AccountDAO) FindAccountByEmail(account models.Account) (*models.Account, error) {
@@ -156,7 +117,7 @@ func (u *AccountDAO) GetAccounts(account models.Account) (*[]models.Account, err
 	}
 	return &accounts, err
 }
-func (u *AccountDAO) UpdateAccountByID(accountID uuid.UUID, updateInfo map[string]interface{}) (int64, error) {
+func (u *AccountDAO) UpdateAccountByID(accountID uuid.UUID, updateInfo models.Account) (int64, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {

@@ -23,7 +23,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		// params   = mux.Vars(r)
 		message = "OK"
 	)
-	var account = models.Account{}
 	accountDAO := daos.GetAccountDAO()
 	var result = &models.Account{}
 	var err error
@@ -42,28 +41,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		//Login with email and password
-		if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
-			config.ResponseWithError(w, "Malformed data", err)
-			return
-		}
-		if account.Password == nil || *account.Password == "" {
-			http.Error(w, "Password missing", http.StatusForbidden)
-			return
-		}
-		if account.Email == nil {
-			result, err = accountDAO.FindAccountByUsernameAndPassword(account)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusForbidden)
-				return
-			}
-		} else {
-			result, err = accountDAO.FindAccountByEmailAndPassword(account)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusForbidden)
-				return
-			}
-		}
+		http.Error(w, "Missing Firebase ID Token.", http.StatusForbidden)
+		return
 	}
 	//account not found.
 	if result.Email == nil {

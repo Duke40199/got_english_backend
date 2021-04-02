@@ -117,20 +117,28 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	accountDAO := daos.GetAccountDAO()
-	updateInfo := map[string]interface{}{}
+	updateInfo := models.Account{}
 	if err := json.NewDecoder(r.Body).Decode(&updateInfo); err != nil {
 		http.Error(w, "Malformed data", http.StatusBadRequest)
 		return
 	}
-	//hash password before update
-	if updateInfo["password"] != nil {
-		hashedPassword, _ := Hash(fmt.Sprint(updateInfo["password"]))
-		updateInfo["password"] = hashedPassword
+	//if password is updated
+	if updateInfo.Password != nil {
+		firebaseUpdateUserParams := (&auth.UserToUpdate{}).
+			Password(*updateInfo.Password)
+		firebaseAuth, ctx := config.SetupFirebase()
+		_, err := firebaseAuth.UpdateUser(ctx, accountID.String(), firebaseUpdateUserParams)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		}
 	}
 	result, err := accountDAO.UpdateAccountByID(accountID, updateInfo)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
+	}
+	if err != nil {
+		fmt.Print("Firebase account already existed.")
 	}
 	config.ResponseWithSuccess(w, message, result)
 

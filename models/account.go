@@ -16,7 +16,7 @@ type Account struct {
 	Username *string   `gorm:"size:255;unique" json:"username"`
 	Fullname *string   `gorm:"size:255;" json:"fullname"`
 	Email    *string   `gorm:"size:100;not null;unique;" json:"email"`
-	Password *string   `gorm:"size:100;" json:"password"`
+	Password *string   `gorm:"-" json:"password,omitempty"`
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
 	//Info
 	AvatarURL   *string    `gorm:"size:255" json:"avatar_url"`

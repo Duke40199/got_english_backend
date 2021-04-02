@@ -22,7 +22,6 @@ func SeedDB(db *gorm.DB) {
 	ids := []uuid.UUID{uuid1, uuid2, uuid3, uuid4}
 	usernames := []string{"TuanAnh", "DucPhi", "TuanNguyen", "LocTr"}
 	fullnames := []string{"Nguyen Tuan Anh", "Phi Do Hong Duc", "Nguyen Tran Quoc Tuan", "Tran Thien Loc"}
-	passwords := []string{"password", "password", "password", "password"}
 	emails := []string{"anhntse130266@fpt.edu.vn", "hongduc5412@gmail.com", "tuanntqse62351@fpt.edu.vn", "ttloc1999@gmail.com"}
 	avatarUrls := []string{
 		"https://scontent-hkt1-1.xx.fbcdn.net/v/t1.0-9/136993742_3749756998379656_496491351021530940_n.jpg?_nc_cat=107&ccb=1-3&_nc_sid=09cbfe&_nc_ohc=kvndP9qcIusAX-iZQVs&_nc_ht=scontent-hkt1-1.xx&oh=5768c6a74d45c1c23b69b2ef86dfa77c&oe=6072A896",
@@ -54,7 +53,6 @@ func SeedDB(db *gorm.DB) {
 			models.Account{
 				ID:          ids[i],
 				Username:    &usernames[i],
-				Password:    &passwords[i],
 				Fullname:    &fullnames[i],
 				Email:       &emails[i],
 				AvatarURL:   &avatarUrls[i],
