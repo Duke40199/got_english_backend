@@ -2,6 +2,7 @@ package daos
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
@@ -37,22 +38,13 @@ func (u *MessagingSessionDAO) UpdateMessagingSessionByID(messagingSession models
 	return result.RowsAffected, result.Error
 }
 
-// func (dao *InvoiceDAO) GetExpertByAccountID(accountID uuid.UUID) (*models.Expert, error) {
-// 	db, err := database.ConnectToDB()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	result := models.Expert{}
-// 	err = db.Debug().First(&result, "account_id = ?", accountID).Error
-// 	return &result, err
-// }
-
-// func (dao *InvoiceDAO) UpdateExpertByAccountID(accountID uuid.UUID, expertPermissions map[string]interface{}) (int64, error) {
-// 	db, err := database.ConnectToDB()
-// 	if err != nil {
-// 		return db.RowsAffected, err
-// 	}
-// 	result := db.Model(&models.Expert{}).Where("account_id = ?", accountID).
-// 		Updates(expertPermissions)
-// 	return result.RowsAffected, result.Error
-// }
+func (dao *MessagingSessionDAO) GetCreatedMessagingSessionsInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return 0, err
+	}
+	result := []models.MessagingSession{}
+	err = db.Debug().Model(&models.MessagingSession{}).
+		Find(&result, "messaging_sessions.created_at BETWEEN ? AND ?", startDate, endDate).Error
+	return uint(len(result)), err
+}

@@ -119,7 +119,6 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 		UID(result.ID.String()).
 		Email(*result.Email).
 		EmailVerified(true).
-		DisplayName(*result.Username).
 		Disabled(false)
 	_, err := firebaseAuth.CreateUser(ctx, params)
 	if err != nil {
@@ -135,4 +134,74 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 		"token":    token,
 	}
 	config.ResponseWithSuccess(w, message, resp)
+}
+
+func GetAdministratorSummary(w http.ResponseWriter, r *http.Request) {
+	var (
+		// params   = mux.Vars(r)
+		message = "OK"
+	)
+	result := map[string]interface{}{
+		"expert_count":               uint(0),
+		"learner_count":              uint(0),
+		"messaging_session_count":    uint(0),
+		"private_call_session_count": uint(0),
+		"translation_session_count":  uint(0),
+	}
+	var period string
+	if len(r.URL.Query()["period"]) > 0 {
+		period = r.URL.Query()["period"][0]
+	} else {
+		period = "daily"
+	}
+	startDate, endDate := utils.GetTimesByPeriod(period)
+
+	//Get expert count created during the period.
+	expertDAO := daos.GetExpertDAO()
+	expertCount, err := expertDAO.GetCreatedExpertsInTimePeriod(startDate, endDate)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	result["expert_count"] = expertCount
+
+	//Get created learner count during the period.
+	learnerDAO := daos.GetLearnerDAO()
+	learnerCount, err := learnerDAO.GetCreatedLearnersInTimePeriod(startDate, endDate)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	result["learner_count"] = learnerCount
+
+	//Get created messaging count during the period.
+	messagingSessionDAO := daos.GetMessagingSessionDAO()
+	messagingSessionCount, err := messagingSessionDAO.GetCreatedMessagingSessionsInTimePeriod(startDate, endDate)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	result["messaging_session_count"] = messagingSessionCount
+
+	//Get created private call count during the period.
+	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
+	privateCallSessionCount, err := privateCallSessionDAO.GetCreatedPrivateCallSessionsInTimePeriod(startDate, endDate)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	result["private_call_session_count"] = privateCallSessionCount
+
+	//Get created private call count during the period.
+	translationSessionDAO := daos.GetTranlsationSessionDAO()
+	translationSessionCount, err := translationSessionDAO.GetCreatedTranslationSessionInTimePeriod(startDate, endDate)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	result["translation_session_count"] = translationSessionCount
+
+	config.ResponseWithSuccess(w, message, result)
+	//Get count of experts created
+
 }

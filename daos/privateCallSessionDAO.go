@@ -1,7 +1,7 @@
 package daos
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
@@ -22,10 +22,20 @@ func (dao *PrivateCallSessionDAO) CreatePrivateCallSession(privateCallSession mo
 		return nil, err
 	}
 	err = db.Debug().Create(&privateCallSession).Error
-	fmt.Print(err)
 	return &privateCallSession, err
-
 }
+
+func (dao *PrivateCallSessionDAO) GetCreatedPrivateCallSessionsInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return 0, err
+	}
+	result := []models.PrivateCallSession{}
+	err = db.Debug().Model(&models.PrivateCallSession{}).
+		Find(&result, "created_at BETWEEN ? AND ?", startDate, endDate).Error
+	return uint(len(result)), err
+}
+
 func (u *PrivateCallSessionDAO) UpdatePrivateCallSessionByID(privateCallSession models.PrivateCallSession) (int64, error) {
 	db, err := database.ConnectToDB()
 

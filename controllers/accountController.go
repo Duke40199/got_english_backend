@@ -77,7 +77,6 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		UID(result.ID.String()).
 		Email(*result.Email).
 		EmailVerified(true).
-		DisplayName(*result.Username).
 		Password(*account.Password).
 		Disabled(false)
 	firebaseAuth, context := config.SetupFirebase()

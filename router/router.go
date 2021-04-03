@@ -17,6 +17,8 @@ var r = mux.NewRouter()
 func init() {
 	log.Println("Initializing Router")
 	apiV1 := r.PathPrefix("/").Subrouter()
+	//For administrator (web admin) functions
+	apiV1.HandleFunc("/administrator/summary", middleware.UserAuthentication(controllers.GetAdministratorSummary)).Methods("GET")
 
 	//For root functions
 	apiV1.HandleFunc("/", RootRoute).Methods("GET")

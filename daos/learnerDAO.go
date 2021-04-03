@@ -1,6 +1,8 @@
 package daos
 
 import (
+	"time"
+
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 	"github.com/google/uuid"
@@ -35,6 +37,17 @@ func (dao *LearnerDAO) GetLearnerInfoByAccountID(accountID uuid.UUID) (*models.L
 	err = db.Debug().First(&learner, "account_id = ?", accountID).Error
 	return &learner, err
 
+}
+
+func (dao *LearnerDAO) GetCreatedLearnersInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return 0, err
+	}
+	result := []models.Learner{}
+	err = db.Debug().Model(&models.Learner{}).
+		Find(&result, "learners.created_at BETWEEN ? AND ?", startDate, endDate).Error
+	return uint(len(result)), err
 }
 
 func (dao *LearnerDAO) UpdateLearnerByLearnerID(learner models.Learner) (int64, error) {

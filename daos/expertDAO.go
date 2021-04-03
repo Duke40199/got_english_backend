@@ -1,6 +1,8 @@
 package daos
 
 import (
+	"time"
+
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 	"github.com/google/uuid"
@@ -32,6 +34,17 @@ func (dao *ExpertDAO) GetExpertByAccountID(accountID uuid.UUID) (*models.Expert,
 	result := models.Expert{}
 	err = db.Debug().First(&result, "account_id = ?", accountID).Error
 	return &result, err
+}
+
+func (dao *ExpertDAO) GetCreatedExpertsInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return 0, err
+	}
+	result := []models.Expert{}
+	err = db.Debug().Model(&models.Expert{}).
+		Find(&result, "experts.created_at BETWEEN ? AND ?", startDate, endDate).Error
+	return uint(len(result)), err
 }
 
 func (dao *ExpertDAO) UpdateExpertByAccountID(accountID uuid.UUID, expertPermissions map[string]interface{}) (int64, error) {
