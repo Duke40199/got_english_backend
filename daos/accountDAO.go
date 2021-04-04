@@ -1,11 +1,14 @@
 package daos
 
 import (
+	"errors"
+	"strconv"
 	"strings"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
+	"github.com/golang/got_english_backend/utils"
 	"github.com/google/uuid"
 )
 
@@ -22,6 +25,21 @@ func (u *AccountDAO) CreateAccount(account models.Account, permissions models.Pe
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
+	}
+	//validate if account already exists
+	accountAvailable, err := accountDAO.FindAccountByEmail(account)
+	if accountAvailable.Email != nil {
+		return &account, errors.New("account unavailable.")
+	}
+	//Generate username if reqbody doesn't have one
+	if account.Username == nil {
+		currentTimeMillis := utils.GetCurrentEpochTimeInMiliseconds()
+		newUsername := account.RoleName + strconv.FormatInt(currentTimeMillis, 10)
+		account.Username = &newUsername
+	}
+	//if id is not inputted, generate one.
+	if account.ID.String() == "00000000-0000-0000-0000-000000000000" {
+		account.ID = uuid.New()
 	}
 	err = db.Debug().Model(&models.Account{}).Create(&account).Error
 	if err != nil {
@@ -67,7 +85,22 @@ func (u *AccountDAO) CreateAccount(account models.Account, permissions models.Pe
 	return &account, err
 }
 
-func (u *AccountDAO) FindUserByUsername(account models.Account) (*models.Account, error) {
+func (u *AccountDAO) FindAccountByID(account models.Account) (*models.Account, error) {
+	accountResult := models.Account{}
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	err = db.Debug().Model(&models.Account{}).Preload("Learner").Preload("Expert").Preload("Moderator").Preload("Admin").
+		First(&accountResult, "id=?", account.ID).Error
+	//Only get date from birthdays
+	if accountResult.Birthday != nil {
+		*accountResult.Birthday = strings.Split(*accountResult.Birthday, "T")[0]
+	}
+	return &accountResult, err
+}
+
+func (u *AccountDAO) FindAccountByUsername(account models.Account) (*models.Account, error) {
 	accountResult := models.Account{}
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -80,15 +113,6 @@ func (u *AccountDAO) FindUserByUsername(account models.Account) (*models.Account
 		*accountResult.Birthday = strings.Split(*accountResult.Birthday, "T")[0]
 	}
 	return &accountResult, err
-}
-func (u *AccountDAO) FindAccountByUsername(account models.Account) (*models.Account, error) {
-	var result = models.Account{}
-	db, err := database.ConnectToDB()
-	if err != nil {
-		return nil, err
-	}
-	err = db.Debug().First(&result, "username=?", account.Username).Error
-	return &result, err
 }
 
 func (u *AccountDAO) FindAccountByEmail(account models.Account) (*models.Account, error) {

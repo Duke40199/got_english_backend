@@ -13,6 +13,7 @@ var (
 	messagingSessionDAO   = MessagingSessionDAO{}
 	moderatorDAO          = ModeratorDAO{}
 	privateCallSessionDAO = PrivateCallSessionDAO{}
+	ratingDAO             = RatingDAO{}
 	translationSessionDAO = TranslationSessionDAO{}
 )
 
@@ -46,6 +47,9 @@ func GetMessagingSessionDAO() MessagingSessionDAO {
 }
 func GetModeratorDAO() ModeratorDAO {
 	return moderatorDAO
+}
+func GetRatingDAO() RatingDAO {
+	return ratingDAO
 }
 func GetPrivateCallSessionDAO() PrivateCallSessionDAO {
 	return privateCallSessionDAO

@@ -105,6 +105,17 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 	result, _ = accountDAO.FindAccountByEmail(account)
 	if result.Email == nil {
 		result, _ = accountDAO.CreateAccount(account, models.PermissionStruct{})
+		ctx := r.Context()
+		//if login for the first time
+		params := (&auth.UserToCreate{}).
+			UID(result.ID.String()).
+			Email(*result.Email).
+			EmailVerified(true).
+			Disabled(false)
+		_, err := firebaseAuth.CreateUser(ctx, params)
+		if err != nil {
+			fmt.Print("Firebase account already existed.")
+		}
 	}
 	//set account role for token
 	claims := map[string]interface{}{
@@ -112,17 +123,6 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 		"email":     result.Email,
 		"role_name": result.RoleName,
 		"username":  result.Username,
-	}
-	ctx := r.Context()
-	//if login for the first time
-	params := (&auth.UserToCreate{}).
-		UID(result.ID.String()).
-		Email(*result.Email).
-		EmailVerified(true).
-		Disabled(false)
-	_, err := firebaseAuth.CreateUser(ctx, params)
-	if err != nil {
-		fmt.Print("Firebase account already existed.")
 	}
 	token, err := firebaseAuth.CustomTokenWithClaims(context, result.ID.String(), claims)
 	if err != nil {

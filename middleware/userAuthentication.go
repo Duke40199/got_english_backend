@@ -142,18 +142,26 @@ func LearnerAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			authorizationToken := r.Header.Get("Authorization")
 			customToken := strings.TrimSpace(strings.Replace(authorizationToken, "Bearer", "", 1))
 			token, _ := jwt.Parse(customToken, nil)
+
 			if token == nil {
 				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
+
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			if userInfo["role_name"] != roleNameConfig.Learner {
 				http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
 				return
 			}
+			//Get permissions and put it in context
+			learnerDAO := daos.GetLearnerDAO()
+			accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
+			learnerInfo, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
+			ctx = context.WithValue(ctx, "learner_id", learnerInfo.ID)
+			ctx = context.WithValue(ctx, "available_coin_count", learnerInfo.AvailableCoinCount)
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			next.ServeHTTP(w, r.WithContext(ctx))
 

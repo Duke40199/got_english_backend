@@ -2,8 +2,19 @@ package utils
 
 import (
 	"fmt"
+	"regexp"
 	"time"
 )
+
+var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+// isEmailValid checks if the email provided passes the required structure and length.
+func IsEmailValid(e string) bool {
+	if len(e) < 3 && len(e) > 254 {
+		return false
+	}
+	return emailRegex.MatchString(e)
+}
 
 // GetCurrentTime function is used to get the current time in milliseconds.
 func GetCurrentEpochTimeInMiliseconds() int64 {
@@ -19,7 +30,6 @@ func GetTimesByPeriod(period string) (time.Time, time.Time) {
 	switch period {
 	case "weekly":
 		{
-			fmt.Println("================= weekly filter")
 			endDate = time.Now()
 			year, week := endDate.ISOWeek()
 			//Get week start date
@@ -28,7 +38,6 @@ func GetTimesByPeriod(period string) (time.Time, time.Time) {
 		}
 	case "daily":
 		{
-			fmt.Println("================= daily filter")
 			startDate = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
 			endDate = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, time.Local)
 			break
@@ -36,8 +45,8 @@ func GetTimesByPeriod(period string) (time.Time, time.Time) {
 	case "monthly":
 		{
 			fmt.Println("================= monthly filter")
-			startDate = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
-			endDate = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, time.Local)
+			startDate = time.Date(timeNow.Year(), timeNow.Month(), 1, 0, 0, 0, 0, time.Local)
+			endDate = time.Date(timeNow.Year(), timeNow.Month()+1, 0, 23, 59, 59, 0, time.Local)
 			break
 		}
 	}

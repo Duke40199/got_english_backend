@@ -98,3 +98,21 @@ var applicationFormStatusConfig = ApplicationFormStatusConfig{
 func GetApplicationFormStatusConfig() *ApplicationFormStatusConfig {
 	return &applicationFormStatusConfig
 }
+
+//RoleNameConfig model
+type ServiceConfig struct {
+	MessagingService   string
+	TranslationService string
+	PrivateCallService string
+}
+
+var serviceConfig = ServiceConfig{
+	MessagingService:   "messaging",
+	TranslationService: "translation",
+	PrivateCallService: "private_call",
+}
+
+//GetRoleNameConfig : export roleID config
+func GetSerivceConfig() *ServiceConfig {
+	return &serviceConfig
+}

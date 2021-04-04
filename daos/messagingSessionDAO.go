@@ -17,6 +17,7 @@ type MessagingSessionDAO struct {
 	TableName string
 }
 
+//POST
 func (dao *MessagingSessionDAO) CreateMessagingSession(messagingSession models.MessagingSession) (*models.MessagingSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -25,17 +26,18 @@ func (dao *MessagingSessionDAO) CreateMessagingSession(messagingSession models.M
 	err = db.Debug().Create(&messagingSession).Error
 	fmt.Print(err)
 	return &messagingSession, err
-
 }
-func (u *MessagingSessionDAO) UpdateMessagingSessionByID(messagingSession models.MessagingSession) (int64, error) {
-	db, err := database.ConnectToDB()
 
+//GET
+func (dao *MessagingSessionDAO) GetMessagingSessionByID(id uint) (*models.MessagingSession, error) {
+	db, err := database.ConnectToDB()
 	if err != nil {
-		return db.RowsAffected, err
+		return nil, err
 	}
-	result := db.Model(&models.MessagingSession{}).Where("id = ?", messagingSession.ID).
-		Updates(&messagingSession)
-	return result.RowsAffected, result.Error
+	result := models.MessagingSession{}
+	err = db.Debug().Model(&models.MessagingSession{}).
+		Find(&result, "id = ?", id).Error
+	return &result, err
 }
 
 func (dao *MessagingSessionDAO) GetCreatedMessagingSessionsInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {
@@ -47,4 +49,16 @@ func (dao *MessagingSessionDAO) GetCreatedMessagingSessionsInTimePeriod(startDat
 	err = db.Debug().Model(&models.MessagingSession{}).
 		Find(&result, "messaging_sessions.created_at BETWEEN ? AND ?", startDate, endDate).Error
 	return uint(len(result)), err
+}
+
+//UPDATE
+func (u *MessagingSessionDAO) UpdateMessagingSessionByID(messagingSession models.MessagingSession) (int64, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.MessagingSession{}).Where("id = ?", messagingSession.ID).
+		Updates(&messagingSession)
+	return result.RowsAffected, result.Error
 }

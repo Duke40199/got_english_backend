@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 
 	"firebase.google.com/go/auth"
 	"github.com/golang/got_english_backend/config"
@@ -26,8 +25,8 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	accountDAO := daos.GetAccountDAO()
-	accountID := uuid.New()
-	//parsing data
+
+	//validations
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Malformed data", http.StatusBadRequest)
@@ -38,25 +37,27 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Malformed account data", http.StatusBadRequest)
 		return
 	}
-
 	var accountPermission = models.PermissionStruct{}
 	if err := json.Unmarshal(requestBody, &accountPermission); err != nil {
 		http.Error(w, "Malformed permission data", http.StatusBadRequest)
 		return
 	}
-	if account.Email == nil || account.Password == nil {
-		http.Error(w, "Email or password is invalid or missing", http.StatusBadRequest)
+	if !utils.IsEmailValid(*account.Email) {
+		http.Error(w, "Invalid email.", http.StatusBadRequest)
 		return
 	}
-	//Generate username if reqbody doesn't have one
-	if account.Username == nil {
-		currentTimeMillis := utils.GetCurrentEpochTimeInMiliseconds()
-		newUsername := account.RoleName + strconv.FormatInt(currentTimeMillis, 10)
-		account.Username = &newUsername
+	if account.Password == nil {
+		http.Error(w, "Password is invalid or missing", http.StatusBadRequest)
+		return
 	}
+	if account.RoleName == "" {
+		http.Error(w, "Missing role_name", http.StatusBadRequest)
+		return
+	}
+
 	//create account on db
 	result, err := accountDAO.CreateAccount(models.Account{
-		ID:       accountID,
+		ID:       account.ID,
 		Username: account.Username,
 		Email:    account.Email,
 		RoleName: account.RoleName,
@@ -66,12 +67,6 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//create account on firebase
-	claims := map[string]interface{}{
-		"id":        result.ID,
-		"email":     result.Email,
-		"role_name": result.RoleName,
-		"username":  result.Username,
-	}
 	ctx := r.Context()
 	params := (&auth.UserToCreate{}).
 		UID(result.ID.String()).
@@ -83,6 +78,13 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = firebaseAuth.CreateUser(ctx, params)
 	if err != nil {
 		fmt.Print("Firebase account already existed.")
+	}
+	//return firebase custom token with claims
+	claims := map[string]interface{}{
+		"id":        result.ID,
+		"email":     result.Email,
+		"role_name": result.RoleName,
+		"username":  result.Username,
 	}
 	token, err := firebaseAuth.CustomTokenWithClaims(context, result.ID.String(), claims)
 	if err != nil {
@@ -121,7 +123,11 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Malformed data", http.StatusBadRequest)
 		return
 	}
-	//if password is updated
+	if updateInfo.Email != nil {
+		http.Error(w, "Cannot update email.", http.StatusBadRequest)
+		return
+	}
+	//if password is updated, update it on firebase.
 	if updateInfo.Password != nil {
 		firebaseUpdateUserParams := (&auth.UserToUpdate{}).
 			Password(*updateInfo.Password)
@@ -146,14 +152,25 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
-		// params   = mux.Vars(r)
+		// params  = mux.Vars(r)
 		message = "OK"
 	)
-	loginResponse := utils.DecodeFirebaseCustomToken(w, r)
-	currentUsername := loginResponse.Username
+	var accountID uuid.UUID
+	var err error
+	//If the user is looking for another profile
+	if len(r.URL.Query()["account_id"]) > 0 {
+		accountID, err = uuid.Parse(r.URL.Query()["account_id"][0])
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		}
+	} else {
+		ctx := r.Context()
+		accountID, _ = uuid.Parse(fmt.Sprint(ctx.Value("id")))
+	}
+
 	accountDAO := daos.GetAccountDAO()
-	userDetails, err := accountDAO.FindUserByUsername(models.Account{
-		Username: &currentUsername,
+	userDetails, err := accountDAO.FindAccountByID(models.Account{
+		ID: accountID,
 	})
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)

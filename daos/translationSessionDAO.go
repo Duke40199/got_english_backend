@@ -16,6 +16,7 @@ type TranslationSessionDAO struct {
 	TableName string
 }
 
+//POST
 func (dao *TranslationSessionDAO) CreateTranslationSession(translationSession models.TranslationSession) (*models.TranslationSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -23,6 +24,18 @@ func (dao *TranslationSessionDAO) CreateTranslationSession(translationSession mo
 	}
 	err = db.Debug().Create(&translationSession).Error
 	return &translationSession, err
+}
+
+//GET
+func (dao *TranslationSessionDAO) GetTranslationSessionByID(id uint) (*models.TranslationSession, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := models.TranslationSession{}
+	err = db.Debug().Model(&models.TranslationSession{}).
+		Find(&result, "id = ?", id).Error
+	return &result, err
 }
 
 func (dao *TranslationSessionDAO) GetCreatedTranslationSessionInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {

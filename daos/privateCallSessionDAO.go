@@ -16,6 +16,7 @@ type PrivateCallSessionDAO struct {
 	TableName string
 }
 
+//POST
 func (dao *PrivateCallSessionDAO) CreatePrivateCallSession(privateCallSession models.PrivateCallSession) (*models.PrivateCallSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -23,6 +24,18 @@ func (dao *PrivateCallSessionDAO) CreatePrivateCallSession(privateCallSession mo
 	}
 	err = db.Debug().Create(&privateCallSession).Error
 	return &privateCallSession, err
+}
+
+//GET
+func (dao *PrivateCallSessionDAO) GetPrivateCallSessionByID(id uint) (*models.PrivateCallSession, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := models.PrivateCallSession{}
+	err = db.Debug().Model(&models.PrivateCallSession{}).
+		Find(&result, "id = ?", id).Error
+	return &result, err
 }
 
 func (dao *PrivateCallSessionDAO) GetCreatedPrivateCallSessionsInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {

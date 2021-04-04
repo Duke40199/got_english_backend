@@ -15,7 +15,7 @@ type ModeratorDAO struct {
 	TableName string
 }
 
-func (dao *ModeratorDAO) CreateModerator(moderator models.Moderator) (*models.Moderator, error) {
+func (dao *ModeratorDAO) CreateModeratorByAccountID(moderator models.Moderator) (*models.Moderator, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err

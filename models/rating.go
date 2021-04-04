@@ -15,8 +15,8 @@ type Rating struct {
 	Comment string  `gorm:"size:225;column:comment;" json:"comment"`
 
 	//Rating is created by one learner.
-	Learner   Learner `gorm:"foreignKey:LearnerID;"`
-	LearnerID uint    `gorm:"size:225;column:learner_id;unique"`
+	Learner   Learner `gorm:"foreignKey:LearnerID;" json:"learner,omitempty"`
+	LearnerID uint    `gorm:"size:225;column:learner_id" json:"learner_id"`
 
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
