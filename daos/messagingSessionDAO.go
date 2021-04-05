@@ -35,7 +35,7 @@ func (dao *MessagingSessionDAO) GetMessagingSessionByID(id string) (*models.Mess
 		return nil, err
 	}
 	result := models.MessagingSession{}
-	err = db.Debug().Model(&models.MessagingSession{}).
+	err = db.Debug().Model(&models.MessagingSession{}).Preload("Expert").
 		Find(&result, "id = ?", id).Error
 	return &result, err
 }

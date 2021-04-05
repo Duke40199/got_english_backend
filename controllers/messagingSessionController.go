@@ -43,7 +43,13 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	//Create
 	messagingSessionDAO := daos.GetMessagingSessionDAO()
 	result, err := messagingSessionDAO.CreateMessagingSession(messagingSession)
-
+	//reduce learner available coin
+	learnerDAO := daos.GetLearnerDAO()
+	learner := models.Learner{
+		ID:                 uint(learnerID),
+		AvailableCoinCount: uint(availableCoinCount) - pricing.Price,
+	}
+	_, _ = learnerDAO.UpdateLearnerByLearnerID(learner)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
@@ -85,6 +91,7 @@ func UpdateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 
 }
+
 func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
@@ -117,6 +124,10 @@ func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session is already cancelled.", http.StatusBadRequest)
 		return
 	}
+	if tmpSession.Expert != nil {
+		http.Error(w, "Expert already joined this session.", http.StatusBadRequest)
+		return
+	}
 	_, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
@@ -125,7 +136,7 @@ func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	//Return the coin for learner
 	pricingDAO := daos.GetPricingDAO()
 	messagingPricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().MessagingSessionPricingID)
-	learnerAvailableCoin, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 0)
+	learnerAvailableCoin, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
 	currentLearner := models.Learner{
 		ID:                 uint(learnerID),
 		AvailableCoinCount: uint(learnerAvailableCoin) + messagingPricing.Price,
