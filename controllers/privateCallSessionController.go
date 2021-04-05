@@ -83,3 +83,58 @@ func UpdatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 
 }
+
+// func CancelPrivateCallHandler(w http.ResponseWriter, r *http.Request) {
+// 	defer r.Body.Close()
+// 	var (
+// 		params  = mux.Vars(r)
+// 		message = "OK"
+// 	)
+// 	//parse accountID
+// 	privateCallSessionID := params["private_call_id"]
+// 	privateCallSession := models.PrivateCallSession{}
+// 	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
+// 	privateCallSession.LearnerID = uint(learnerID)
+// 	//parse body
+// 	//Check if user inputs sessionID
+// 	if privateCallSession.ID != "" {
+// 		http.Error(w, "missing session id.", http.StatusBadRequest)
+// 		return
+// 	} else {
+// 		privateCallSession.ID = privateCallSessionID
+// 		privateCallSession.IsCancelled = true
+// 	}
+// 	//Update
+// 	messagingSessionDAO := daos.GetMessagingSessionDAO()
+// 	//Check if the session is already cancelled or existed
+// 	tmpSession, _ := messagingSessionDAO.GetMessagingSessionByID(messagingSessionID)
+// 	if tmpSession.ID == "" {
+// 		http.Error(w, "session not found.", http.StatusBadRequest)
+// 		return
+// 	}
+// 	if tmpSession.IsCancelled {
+// 		http.Error(w, "session is already cancelled.", http.StatusBadRequest)
+// 		return
+// 	}
+// 	_, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSession)
+// 	if err != nil {
+// 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+// 		return
+// 	}
+// 	//Return the coin for learner
+// 	pricingDAO := daos.GetPricingDAO()
+// 	messagingPricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().MessagingSessionPricingID)
+// 	learnerAvailableCoin, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 0)
+// 	currentLearner := models.Learner{
+// 		ID:                 uint(learnerID),
+// 		AvailableCoinCount: uint(learnerAvailableCoin) + messagingPricing.Price,
+// 	}
+// 	learnerDAO := daos.GetLearnerDAO()
+// 	result, err := learnerDAO.UpdateLearnerByLearnerID(currentLearner)
+// 	if err != nil {
+// 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	config.ResponseWithSuccess(w, message, result)
+
+// }

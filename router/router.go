@@ -48,7 +48,7 @@ func init() {
 	apiV1.HandleFunc("/invoices", middleware.LearnerAuthentication(controllers.CreateInvoiceHandler)).Methods("POST")
 	apiV1.HandleFunc("/invoices/history", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("GET")
 	apiV1.HandleFunc("/invoices/{invoice_id}", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("GET")
-	apiV1.HandleFunc("/invoices/{invoice_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
+	// apiV1.HandleFunc("/invoices/{invoice_id}/update", middleware.LearnerExpertAuthentication(controllers.U)).Methods("PUT")
 
 	//For private call session functions
 	apiV1.HandleFunc("/private-call-sessions", middleware.LearnerAuthentication(controllers.CreatePrivateCallSessionHandler)).Methods("POST")
@@ -56,18 +56,20 @@ func init() {
 
 	//For messaging session functions
 	apiV1.HandleFunc("/messaging-sessions", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("POST")
-	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
+	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelMessagingSessionHandler)).Methods("PUT")
+	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSessionHandler)).Methods("PUT")
 
 	//For moderator functions
 	apiV1.HandleFunc("/moderators/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateModeratorHandler)).Methods("PUT")
 
 	//For private call session functions
 	apiV1.HandleFunc("/private-call-sessions", middleware.LearnerAuthentication(controllers.CreatePrivateCallSessionHandler)).Methods("POST")
+	// apiV1.HandleFunc("/messaging-sessions/{private_call_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelPrivateCallHandler)).Methods("PUT")
 	apiV1.HandleFunc("/private-call-sessions/{private_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdatePrivateCallSessionHandler)).Methods("PUT")
 
 	//For translation session functions
 	apiV1.HandleFunc("/translation-sessions", middleware.LearnerAuthentication(controllers.CreateTranaltionSessionHandler)).Methods("POST")
-	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
+	// apiV1.HandleFunc("/translation-sessions/{translation_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
 
 	//For ratings functions
 	apiV1.HandleFunc("/ratings", middleware.LearnerAuthentication(controllers.CreateRatingHandler)).Methods("POST")

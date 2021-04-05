@@ -62,3 +62,15 @@ func (u *MessagingSessionDAO) UpdateMessagingSessionByID(messagingSession models
 		Updates(&messagingSession)
 	return result.RowsAffected, result.Error
 }
+
+//UPDATE
+func (u *MessagingSessionDAO) CancelMessagingSessionByID(messagingSession models.MessagingSession) (int64, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.MessagingSession{}).Where("id = ?", messagingSession.ID).
+		Updates(&messagingSession)
+	return result.RowsAffected, result.Error
+}
