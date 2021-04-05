@@ -27,9 +27,9 @@ type Account struct {
 	SuspendedAt *time.Time `gorm:"column:suspended_at" json:"suspended_at"`
 	//Role
 	Learner   *Learner   `gorm:"foreignKey:AccountID" json:"learner_details,omitempty"`
-	Expert    *Expert    `gorm:"foreignKey:AccountID" json:"expert_permissions,omitempty"`
-	Moderator *Moderator `gorm:"foreignKey:AccountID" json:"moderator_permissions,omitempty"`
-	Admin     *Admin     `gorm:"foreignKey:AccountID" json:"admin_permissions,omitempty"`
+	Expert    *Expert    `gorm:"foreignKey:AccountID" json:"expert_details,omitempty"`
+	Moderator *Moderator `gorm:"foreignKey:AccountID" json:"moderator_details,omitempty"`
+	Admin     *Admin     `gorm:"foreignKey:AccountID" json:"admin_details,omitempty"`
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
