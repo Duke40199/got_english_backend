@@ -10,8 +10,9 @@ import (
 type ApplicationForm struct {
 	gorm.Model `json:"-"`
 	ID         uint   `gorm:"column:id;autoIncrement;not null; unique; primaryKey;" json:"id"`
-	PhotoURL   string `json:"photoUrl"`
+	PhotoURL   string `gorm:"column:photo_url;size:255" json:"photo_url"`
 	Status     string `gorm:"column:status;default:Pending;not null;" json:"status"`
+	Type       string `gorm:"column:type;size:255;not null" json:"type"`
 	//An expert can have many applications
 	Expert   Expert `gorm:"foreignKey:ExpertID" json:"-"`
 	ExpertID uint

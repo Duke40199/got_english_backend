@@ -23,6 +23,10 @@ func CreateApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
+	if applicationForm.Type != "private_call" && applicationForm.Type != "translation" && applicationForm.Type != "messaging" {
+		http.Error(w, "incorrect application type (hint: private_call|translation|messaging)", http.StatusBadRequest)
+		return
+	}
 	//Get expertID
 	expertDAO := daos.GetExpertDAO()
 	expert, err := expertDAO.GetExpertByAccountID(currentAccountID)

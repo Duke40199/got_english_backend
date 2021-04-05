@@ -138,6 +138,9 @@ func (u *AccountDAO) GetAccounts(account models.Account) (*[]models.Account, err
 		if accounts[i].Birthday != nil {
 			*accounts[i].Birthday = strings.Split(*accounts[i].Birthday, "T")[0]
 		}
+		if accounts[i].RoleName == config.GetRoleNameConfig().Expert {
+			accounts[i].Expert.AverageRating, err = ratingDAO.GetExpertAverageRating(*accounts[i].Expert)
+		}
 	}
 	return &accounts, err
 }
