@@ -27,7 +27,7 @@ func (dao *TranslationSessionDAO) CreateTranslationSession(translationSession mo
 }
 
 //GET
-func (dao *TranslationSessionDAO) GetTranslationSessionByID(id uint) (*models.TranslationSession, error) {
+func (dao *TranslationSessionDAO) GetTranslationSessionByID(id string) (*models.TranslationSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err

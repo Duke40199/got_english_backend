@@ -8,11 +8,11 @@ import (
 
 // PrivateCallSession model struct
 type PrivateCallSession struct {
-	gorm.Model `json:"-"`
-	ID         uint       `gorm:"column:id;autoIncrement;not null; unique; primaryKey;" json:"id"`
-	Duration   *time.Time `json:"duration,omitempty"`
-	StartedAt  *time.Time `gorm:"column:started_at" json:"started_at"`
-	FinishedAt *time.Time `gorm:"column:finished_at" json:"finished_at"`
+	gorm.Model        `json:"-"`
+	ID                string     `gorm:"column:id;size:255;not null; unique; primaryKey;" json:"id"`
+	DurationInSeconds *uint      `gorm:"column:duration_in_seconds" json:"duration_in_seconds,omitempty"`
+	StartedAt         *time.Time `gorm:"column:started_at" json:"started_at"`
+	FinishedAt        *time.Time `gorm:"column:finished_at" json:"finished_at"`
 	//Coins paid at the FinishedAt time
 	PaidCoins uint `gorm:"column:paid_coins" json:"paid_coins"`
 	//A leaner can have many message sessions.

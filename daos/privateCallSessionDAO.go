@@ -27,7 +27,7 @@ func (dao *PrivateCallSessionDAO) CreatePrivateCallSession(privateCallSession mo
 }
 
 //GET
-func (dao *PrivateCallSessionDAO) GetPrivateCallSessionByID(id uint) (*models.PrivateCallSession, error) {
+func (dao *PrivateCallSessionDAO) GetPrivateCallSessionByID(id string) (*models.PrivateCallSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err

@@ -12,6 +12,7 @@ var (
 	learnerDAO            = LearnerDAO{}
 	messagingSessionDAO   = MessagingSessionDAO{}
 	moderatorDAO          = ModeratorDAO{}
+	pricingDAO            = PricingDAO{}
 	privateCallSessionDAO = PrivateCallSessionDAO{}
 	ratingDAO             = RatingDAO{}
 	translationSessionDAO = TranslationSessionDAO{}
@@ -51,9 +52,12 @@ func GetModeratorDAO() ModeratorDAO {
 func GetRatingDAO() RatingDAO {
 	return ratingDAO
 }
+func GetPricingDAO() PricingDAO {
+	return pricingDAO
+}
 func GetPrivateCallSessionDAO() PrivateCallSessionDAO {
 	return privateCallSessionDAO
 }
-func GetTranlsationSessionDAO() TranslationSessionDAO {
+func GetTranslationSessionDAO() TranslationSessionDAO {
 	return translationSessionDAO
 }

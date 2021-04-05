@@ -10,12 +10,12 @@ import (
 type Rating struct {
 	gorm.Model `json:"-"`
 
-	ID      uint    `gorm:"column:id;not null;unique; primaryKey;" json:"expert_id"`
+	ID      uint    `gorm:"column:id;not null;unique; primaryKey;" json:"id"`
 	Score   float32 `gorm:"column:score" json:"score"`
 	Comment string  `gorm:"size:225;column:comment;" json:"comment"`
 
 	//Rating is created by one learner.
-	Learner   Learner `gorm:"foreignKey:LearnerID;" json:"learner,omitempty"`
+	Learner   Learner `gorm:"foreignKey:LearnerID;" json:"-"`
 	LearnerID uint    `gorm:"size:225;column:learner_id" json:"learner_id"`
 
 	//default timestamps

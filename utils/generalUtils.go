@@ -69,3 +69,9 @@ func GetWeekStart(year, week int) time.Time {
 
 	return t
 }
+
+func CalculateRemainingCoin() int64 {
+	var now = time.Now()
+	ts := now.UnixNano() / 1000000
+	return ts
+}

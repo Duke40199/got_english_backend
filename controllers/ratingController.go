@@ -31,7 +31,7 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing service id", http.StatusBadRequest)
 		return
 	}
-	serviceID, _ := strconv.ParseUint(fmt.Sprint(ratingInfo["service_id"]), 10, 0)
+	serviceID := fmt.Sprint(ratingInfo["service_id"])
 	score, _ := strconv.ParseFloat(fmt.Sprint(ratingInfo["score"]), 10)
 
 	if score < 1 || score > 5 {
@@ -49,7 +49,7 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 		{
 			//validate whether messaging session exists.
 			messagingSessionDAO := daos.GetMessagingSessionDAO()
-			messagingSession, err := messagingSessionDAO.GetMessagingSessionByID(uint(serviceID))
+			messagingSession, err := messagingSessionDAO.GetMessagingSessionByID(serviceID)
 			if err != nil {
 				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 				return
@@ -66,7 +66,7 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 		{
 			//validate whether messaging session exists.
 			privateCallDAO := daos.GetPrivateCallSessionDAO()
-			privateCallSession, err := privateCallDAO.GetPrivateCallSessionByID(uint(serviceID))
+			privateCallSession, err := privateCallDAO.GetPrivateCallSessionByID(serviceID)
 			if err != nil {
 				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 				return
@@ -82,8 +82,8 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 	case config.GetSerivceConfig().TranslationService:
 		{
 			//validate whether messaging session exists.
-			translationSessionDAO := daos.GetTranlsationSessionDAO()
-			translationSession, err := translationSessionDAO.GetTranslationSessionByID(uint(serviceID))
+			translationSessionDAO := daos.GetTranslationSessionDAO()
+			translationSession, err := translationSessionDAO.GetTranslationSessionByID(serviceID)
 			if err != nil {
 				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 				return

@@ -19,17 +19,30 @@ func CreatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 		// params  = mux.Vars(r)
 		message = "OK"
 	)
-	accountID, _ := uuid.Parse(fmt.Sprint(r.Context().Value("id")))
-
-	learnerDAO := daos.GetLearnerDAO()
-	learner, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
-
-	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
-	privateCallSession := models.PrivateCallSession{
-		LearnerID: learner.ID,
-		PricingID: &config.GetPricingIDConfig().MessagingSessionPricingID,
+	//Get learnerID
+	availableCoinCount, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
+	//Get pricing
+	pricingDAO := daos.GetPricingDAO()
+	pricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().PrivateCallSessionPricingID)
+	if availableCoinCount < int64(pricing.Price) {
+		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
+		return
 	}
-
+	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
+	//Get messaging sessions
+	privateCallSession := models.PrivateCallSession{}
+	if err := json.NewDecoder(r.Body).Decode(&privateCallSession); err != nil {
+		http.Error(w, "Malformed data", http.StatusBadRequest)
+		return
+	}
+	if privateCallSession.ID == "" {
+		http.Error(w, "Missing (document) id.", http.StatusBadRequest)
+		return
+	}
+	privateCallSession.Learner.ID = uint(learnerID)
+	privateCallSession.Pricing = pricing
+	//Create
+	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
 	result, err := privateCallSessionDAO.CreatePrivateCallSession(privateCallSession)
 
 	if err != nil {
@@ -46,16 +59,15 @@ func UpdatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 	)
 	//parse accountID
-
 	accountID, _ := uuid.Parse(fmt.Sprint(r.Context().Value("id")))
 	privateCallSession := models.PrivateCallSession{}
 	//parse body
-	privateCallSessionID, _ := strconv.ParseInt(params["private_call_session_id"], 10, 0)
+	privateCallSessionID := params["private_call_session_id"]
 	if err := json.NewDecoder(r.Body).Decode(&privateCallSession); err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	privateCallSession.ID = uint(privateCallSessionID)
+	privateCallSession.ID = privateCallSessionID
 	learnerDAO := daos.GetLearnerDAO()
 	learner, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
 

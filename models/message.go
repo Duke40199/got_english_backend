@@ -17,7 +17,7 @@ type Message struct {
 	IDTo       uuid.UUID `json:"id_to"`
 	//A conversation can have many messages
 	MessagingSession   MessagingSession `gorm:"foreignKey:MessagingSessionID"`
-	MessagingSessionID uint             `json:"messaging_session_id"`
+	MessagingSessionID string           `gorm:"messaging_session_id;size:255" json:"messaging_session_id"`
 
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`

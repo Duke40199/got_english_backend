@@ -1,18 +1,13 @@
 #/bin/bash
 
-go get github.com/BurntSushi/toml gopkg.in/mgo.v2 \
-	github.com/patrickmn/go-cache \
-	github.com/stretchr/stew/slice \
-	github.com/derekstavis/go-qs \
+go get github.com/patrickmn/go-cache \
 	google.golang.org/api/iterator \
 	github.com/sirupsen/logrus \
 	github.com/rs/cors \
- 	github.com/go-swagger/scan-repo-boundary/makeplans \
 	github.com/gorilla/mux\
-  gorm.io/gorm\
+    gorm.io/gorm\
 	gorm.io/driver/mysql\
 	github.com/google/uuid\
-  firebase.google.com/go\
-  golang.org/x/crypto/bcrypt\
-  github.com/swaggo/swag/cmd/swag\
-  github.com/dgrijalva/jwt-go
+    firebase.google.com/go\
+    golang.org/x/crypto/bcrypt\
+    github.com/dgrijalva/jwt-go

@@ -193,7 +193,7 @@ func GetAdministratorSummary(w http.ResponseWriter, r *http.Request) {
 	result["private_call_session_count"] = privateCallSessionCount
 
 	//Get created private call count during the period.
-	translationSessionDAO := daos.GetTranlsationSessionDAO()
+	translationSessionDAO := daos.GetTranslationSessionDAO()
 	translationSessionCount, err := translationSessionDAO.GetCreatedTranslationSessionInTimePeriod(startDate, endDate)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)

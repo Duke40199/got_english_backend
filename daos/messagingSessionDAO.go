@@ -29,7 +29,7 @@ func (dao *MessagingSessionDAO) CreateMessagingSession(messagingSession models.M
 }
 
 //GET
-func (dao *MessagingSessionDAO) GetMessagingSessionByID(id uint) (*models.MessagingSession, error) {
+func (dao *MessagingSessionDAO) GetMessagingSessionByID(id string) (*models.MessagingSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err

@@ -13,3 +13,17 @@ func GetPricingIDConfig() *PricingIDConfig {
 		PrivateCallSessionPricingID: 3,
 	}
 }
+
+type PricingNameConfig struct {
+	MessagingSessionPricingID   string
+	TranslationSessionPricingID string
+	PrivateCallSessionPricingID string
+}
+
+func GetPricingNameConfig() *PricingNameConfig {
+	return &PricingNameConfig{
+		MessagingSessionPricingID:   "messaging",
+		TranslationSessionPricingID: "translation",
+		PrivateCallSessionPricingID: "private_call",
+	}
+}
