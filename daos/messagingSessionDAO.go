@@ -35,7 +35,7 @@ func (dao *MessagingSessionDAO) GetMessagingSessionByID(id string) (*models.Mess
 		return nil, err
 	}
 	result := models.MessagingSession{}
-	err = db.Debug().Model(&models.MessagingSession{}).
+	err = db.Debug().Model(&models.MessagingSession{}).Preload("Expert").
 		Find(&result, "id = ?", id).Error
 	return &result, err
 }
@@ -53,6 +53,18 @@ func (dao *MessagingSessionDAO) GetCreatedMessagingSessionsInTimePeriod(startDat
 
 //UPDATE
 func (u *MessagingSessionDAO) UpdateMessagingSessionByID(messagingSession models.MessagingSession) (int64, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.MessagingSession{}).Where("id = ?", messagingSession.ID).
+		Updates(&messagingSession)
+	return result.RowsAffected, result.Error
+}
+
+//UPDATE
+func (u *MessagingSessionDAO) CancelMessagingSessionByID(messagingSession models.MessagingSession) (int64, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {

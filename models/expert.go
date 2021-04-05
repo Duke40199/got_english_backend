@@ -9,9 +9,10 @@ import (
 
 // Expert model struct
 type Expert struct {
-	gorm.Model `json:"-"`
-	ID         uint   `gorm:"column:id;not null;unique; primaryKey;" json:"id"`
-	Profession string `gorm:"column:profession" json:"professtion"`
+	gorm.Model    `json:"-"`
+	ID            uint    `gorm:"column:id;not null;unique; primaryKey;" json:"id"`
+	Profession    string  `gorm:"column:profession" json:"professtion"`
+	AverageRating float32 `gorm:"-" json:"average_rating"`
 	//Expert permissions
 	CanChat                   bool `gorm:"column:can_chat" json:"can_chat"`
 	CanJoinTranslationSession bool `gorm:"column:can_join_translation_session" json:"can_join_translation_session"`
