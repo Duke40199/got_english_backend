@@ -34,3 +34,21 @@ func UpdateExpertHandler(w http.ResponseWriter, r *http.Request) {
 	responseConfig.ResponseWithSuccess(w, message, result)
 
 }
+
+func GetAvailableExperts(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params  = mux.Vars(r)
+		message = "OK"
+	)
+
+	expertDAO := daos.GetExpertDAO()
+	result, err := expertDAO.GetAvailableExperts()
+
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	responseConfig.ResponseWithSuccess(w, message, result)
+
+}

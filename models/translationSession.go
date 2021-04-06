@@ -3,7 +3,6 @@ package models
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -20,8 +19,8 @@ type TranslationSession struct {
 	//A translation session can have many learners
 	Learners []*Learner `gorm:"many2many:translation_session_learners;"`
 	//A translation session can have only one expert.
-	Expert   *Expert    `gorm:"foreignKey:ExpertID" json:"expert,omitempty"`
-	ExpertID *uuid.UUID `gorm:"size:255" json:"expert_id,omitempty"`
+	Expert   *Expert `gorm:"foreignKey:ExpertID" json:"expert,omitempty"`
+	ExpertID *uint   `gorm:"size:255" json:"expert_id,omitempty"`
 	//An messaging session can only have one pricing.
 	Pricing   Pricing `gorm:"foreignKey:PricingID"`
 	PricingID uint    `gorm:"size:255" `

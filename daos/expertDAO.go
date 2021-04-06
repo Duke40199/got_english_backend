@@ -56,3 +56,20 @@ func (dao *ExpertDAO) UpdateExpertByAccountID(accountID uuid.UUID, expertPermiss
 		Updates(expertPermissions)
 	return result.RowsAffected, result.Error
 }
+
+// This will return experts which:
+// 1. Is not having any translation sessions
+// 2. All of their translation sessions are finished or cancelled
+func (dao *ExpertDAO) GetAvailableExperts() (*[]models.Expert, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := []models.Expert{}
+	err = db.Debug().Model(&models.Expert{}).
+		Preload("Account").
+		Raw("SELECT * FROM `experts` WHERE experts.id IN (SELECT experts.id FROM translation_sessions WHERE translation_sessions.is_finished = ? OR translation_sessions.is_cancelled = ?) OR experts.id NOT IN (SELECT translation_sessions.expert_id FROM translation_sessions);", true, true).
+		Find(&result).Error
+
+	return &result, err
+}

@@ -17,9 +17,11 @@ type Expert struct {
 	CanChat                   bool `gorm:"column:can_chat" json:"can_chat"`
 	CanJoinTranslationSession bool `gorm:"column:can_join_translation_session" json:"can_join_translation_session"`
 	CanJoinPrivateCallSession bool `gorm:"column:can_join_private_call_session" json:"can_join_private_call_session"`
-	//An expert can have only one account
-	AccountID uuid.UUID `gorm:"column:account_id" json:"account_id"`
 
+	//An expert can have only one account
+	Account            Account               `gorm:"foreignKey:AccountID" json:"account"`
+	AccountID          uuid.UUID             `gorm:"column:account_id" json:"account_id"`
+	TranslationSession *[]TranslationSession `gorm:"" json:"translation_session,omitempty"`
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`

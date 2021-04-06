@@ -43,7 +43,7 @@ func init() {
 
 	//For expert functions
 	apiV1.HandleFunc("/experts/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
-
+	apiV1.HandleFunc("/experts/available", middleware.LearnerAuthentication(controllers.GetAvailableExperts)).Methods("GET")
 	//For invoice functions
 	apiV1.HandleFunc("/invoices", middleware.LearnerAuthentication(controllers.CreateInvoiceHandler)).Methods("POST")
 	apiV1.HandleFunc("/invoices/history", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("GET")

@@ -14,8 +14,8 @@ type ApplicationForm struct {
 	Status     string `gorm:"column:status;default:Pending;not null;" json:"status"`
 	Type       string `gorm:"column:type;size:255;not null" json:"type"`
 	//An expert can have many applications
-	Expert   Expert `gorm:"foreignKey:ExpertID" json:"-"`
-	ExpertID uint
+	Expert   Expert `gorm:"foreignKey:ExpertID" json:"expert_info,omitempty"`
+	ExpertID uint   `gorm:"" json:"expert_id,omitempty"`
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
