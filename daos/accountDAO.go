@@ -27,7 +27,7 @@ func (u *AccountDAO) CreateAccount(account models.Account, permissions models.Pe
 		return nil, err
 	}
 	//validate if account already exists
-	accountAvailable, err := accountDAO.FindAccountByEmail(account)
+	accountAvailable, _ := accountDAO.FindAccountByEmail(account)
 	if accountAvailable.Email != nil {
 		return &account, errors.New("account unavailable.")
 	}

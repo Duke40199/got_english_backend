@@ -38,7 +38,7 @@ func (dao *PricingDAO) GetPricings(serviceName string, id uint) (*[]models.Prici
 	}
 	return &pricing, err
 }
-func (u *AccountDAO) UpdatePricingByID(id uint, updateInfo models.Pricing) (int64, error) {
+func (u *PricingDAO) UpdatePricingByID(id uint, updateInfo models.Pricing) (int64, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {
