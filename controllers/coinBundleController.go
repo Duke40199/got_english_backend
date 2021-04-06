@@ -96,15 +96,13 @@ func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//parse request param to get accountid
 	coinBundleID, _ := strconv.ParseInt(params["coin_bundle_id"], 10, 0)
-	var coinBundle = models.CoinBundle{
-		ID: uint(coinBundleID),
-	}
+	var coinBundle = models.CoinBundle{}
 	coinBundleDAO := daos.GetCoinBundleDAO()
 	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
 		http.Error(w, "Malformed data", http.StatusBadRequest)
 		return
 	}
-	result, err := coinBundleDAO.UpdateCoinBundleByID(coinBundle)
+	result, err := coinBundleDAO.UpdateCoinBundleByID(uint(coinBundleID), coinBundle)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return

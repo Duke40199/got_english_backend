@@ -47,7 +47,7 @@ func CreateInvoiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	learner.AvailableCoinCount += coinBundle.Quantity
 	//update learner available coin after creating invoice.
-	_, err = learnerDAO.UpdateLearnerByLearnerID(*learner)
+	_, err = learnerDAO.UpdateLearnerByLearnerID(learner.ID, *learner)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return

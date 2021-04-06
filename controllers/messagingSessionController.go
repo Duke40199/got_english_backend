@@ -46,10 +46,9 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	//reduce learner available coin
 	learnerDAO := daos.GetLearnerDAO()
 	learner := models.Learner{
-		ID:                 uint(learnerID),
 		AvailableCoinCount: uint(availableCoinCount) - pricing.Price,
 	}
-	_, _ = learnerDAO.UpdateLearnerByLearnerID(learner)
+	_, _ = learnerDAO.UpdateLearnerByLearnerID(uint(learnerID), learner)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
@@ -77,19 +76,15 @@ func UpdateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	if messagingSession.ID != "" {
 		http.Error(w, "missing session id.", http.StatusBadRequest)
 		return
-	} else {
-		messagingSession.ID = messagingSessionID
 	}
 	//Update
 	messagingSessionDAO := daos.GetMessagingSessionDAO()
-	result, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSession)
-
+	result, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSessionID, messagingSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
 	config.ResponseWithSuccess(w, message, result)
-
 }
 
 func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
@@ -102,14 +97,12 @@ func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	messagingSessionID := params["messaging_session_id"]
 	messagingSession := models.MessagingSession{}
 	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
-	messagingSession.LearnerID = uint(learnerID)
 	//parse body
 	//Check if user inputs sessionID
 	if messagingSession.ID != "" {
 		http.Error(w, "missing session id.", http.StatusBadRequest)
 		return
 	} else {
-		messagingSession.ID = messagingSessionID
 		messagingSession.IsCancelled = true
 	}
 	//Update
@@ -128,7 +121,7 @@ func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Expert already joined this session.", http.StatusBadRequest)
 		return
 	}
-	_, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSession)
+	_, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSessionID, messagingSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
@@ -138,11 +131,10 @@ func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	messagingPricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().MessagingSessionPricingID)
 	learnerAvailableCoin, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
 	currentLearner := models.Learner{
-		ID:                 uint(learnerID),
 		AvailableCoinCount: uint(learnerAvailableCoin) + messagingPricing.Price,
 	}
 	learnerDAO := daos.GetLearnerDAO()
-	result, err := learnerDAO.UpdateLearnerByLearnerID(currentLearner)
+	result, err := learnerDAO.UpdateLearnerByLearnerID(uint(learnerID), currentLearner)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return

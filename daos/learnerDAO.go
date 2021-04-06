@@ -50,12 +50,12 @@ func (dao *LearnerDAO) GetCreatedLearnersInTimePeriod(startDate time.Time, endDa
 	return uint(len(result)), err
 }
 
-func (dao *LearnerDAO) UpdateLearnerByLearnerID(learner models.Learner) (int64, error) {
+func (dao *LearnerDAO) UpdateLearnerByLearnerID(learnerID uint, learner models.Learner) (int64, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return db.RowsAffected, err
 	}
-	result := db.Model(&models.Learner{}).Where("id = ?", learner.ID).
+	result := db.Model(&models.Learner{}).Where("id = ?", learnerID).
 		Updates(&learner)
 	return result.RowsAffected, result.Error
 }

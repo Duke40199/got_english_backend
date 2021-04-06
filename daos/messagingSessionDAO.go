@@ -52,13 +52,13 @@ func (dao *MessagingSessionDAO) GetCreatedMessagingSessionsInTimePeriod(startDat
 }
 
 //UPDATE
-func (u *MessagingSessionDAO) UpdateMessagingSessionByID(messagingSession models.MessagingSession) (int64, error) {
+func (u *MessagingSessionDAO) UpdateMessagingSessionByID(id string, messagingSession models.MessagingSession) (int64, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {
 		return db.RowsAffected, err
 	}
-	result := db.Model(&models.MessagingSession{}).Where("id = ?", messagingSession.ID).
+	result := db.Model(&models.MessagingSession{}).Where("id = ?", id).
 		Updates(&messagingSession)
 	return result.RowsAffected, result.Error
 }

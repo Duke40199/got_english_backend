@@ -48,12 +48,13 @@ func (dao *CoinBundleDAO) GetCoinBundleByID(id uint) (*models.CoinBundle, error)
 	return &coinBundle, err
 }
 
-func (dao *CoinBundleDAO) UpdateCoinBundleByID(coinBundle models.CoinBundle) (int64, error) {
+func (dao *CoinBundleDAO) UpdateCoinBundleByID(id uint, coinBundle models.CoinBundle) (int64, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return db.RowsAffected, err
 	}
-	result := db.Model(&coinBundle).Updates(&coinBundle)
+	coinBundle.ID = id
+	result := db.Model(&coinBundle).Where("id = ?", id).Updates(&coinBundle)
 
 	return result.RowsAffected, result.Error
 }

@@ -66,12 +66,8 @@ func UpdatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	privateCallSession.ID = privateCallSessionID
-
 	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
-	privateCallSession.LearnerID = uint(learnerID)
-
-	result, err := privateCallSessionDAO.UpdatePrivateCallSessionByID(privateCallSession)
+	result, err := privateCallSessionDAO.UpdatePrivateCallSessionByID(privateCallSessionID, privateCallSession)
 	//If the session is finished, reducde learner's coin amount.
 	if privateCallSession.IsFinished {
 		pricingDAO := daos.GetPricingDAO()
@@ -82,7 +78,7 @@ func UpdatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 			AvailableCoinCount: uint(learnerAvailableCoin) - uint(pricing.Price),
 		}
 		learnerDAO := daos.GetLearnerDAO()
-		_, _ = learnerDAO.UpdateLearnerByLearnerID(learner)
+		_, _ = learnerDAO.UpdateLearnerByLearnerID(uint(learnerID), learner)
 	}
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
@@ -122,7 +118,7 @@ func CancelPrivateCallHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session is already cancelled.", http.StatusBadRequest)
 		return
 	}
-	result, err := privateCallSessionDAO.UpdatePrivateCallSessionByID(privateCallSession)
+	result, err := privateCallSessionDAO.UpdatePrivateCallSessionByID(privateCallSessionID, privateCallSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return

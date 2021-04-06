@@ -49,13 +49,13 @@ func (dao *PrivateCallSessionDAO) GetCreatedPrivateCallSessionsInTimePeriod(star
 	return uint(len(result)), err
 }
 
-func (u *PrivateCallSessionDAO) UpdatePrivateCallSessionByID(privateCallSession models.PrivateCallSession) (int64, error) {
+func (u *PrivateCallSessionDAO) UpdatePrivateCallSessionByID(id string, privateCallSession models.PrivateCallSession) (int64, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {
 		return db.RowsAffected, err
 	}
-	result := db.Model(&models.PrivateCallSession{}).Where("id = ?", privateCallSession.ID).
+	result := db.Model(&models.PrivateCallSession{}).Where("id = ?", id).
 		Updates(&privateCallSession)
 	return result.RowsAffected, result.Error
 }
