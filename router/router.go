@@ -59,6 +59,8 @@ func init() {
 
 	//For pricing functions
 	apiV1.HandleFunc("/pricings", middleware.ModeratorAuthentication(controllers.GetPricingsHandler)).Methods("GET")
+	apiV1.HandleFunc("/pricings/{pricing_id}/update", middleware.ModeratorAuthentication(controllers.UpdatePricingHandler)).Methods("PUT")
+
 	//For private call session functions
 	apiV1.HandleFunc("/private-call-sessions", middleware.LearnerAuthentication(controllers.CreatePrivateCallSessionHandler)).Methods("POST")
 	apiV1.HandleFunc("/private-call-sessions/{private_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdatePrivateCallSessionHandler)).Methods("PUT")
