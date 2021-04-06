@@ -27,6 +27,42 @@ func (dao *PrivateCallSessionDAO) CreatePrivateCallSession(privateCallSession mo
 }
 
 //GET
+func (dao *PrivateCallSessionDAO) GetPrivateCallSessions(privateCallSession models.PrivateCallSession) (*[]models.PrivateCallSession, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := []models.PrivateCallSession{}
+	var query string
+	var queryValues []uint
+	//ID
+	if privateCallSession.LearnerID != 0 && *privateCallSession.ExpertID == 0 {
+		query += "learner_id = ? "
+		queryValues = append(queryValues, privateCallSession.LearnerID, 0)
+	}
+	if *privateCallSession.ExpertID != 0 && privateCallSession.LearnerID == 0 {
+		query += "expert_id = ? "
+		queryValues = append(queryValues, *privateCallSession.ExpertID, 0)
+	}
+	if *privateCallSession.ExpertID != 0 && privateCallSession.LearnerID != 0 {
+		query += "learner_id = ? AND expert_id = ? "
+		queryValues = append(queryValues, privateCallSession.LearnerID, *privateCallSession.ExpertID)
+	}
+	//if no input, get all
+	if len(queryValues) == 0 {
+		err = db.Debug().Model(&models.PrivateCallSession{}).
+			Preload("Rating").Preload("Learner").Preload("Expert").
+			Order("created_at desc").
+			Find(&result).Error
+		return &result, err
+	}
+	//getAll
+	err = db.Debug().Model(&models.PrivateCallSession{}).
+		Preload("Rating").Preload("Learner").Preload("Expert").
+		Find(&result, query, queryValues[0], queryValues[1]).Error
+	return &result, err
+}
+
 func (dao *PrivateCallSessionDAO) GetPrivateCallSessionByID(id string) (*models.PrivateCallSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {

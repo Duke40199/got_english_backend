@@ -54,6 +54,16 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 				return
 			}
+			//validate whether session is finished before rating
+			if !messagingSession.IsFinished {
+				http.Error(w, "Cannot rate a session which is not finished.", http.StatusBadRequest)
+				return
+			}
+			//validate whether session is rated.
+			if messagingSession.Rating != nil {
+				http.Error(w, "Session is already rated.", http.StatusBadRequest)
+				return
+			}
 			ratingDAO := daos.GetRatingDAO()
 			result, err = ratingDAO.CreateMessagingSessionRating(*messagingSession, rating)
 			if err != nil {
@@ -71,6 +81,16 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 				return
 			}
+			//validate whether session is finished before rating
+			if !privateCallSession.IsFinished {
+				http.Error(w, "Cannot rate a session which is not finished.", http.StatusBadRequest)
+				return
+			}
+			//validate whether session is rated.
+			if privateCallSession.Rating != nil {
+				http.Error(w, "Session is already rated.", http.StatusBadRequest)
+				return
+			}
 			ratingDAO := daos.GetRatingDAO()
 			result, err = ratingDAO.CreatePrivateCallSessionRating(*privateCallSession, rating)
 			if err != nil {
@@ -86,6 +106,16 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 			translationSession, err := translationSessionDAO.GetTranslationSessionByID(serviceID)
 			if err != nil {
 				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+				return
+			}
+			//validate whether session is finished before rating
+			if !translationSession.IsFinished {
+				http.Error(w, "Cannot rate a session which is not finished.", http.StatusBadRequest)
+				return
+			}
+			//validate whether session is rated.
+			if translationSession.Rating != nil {
+				http.Error(w, "Session is already rated.", http.StatusBadRequest)
 				return
 			}
 			ratingDAO := daos.GetRatingDAO()

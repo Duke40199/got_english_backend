@@ -13,16 +13,16 @@ type MessagingSession struct {
 	//Coins paid at the FinishedAt time
 	PaidCoins uint `gorm:"column:paid_coins" json:"paid_coins"`
 	//A leaner can have many message sessions.
-	Learner   Learner `gorm:"foreignKey:LearnerID" json:"-"`
+	Learner   Learner `gorm:"foreignKey:LearnerID" json:"learner_info,omitempty"`
 	LearnerID uint    `gorm:"size:255" json:"learner_id,omitempty"`
 	//An expert can have many message sessions.
-	Expert   *Expert `gorm:"foreignKey:ExpertID" json:"-"`
+	Expert   *Expert `gorm:"foreignKey:ExpertID" json:"expert_info,omitempty"`
 	ExpertID *uint   `gorm:"size:255" json:"expert_id,omitempty"`
 	//An messaging session can only have one pricing.
-	Pricing   *Pricing `gorm:"foreignKey:PricingID" json:"-"`
-	PricingID *uint    `gorm:"size:255" json:"pricing_id,omitempty"`
+	Pricing   Pricing `gorm:"foreignKey:PricingID" json:"-"`
+	PricingID uint    `gorm:"size:255" json:"pricing_id,omitempty"`
 	//An messaging session can only be rated once.
-	Rating   *Rating `gorm:"foreignKey:RatingID"`
+	Rating   *Rating `gorm:"foreignKey:RatingID" json:"rating"`
 	RatingID *uint   `gorm:"size:255" json:"rating_id,omitempty"`
 	//MessageSession status
 	IsCancelled bool       `gorm:"default:false;" json:"is_cancelled"`

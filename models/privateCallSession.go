@@ -28,7 +28,7 @@ type PrivateCallSession struct {
 	Pricing   *Pricing `gorm:"foreignKey:PricingID" json:"-"`
 	PricingID *uint    `gorm:"size:255" json:"pricing_id,omitempty"`
 	//An messaging session can only be rated once.
-	Rating   *Rating `gorm:"foreignKey:RatingID"`
+	Rating   *Rating `gorm:"foreignKey:RatingID" json:"rating,omitempty"`
 	RatingID *uint   `gorm:"size:255" json:"rating_id,omitempty"`
 	//default timestamps
 	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`

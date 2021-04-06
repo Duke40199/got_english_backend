@@ -51,6 +51,7 @@ func init() {
 	apiV1.HandleFunc("/invoices/{invoice_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSessionHandler)).Methods("PUT")
 
 	//For messaging session functions
+	apiV1.HandleFunc("/messaging-sessions", middleware.UserAuthentication(controllers.GetMessagingSessionHandler)).Methods("GET")
 	apiV1.HandleFunc("/messaging-sessions", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("POST")
 	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelMessagingSessionHandler)).Methods("PUT")
@@ -62,6 +63,7 @@ func init() {
 	apiV1.HandleFunc("/pricings/{pricing_id}/update", middleware.ModeratorAuthentication(controllers.UpdatePricingHandler)).Methods("PUT")
 
 	//For private call session functions
+	apiV1.HandleFunc("/private-call-sessions", middleware.UserAuthentication(controllers.GetPrivateCallSessionHandler)).Methods("GET")
 	apiV1.HandleFunc("/private-call-sessions", middleware.LearnerAuthentication(controllers.CreatePrivateCallSessionHandler)).Methods("POST")
 	apiV1.HandleFunc("/private-call-sessions/{private_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdatePrivateCallSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/private-call-sessions/{private_call_session_id}/cancel", middleware.LearnerExpertAuthentication(controllers.CancelPrivateCallHandler)).Methods("PUT")

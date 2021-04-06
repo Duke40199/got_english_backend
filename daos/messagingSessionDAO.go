@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 )
@@ -29,13 +30,49 @@ func (dao *MessagingSessionDAO) CreateMessagingSession(messagingSession models.M
 }
 
 //GET
+func (dao *MessagingSessionDAO) GetMessagingSessions(messagingSession models.MessagingSession) (*[]models.MessagingSession, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := []models.MessagingSession{}
+	var query string = ""
+	var queryValues []uint
+	//ID
+	if messagingSession.LearnerID != 0 && *messagingSession.ExpertID == 0 {
+		query += "learner_id = ? "
+		queryValues = append(queryValues, messagingSession.LearnerID, 0)
+	}
+	if *messagingSession.ExpertID != 0 && messagingSession.LearnerID == 0 {
+		query += "expert_id = ? "
+		queryValues = append(queryValues, *messagingSession.ExpertID, 0)
+	}
+	if *messagingSession.ExpertID != 0 && messagingSession.LearnerID != 0 {
+		query += "learner_id = ? AND expert_id = ? "
+		queryValues = append(queryValues, messagingSession.LearnerID, *messagingSession.ExpertID)
+	}
+	//if no input, get all
+	if len(queryValues) == 0 {
+		err = db.Debug().Model(&models.MessagingSession{}).
+			Preload("Rating").Preload("Learner").Preload("Expert").
+			Order("created_at desc").
+			Find(&result).Error
+		return &result, err
+	}
+	err = db.Debug().Model(&models.MessagingSession{}).
+		Preload("Rating").Preload("Learner").Preload("Expert").
+		Find(&result, query, queryValues[0], queryValues[1]).Error
+	return &result, err
+}
+
 func (dao *MessagingSessionDAO) GetMessagingSessionByID(id string) (*models.MessagingSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
 	}
 	result := models.MessagingSession{}
-	err = db.Debug().Model(&models.MessagingSession{}).Preload("Expert").
+	err = db.Debug().Model(&models.MessagingSession{}).
+		Preload("Expert").Preload("Rating").
 		Find(&result, "id = ?", id).Error
 	return &result, err
 }
@@ -57,6 +94,11 @@ func (u *MessagingSessionDAO) UpdateMessagingSessionByID(id string, messagingSes
 
 	if err != nil {
 		return db.RowsAffected, err
+	}
+	//Update paid coins
+	if messagingSession.IsFinished {
+		pricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().MessagingSessionPricingID)
+		messagingSession.PaidCoins = pricing.Price
 	}
 	result := db.Model(&models.MessagingSession{}).Where("id = ?", id).
 		Updates(&messagingSession)

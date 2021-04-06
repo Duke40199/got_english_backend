@@ -12,6 +12,54 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func GetMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		//params = mux.Vars(r)
+		message = "OK"
+	)
+	var result *[]models.MessagingSession
+	var learnerID uint = 0
+	var expertID uint = 0
+	var err error
+	//expertID
+	paramsExpertID := r.URL.Query()["expert_id"]
+	if len(paramsExpertID) > 0 {
+		tmp, err := strconv.ParseUint(fmt.Sprint(paramsExpertID[0]), 10, 0)
+		if err != nil {
+			http.Error(w, "Invalid expert id.", http.StatusBadRequest)
+			return
+		}
+		expertID = uint(tmp)
+	} else {
+		tmp, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+		expertID = uint(tmp)
+	}
+	//learnerID
+	paramsLearnerID := r.URL.Query()["learner_id"]
+	if len(paramsLearnerID) > 0 {
+		tmp, err := strconv.ParseUint(fmt.Sprint(paramsLearnerID[0]), 10, 0)
+		if err != nil {
+			http.Error(w, "Invalid learner id.", http.StatusBadRequest)
+			return
+		}
+		learnerID = uint(tmp)
+	} else {
+		tmp, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+		learnerID = uint(tmp)
+	}
+	messagingSession := models.MessagingSession{
+		ExpertID:  &expertID,
+		LearnerID: learnerID,
+	}
+	messagingSessionDAO := daos.GetMessagingSessionDAO()
+	result, err = messagingSessionDAO.GetMessagingSessions(messagingSession)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}
 func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
@@ -39,7 +87,7 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	messagingSession.Learner.ID = uint(learnerID)
-	messagingSession.Pricing = pricing
+	messagingSession.Pricing = *pricing
 	//Create
 	messagingSessionDAO := daos.GetMessagingSessionDAO()
 	result, err := messagingSessionDAO.CreateMessagingSession(messagingSession)

@@ -13,7 +13,7 @@ type Invoice struct {
 	ID         uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
 	//A leaner can have many invoices.
 	Learner   Learner `gorm:"foreignKey:LearnerID" json:"-"`
-	LearnerID uint    `gorm:"size:255"`
+	LearnerID uint    `gorm:"size:255" json:"learner_id"`
 	//An invoice can only contain 1 coin bundle.
 	CoinBundle   CoinBundle `gorm:"foreignKey:CoinBundleID" json:"-"`
 	CoinBundleID uint       `gorm:"size:255" json:"coin_bundle_id"`

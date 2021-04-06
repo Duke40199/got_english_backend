@@ -12,6 +12,54 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func GetPrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		//params = mux.Vars(r)
+		message = "OK"
+	)
+	var result *[]models.PrivateCallSession
+	var learnerID uint = 0
+	var expertID uint = 0
+	var err error
+	//expertID
+	paramsExpertID := r.URL.Query()["expert_id"]
+	if len(paramsExpertID) > 0 {
+		tmp, err := strconv.ParseUint(fmt.Sprint(paramsExpertID[0]), 10, 0)
+		if err != nil {
+			http.Error(w, "Invalid expert id.", http.StatusBadRequest)
+			return
+		}
+		expertID = uint(tmp)
+	} else {
+		tmp, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+		expertID = uint(tmp)
+	}
+	//learnerID
+	paramsLearnerID := r.URL.Query()["learner_id"]
+	if len(paramsLearnerID) > 0 {
+		tmp, err := strconv.ParseUint(fmt.Sprint(paramsLearnerID[0]), 10, 0)
+		if err != nil {
+			http.Error(w, "Invalid learner id.", http.StatusBadRequest)
+			return
+		}
+		learnerID = uint(tmp)
+	} else {
+		tmp, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+		learnerID = uint(tmp)
+	}
+	privateCallSession := models.PrivateCallSession{
+		ExpertID:  &expertID,
+		LearnerID: learnerID,
+	}
+	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
+	result, err = privateCallSessionDAO.GetPrivateCallSessions(privateCallSession)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}
 func CreatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
@@ -97,9 +145,10 @@ func CancelPrivateCallHandler(w http.ResponseWriter, r *http.Request) {
 	//parse accountID
 
 	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
-	privateCallSessionID := params["private_call_id"]
+	privateCallSessionID := params["private_call_session_id"]
 	if privateCallSessionID == "" {
 		http.Error(w, "missing session id.", http.StatusBadRequest)
+		return
 	}
 
 	privateCallSession := models.PrivateCallSession{
