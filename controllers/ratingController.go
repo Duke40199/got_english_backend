@@ -142,9 +142,20 @@ func GetRatingsHandler(w http.ResponseWriter, r *http.Request) {
 		// params  = mux.Vars(r)
 		message = "OK"
 	)
-	var result interface{}
+	var expertID uint = 0
+	var err error
+	var result *[]models.Rating
+	if len(r.URL.Query()["expert_id"]) > 0 {
+		tmp, err := strconv.ParseUint(r.URL.Query()["expert_id"][0], 10, 0)
+		if err != nil {
+			http.Error(w, "Invalid expert id.", http.StatusBadRequest)
+			return
+		}
+		expertID = uint(tmp)
+	}
+
 	ratingDAO := daos.GetRatingDAO()
-	result, err := ratingDAO.GetRatings()
+	result, err = ratingDAO.GetRatings(expertID)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return

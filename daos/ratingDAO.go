@@ -52,7 +52,7 @@ func (dao *RatingDAO) CreateTranslationSessionRating(translationSession models.T
 	err = db.Debug().Model(&translationSession).Association("Rating").Append(&rating)
 	return &rating, err
 }
-func (dao *RatingDAO) GetRatings() (*[]models.Rating, error) {
+func (dao *RatingDAO) GetRatings(expertID uint) (*[]models.Rating, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
@@ -66,6 +66,29 @@ func (dao *RatingDAO) GetRatings() (*[]models.Rating, error) {
 		Preload("MessagingSession.Expert.Account").
 		Order("created_at desc").
 		Find(&result).Error
+	//fiter expert
+	if expertID != 0 && len(result) > 0 {
+		for i := 0; i < len(result); i++ {
+			messagingSession := result[i].MessagingSession
+			liveCallSession := result[i].LiveCallSession
+			translationSession := result[i].TranslationSession
+			if messagingSession != nil {
+				if *messagingSession.ExpertID != expertID {
+					result = append(result[:i], result[i+1:]...)
+				}
+			}
+			if liveCallSession != nil {
+				if *liveCallSession.ExpertID != expertID {
+					result = append(result[:i], result[i+1:]...)
+				}
+			}
+			if translationSession != nil {
+				if *translationSession.ExpertID != expertID {
+					result = append(result[:i], result[i+1:]...)
+				}
+			}
+		}
+	}
 	return &result, err
 }
 func (dao *RatingDAO) GetExpertAverageRating(expert models.Expert) (float32, error) {
