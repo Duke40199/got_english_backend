@@ -30,6 +30,7 @@ func UpdateExpertHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
 	}
 	responseConfig.ResponseWithSuccess(w, message, result)
 

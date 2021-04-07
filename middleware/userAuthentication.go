@@ -235,10 +235,18 @@ func AdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 				http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
 				return
 			}
-
+			//Get permissions and put it in context
+			adminDAO := daos.GetAdminDAO()
+			accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
+			permissions, _ := adminDAO.GetAdminByAccountID(accountID)
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
+			//set permission into context
+			ctx = context.WithValue(ctx, "can_manage_admin", permissions.CanManageAdmin)
+			ctx = context.WithValue(ctx, "can_manage_expert", permissions.CanManageExpert)
+			ctx = context.WithValue(ctx, "can_manage_moderator", permissions.CanManageModerator)
+			ctx = context.WithValue(ctx, "can_manage_learner", permissions.CanManageLearner)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
