@@ -68,7 +68,7 @@ func (dao *ExpertDAO) GetAvailableExperts() (*[]models.Expert, error) {
 	result := []models.Expert{}
 	err = db.Debug().Model(&models.Expert{}).
 		Preload("Account").
-		Raw("SELECT * FROM `experts` WHERE experts.id IN (SELECT experts.id FROM translation_sessions WHERE translation_sessions.is_finished = ? OR translation_sessions.is_cancelled = ?) OR experts.id NOT IN (SELECT translation_sessions.expert_id FROM translation_sessions);", true, true).
+		Raw("SELECT * FROM got_english_db_local.experts WHERE experts.id IN (SELECT experts.id FROM translation_sessions WHERE translation_sessions.is_finished = ? OR translation_sessions.is_cancelled = ?) OR experts.id NOT IN (SELECT translation_sessions.expert_id FROM got_english_db_local.translation_sessions WHERE translation_sessions.expert_id IS NOT NULL);", true, true).
 		Find(&result).Error
 
 	return &result, err
