@@ -42,7 +42,7 @@ type PermissionStruct struct {
 	//expert perms
 	CanChat                   bool `json:"can_chat,omitempty"`
 	CanJoinTranslationSession bool `json:"can_join_translation_session,omitempty"`
-	CanJoinPrivateCallSession bool `json:"can_private_call_session,omitempty"`
+	CanJoinLiveCallSession    bool `json:"can_join_live_call_session,omitempty"`
 	//admin perms
 	CanManageExpert    bool `json:"can_manage_expert,omitempty"`
 	CanManageLearner   bool `json:"can_manage_learner,omitempty"`

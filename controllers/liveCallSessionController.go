@@ -12,13 +12,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetPrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
+func GetLiveCallSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		//params = mux.Vars(r)
 		message = "OK"
 	)
-	var result *[]models.PrivateCallSession
+	var result *[]models.LiveCallSession
 	var learnerID uint = 0
 	var expertID uint = 0
 	var err error
@@ -48,49 +48,56 @@ func GetPrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 		tmp, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
 		learnerID = uint(tmp)
 	}
-	privateCallSession := models.PrivateCallSession{
+	liveCallSession := models.LiveCallSession{
 		ExpertID:  &expertID,
 		LearnerID: learnerID,
 	}
-	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
-	result, err = privateCallSessionDAO.GetPrivateCallSessions(privateCallSession)
+	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
+	result, err = liveCallSessionDAO.GetLiveCallSessions(liveCallSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
 	config.ResponseWithSuccess(w, message, result)
 }
-func CreatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
+
+func CreateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		// params  = mux.Vars(r)
 		message = "OK"
 	)
+
 	//Get learnerID
 	availableCoinCount, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
+	//Get messaging sessions
+	liveCallSession := models.LiveCallSession{}
+	if err := json.NewDecoder(r.Body).Decode(&liveCallSession); err != nil {
+		http.Error(w, "Malformed data", http.StatusBadRequest)
+		return
+	}
+	if liveCallSession.ID == "" {
+		http.Error(w, "Missing (document) id.", http.StatusBadRequest)
+		return
+	}
+	if liveCallSession.PricingID == 0 {
+		http.Error(w, "Missing pricing ID.", http.StatusBadRequest)
+		return
+	}
 	//Get pricing
 	pricingDAO := daos.GetPricingDAO()
-	pricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().PrivateCallSessionPricingID)
+	pricing, _ := pricingDAO.GetPricingByID(liveCallSession.PricingID)
 	if availableCoinCount < int64(pricing.Price) {
 		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
 		return
 	}
 	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
-	//Get messaging sessions
-	privateCallSession := models.PrivateCallSession{}
-	if err := json.NewDecoder(r.Body).Decode(&privateCallSession); err != nil {
-		http.Error(w, "Malformed data", http.StatusBadRequest)
-		return
-	}
-	if privateCallSession.ID == "" {
-		http.Error(w, "Missing (document) id.", http.StatusBadRequest)
-		return
-	}
-	privateCallSession.Learner.ID = uint(learnerID)
-	privateCallSession.Pricing = pricing
+
+	liveCallSession.LearnerID = uint(learnerID)
+	liveCallSession.Pricing = *pricing
 	//Create
-	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
-	result, err := privateCallSessionDAO.CreatePrivateCallSession(privateCallSession)
+	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
+	result, err := liveCallSessionDAO.CreateLiveCallSession(liveCallSession)
 
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
@@ -99,35 +106,22 @@ func CreatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 
 }
-func UpdatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		params  = mux.Vars(r)
 		message = "OK"
 	)
 	//parse accountID
-	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
-	privateCallSession := models.PrivateCallSession{}
+	liveCallSession := models.LiveCallSession{}
 	//parse body
-	privateCallSessionID := params["private_call_session_id"]
-	if err := json.NewDecoder(r.Body).Decode(&privateCallSession); err != nil {
+	liveCallSessionID := params["live_call_session_id"]
+	if err := json.NewDecoder(r.Body).Decode(&liveCallSession); err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
-	result, err := privateCallSessionDAO.UpdatePrivateCallSessionByID(privateCallSessionID, privateCallSession)
-	//If the session is finished, reducde learner's coin amount.
-	if privateCallSession.IsFinished {
-		pricingDAO := daos.GetPricingDAO()
-		pricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().PrivateCallSessionPricingID)
-		learnerAvailableCoin, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 0)
-		learner := models.Learner{
-			ID:                 uint(learnerID),
-			AvailableCoinCount: uint(learnerAvailableCoin) - uint(pricing.Price),
-		}
-		learnerDAO := daos.GetLearnerDAO()
-		_, _ = learnerDAO.UpdateLearnerByLearnerID(uint(learnerID), learner)
-	}
+	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
+	result, err := liveCallSessionDAO.UpdateLiveCallSessionByID(liveCallSessionID, liveCallSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
@@ -136,7 +130,7 @@ func UpdatePrivateCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func CancelPrivateCallHandler(w http.ResponseWriter, r *http.Request) {
+func CancelLiveCallHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		params  = mux.Vars(r)
@@ -145,20 +139,20 @@ func CancelPrivateCallHandler(w http.ResponseWriter, r *http.Request) {
 	//parse accountID
 
 	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
-	privateCallSessionID := params["private_call_session_id"]
-	if privateCallSessionID == "" {
+	liveCallSessionID := params["live_call_session_id"]
+	if liveCallSessionID == "" {
 		http.Error(w, "missing session id.", http.StatusBadRequest)
 		return
 	}
 
-	privateCallSession := models.PrivateCallSession{
+	liveCallSession := models.LiveCallSession{
 		LearnerID:   uint(learnerID),
-		ID:          privateCallSessionID,
+		ID:          liveCallSessionID,
 		IsCancelled: true,
 	}
-	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
+	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
 	//Check if the session is already cancelled or existed
-	tmpSession, _ := privateCallSessionDAO.GetPrivateCallSessionByID(privateCallSessionID)
+	tmpSession, _ := liveCallSessionDAO.GetLiveCallSessionByID(liveCallSession.ID)
 	if tmpSession.ID == "" {
 		http.Error(w, "session not found.", http.StatusBadRequest)
 		return
@@ -167,7 +161,7 @@ func CancelPrivateCallHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session is already cancelled.", http.StatusBadRequest)
 		return
 	}
-	result, err := privateCallSessionDAO.UpdatePrivateCallSessionByID(privateCallSessionID, privateCallSession)
+	result, err := liveCallSessionDAO.UpdateLiveCallSessionByID(liveCallSessionID, liveCallSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return

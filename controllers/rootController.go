@@ -142,11 +142,11 @@ func GetAdministratorSummary(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 	)
 	result := map[string]interface{}{
-		"expert_count":               uint(0),
-		"learner_count":              uint(0),
-		"messaging_session_count":    uint(0),
-		"private_call_session_count": uint(0),
-		"translation_session_count":  uint(0),
+		"expert_count":              uint(0),
+		"learner_count":             uint(0),
+		"messaging_session_count":   uint(0),
+		"live_call_session_count":   uint(0),
+		"translation_session_count": uint(0),
 	}
 	var period string
 	if len(r.URL.Query()["period"]) > 0 {
@@ -183,16 +183,16 @@ func GetAdministratorSummary(w http.ResponseWriter, r *http.Request) {
 	}
 	result["messaging_session_count"] = messagingSessionCount
 
-	//Get created private call count during the period.
-	privateCallSessionDAO := daos.GetPrivateCallSessionDAO()
-	privateCallSessionCount, err := privateCallSessionDAO.GetCreatedPrivateCallSessionsInTimePeriod(startDate, endDate)
+	//Get created live call count during the period.
+	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
+	liveCallSessionCount, err := liveCallSessionDAO.GetCreatedLiveCallSessionsInTimePeriod(startDate, endDate)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	result["private_call_session_count"] = privateCallSessionCount
+	result["live_call_session_count"] = liveCallSessionCount
 
-	//Get created private call count during the period.
+	//Get created translation call count during the period.
 	translationSessionDAO := daos.GetTranslationSessionDAO()
 	translationSessionCount, err := translationSessionDAO.GetCreatedTranslationSessionInTimePeriod(startDate, endDate)
 	if err != nil {

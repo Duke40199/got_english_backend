@@ -68,14 +68,6 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	//Get learnerID
 	availableCoinCount, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
-	//Get pricing
-	pricingDAO := daos.GetPricingDAO()
-	pricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().MessagingSessionPricingID)
-	if availableCoinCount < int64(pricing.Price) {
-		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
-		return
-	}
-	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
 	//Get messaging sessions
 	messagingSession := models.MessagingSession{}
 	if err := json.NewDecoder(r.Body).Decode(&messagingSession); err != nil {
@@ -86,7 +78,20 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing (document) id.", http.StatusBadRequest)
 		return
 	}
-	messagingSession.Learner.ID = uint(learnerID)
+	if messagingSession.PricingID == 0 {
+		http.Error(w, "Missing pricing id.", http.StatusBadRequest)
+		return
+	}
+	//Get pricing
+	pricingDAO := daos.GetPricingDAO()
+	pricing, _ := pricingDAO.GetPricingByID(messagingSession.PricingID)
+	if availableCoinCount < int64(pricing.Price) {
+		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
+		return
+	}
+	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
+
+	messagingSession.LearnerID = uint(learnerID)
 	messagingSession.Pricing = *pricing
 	//Create
 	messagingSessionDAO := daos.GetMessagingSessionDAO()
@@ -176,7 +181,7 @@ func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//Return the coin for learner
 	pricingDAO := daos.GetPricingDAO()
-	messagingPricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().MessagingSessionPricingID)
+	messagingPricing, _ := pricingDAO.GetPricingByID(tmpSession.PricingID)
 	learnerAvailableCoin, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
 	currentLearner := models.Learner{
 		AvailableCoinCount: uint(learnerAvailableCoin) + messagingPricing.Price,

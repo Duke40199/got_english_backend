@@ -15,9 +15,8 @@ var modelList = []interface{}{
 
 	//Service-related
 	MessagingSession{},
-	Message{},
 	TranslationSession{},
-	PrivateCallSession{},
+	LiveCallSession{},
 	Rating{},
 
 	//Finance-related

@@ -13,8 +13,8 @@ type MessagingSession struct {
 	//Coins paid at the FinishedAt time
 	PaidCoins uint `gorm:"column:paid_coins" json:"paid_coins"`
 	//A leaner can have many message sessions.
-	Learner   Learner `gorm:"foreignKey:LearnerID" json:"learner_info,omitempty"`
-	LearnerID uint    `gorm:"size:255" json:"learner_id,omitempty"`
+	Learner   *Learner `gorm:"foreignKey:LearnerID" json:"learner_info,omitempty"`
+	LearnerID uint     `gorm:"size:255" json:"learner_id"`
 	//An expert can have many message sessions.
 	Expert   *Expert `gorm:"foreignKey:ExpertID" json:"expert_info,omitempty"`
 	ExpertID *uint   `gorm:"size:255" json:"expert_id,omitempty"`

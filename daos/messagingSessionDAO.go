@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 )
@@ -97,7 +96,9 @@ func (u *MessagingSessionDAO) UpdateMessagingSessionByID(id string, messagingSes
 	}
 	//Update paid coins
 	if messagingSession.IsFinished {
-		pricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().MessagingSessionPricingID)
+		var tmp models.MessagingSession
+		_ = db.Model(&models.MessagingSession{}).Where("id = ?", id).Select("pricing_id").First(&tmp)
+		pricing, _ := pricingDAO.GetPricingByID(tmp.PricingID)
 		messagingSession.PaidCoins = pricing.Price
 	}
 	result := db.Model(&models.MessagingSession{}).Where("id = ?", id).

@@ -193,7 +193,7 @@ func LearnerExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 					permissions, _ := expertDAO.GetExpertByAccountID(accountID)
 					//set permission into context
 					ctx = context.WithValue(ctx, "can_chat", permissions.CanChat)
-					ctx = context.WithValue(ctx, "can_join_private_call_session", permissions.CanJoinPrivateCallSession)
+					ctx = context.WithValue(ctx, "can_join_live_call_session", permissions.CanJoinLiveCallSession)
 					ctx = context.WithValue(ctx, "can_join_translation_room", permissions.CanJoinTranslationSession)
 					next.ServeHTTP(w, r.WithContext(ctx))
 					break

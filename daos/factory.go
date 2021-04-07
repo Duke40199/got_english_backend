@@ -10,10 +10,10 @@ var (
 	expertDAO             = ExpertDAO{}
 	invoiceDAO            = InvoiceDAO{}
 	learnerDAO            = LearnerDAO{}
+	liveCallSessionDAO    = LiveCallSessionDAO{}
 	messagingSessionDAO   = MessagingSessionDAO{}
 	moderatorDAO          = ModeratorDAO{}
 	pricingDAO            = PricingDAO{}
-	privateCallSessionDAO = PrivateCallSessionDAO{}
 	ratingDAO             = RatingDAO{}
 	translationSessionDAO = TranslationSessionDAO{}
 )
@@ -43,6 +43,9 @@ func GetInvoiceDAO() InvoiceDAO {
 func GetLearnerDAO() LearnerDAO {
 	return learnerDAO
 }
+func GetLiveCallSessionDAO() LiveCallSessionDAO {
+	return liveCallSessionDAO
+}
 func GetMessagingSessionDAO() MessagingSessionDAO {
 	return messagingSessionDAO
 }
@@ -55,9 +58,7 @@ func GetRatingDAO() RatingDAO {
 func GetPricingDAO() PricingDAO {
 	return pricingDAO
 }
-func GetPrivateCallSessionDAO() PrivateCallSessionDAO {
-	return privateCallSessionDAO
-}
+
 func GetTranslationSessionDAO() TranslationSessionDAO {
 	return translationSessionDAO
 }

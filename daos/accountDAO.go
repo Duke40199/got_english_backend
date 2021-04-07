@@ -58,7 +58,7 @@ func (u *AccountDAO) CreateAccount(account models.Account, permissions models.Pe
 			err = db.Debug().Model(&account).Association("Expert").Append(&models.Expert{
 				CanChat:                   permissions.CanChat,
 				CanJoinTranslationSession: permissions.CanJoinTranslationSession,
-				CanJoinPrivateCallSession: permissions.CanJoinPrivateCallSession,
+				CanJoinLiveCallSession:    permissions.CanJoinLiveCallSession,
 			})
 			break
 		}

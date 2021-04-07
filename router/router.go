@@ -62,18 +62,19 @@ func init() {
 	apiV1.HandleFunc("/pricings", middleware.ModeratorAuthentication(controllers.GetPricingsHandler)).Methods("GET")
 	apiV1.HandleFunc("/pricings/{pricing_id}/update", middleware.ModeratorAuthentication(controllers.UpdatePricingHandler)).Methods("PUT")
 
-	//For private call session functions
-	apiV1.HandleFunc("/private-call-sessions", middleware.UserAuthentication(controllers.GetPrivateCallSessionHandler)).Methods("GET")
-	apiV1.HandleFunc("/private-call-sessions", middleware.LearnerAuthentication(controllers.CreatePrivateCallSessionHandler)).Methods("POST")
-	apiV1.HandleFunc("/private-call-sessions/{private_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdatePrivateCallSessionHandler)).Methods("PUT")
-	apiV1.HandleFunc("/private-call-sessions/{private_call_session_id}/cancel", middleware.LearnerExpertAuthentication(controllers.CancelPrivateCallHandler)).Methods("PUT")
+	//For live call session functions
+	apiV1.HandleFunc("/live-call-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
+	apiV1.HandleFunc("/live-call-sessions", middleware.LearnerAuthentication(controllers.CreateLiveCallSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateLiveCallSessionHandler)).Methods("PUT")
+	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/cancel", middleware.LearnerExpertAuthentication(controllers.CancelLiveCallHandler)).Methods("PUT")
 
 	//For translation session functions
-	apiV1.HandleFunc("/translation-sessions", middleware.LearnerAuthentication(controllers.CreateTranaltionSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/translation-sessions", middleware.LearnerAuthentication(controllers.CreateTranslationSessionHandler)).Methods("POST")
 
 	// apiV1.HandleFunc("/translation-sessions/{translation_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
 
 	//For ratings functions
+	apiV1.HandleFunc("/ratings", middleware.AdminAuthentication(controllers.GetRatingsHandler)).Methods("GET")
 	apiV1.HandleFunc("/ratings", middleware.LearnerAuthentication(controllers.CreateRatingHandler)).Methods("POST")
 
 	// For changelogs

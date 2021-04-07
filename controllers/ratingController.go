@@ -45,7 +45,7 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 		LearnerID: uint(learnerID),
 	}
 	switch ratingInfo["service"] {
-	case config.GetSerivceConfig().MessagingService:
+	case config.GetServiceConfig().MessagingService:
 		{
 			//validate whether messaging session exists.
 			messagingSessionDAO := daos.GetMessagingSessionDAO()
@@ -72,34 +72,34 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			break
 		}
-	case config.GetSerivceConfig().PrivateCallService:
+	case config.GetServiceConfig().LiveCallService:
 		{
 			//validate whether messaging session exists.
-			privateCallDAO := daos.GetPrivateCallSessionDAO()
-			privateCallSession, err := privateCallDAO.GetPrivateCallSessionByID(serviceID)
+			liveCallDAO := daos.GetLiveCallSessionDAO()
+			liveCallSession, err := liveCallDAO.GetLiveCallSessionByID(serviceID)
 			if err != nil {
 				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 				return
 			}
 			//validate whether session is finished before rating
-			if !privateCallSession.IsFinished {
+			if !liveCallSession.IsFinished {
 				http.Error(w, "Cannot rate a session which is not finished.", http.StatusBadRequest)
 				return
 			}
 			//validate whether session is rated.
-			if privateCallSession.Rating != nil {
+			if liveCallSession.Rating != nil {
 				http.Error(w, "Session is already rated.", http.StatusBadRequest)
 				return
 			}
 			ratingDAO := daos.GetRatingDAO()
-			result, err = ratingDAO.CreatePrivateCallSessionRating(*privateCallSession, rating)
+			result, err = ratingDAO.CreateLiveCallSessionRating(*liveCallSession, rating)
 			if err != nil {
 				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 				return
 			}
 			break
 		}
-	case config.GetSerivceConfig().TranslationService:
+	case config.GetServiceConfig().TranslationService:
 		{
 			//validate whether messaging session exists.
 			translationSessionDAO := daos.GetTranslationSessionDAO()
@@ -134,4 +134,20 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	responseConfig.ResponseWithSuccess(w, message, result)
 
+}
+
+func GetRatingsHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params  = mux.Vars(r)
+		message = "OK"
+	)
+	var result interface{}
+	ratingDAO := daos.GetRatingDAO()
+	result, err := ratingDAO.GetRatings()
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
 }

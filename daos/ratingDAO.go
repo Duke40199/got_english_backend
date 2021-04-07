@@ -27,7 +27,7 @@ func (dao *RatingDAO) CreateMessagingSessionRating(messagingSession models.Messa
 	return &rating, err
 }
 
-func (dao *RatingDAO) CreatePrivateCallSessionRating(privateCallSession models.PrivateCallSession, rating models.Rating) (*models.Rating, error) {
+func (dao *RatingDAO) CreateLiveCallSessionRating(liveCallSession models.LiveCallSession, rating models.Rating) (*models.Rating, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (dao *RatingDAO) CreatePrivateCallSessionRating(privateCallSession models.P
 	if err != nil {
 		return nil, err
 	}
-	err = db.Debug().Model(&privateCallSession).Association("Rating").Append(&rating)
+	err = db.Debug().Model(&liveCallSession).Association("Rating").Append(&rating)
 	return &rating, err
 }
 
@@ -52,7 +52,22 @@ func (dao *RatingDAO) CreateTranslationSessionRating(translationSession models.T
 	err = db.Debug().Model(&translationSession).Association("Rating").Append(&rating)
 	return &rating, err
 }
-
+func (dao *RatingDAO) GetRatings() (*[]models.Rating, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	var result []models.Rating
+	err = db.Debug().Model(&models.Rating{}).
+		Preload("Learner").
+		Preload("TranslationSession").
+		Preload("LiveCallSession").
+		Preload("MessagingSession.Expert").
+		Preload("MessagingSession.Expert.Account").
+		Order("created_at desc").
+		Find(&result).Error
+	return &result, err
+}
 func (dao *RatingDAO) GetExpertAverageRating(expert models.Expert) (float32, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -66,10 +81,10 @@ func (dao *RatingDAO) GetExpertAverageRating(expert models.Expert) (float32, err
 	expertMessagingSessions := []models.MessagingSession{}
 	err = db.Debug().Model(&models.MessagingSession{}).Preload("Rating").
 		Find(&expertMessagingSessions, "expert_id=?", expert.ID).Error
-	//private call sessions
-	expertPrivateCallSessions := []models.PrivateCallSession{}
-	err = db.Debug().Model(&models.PrivateCallSession{}).Preload("Rating").
-		Find(&expertPrivateCallSessions, "expert_id=?", expert.ID).Error
+	//live call sessions
+	expertLiveCallSessions := []models.LiveCallSession{}
+	err = db.Debug().Model(&models.LiveCallSession{}).Preload("Rating").
+		Find(&expertLiveCallSessions, "expert_id=?", expert.ID).Error
 	//translation call sessions
 	expertTranslationSessions := []models.TranslationSession{}
 	err = db.Debug().Model(&models.TranslationSession{}).Preload("Rating").
@@ -85,12 +100,12 @@ func (dao *RatingDAO) GetExpertAverageRating(expert models.Expert) (float32, err
 			}
 		}
 	}
-	if len(expertPrivateCallSessions) > 0 {
-		for i := 0; i < len(expertPrivateCallSessions); i++ {
+	if len(expertLiveCallSessions) > 0 {
+		for i := 0; i < len(expertLiveCallSessions); i++ {
 			//If the session is rated.
-			if expertPrivateCallSessions[i].Rating != nil {
-				if expertPrivateCallSessions[i].Rating.Score > 0 {
-					ratings = append(ratings, expertPrivateCallSessions[i].Rating.Score)
+			if expertLiveCallSessions[i].Rating != nil {
+				if expertLiveCallSessions[i].Rating.Score > 0 {
+					ratings = append(ratings, expertLiveCallSessions[i].Rating.Score)
 				}
 			}
 		}

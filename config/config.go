@@ -103,16 +103,16 @@ func GetApplicationFormStatusConfig() *ApplicationFormStatusConfig {
 type ServiceConfig struct {
 	MessagingService   string
 	TranslationService string
-	PrivateCallService string
+	LiveCallService    string
 }
 
 var serviceConfig = ServiceConfig{
 	MessagingService:   "messaging",
 	TranslationService: "translation",
-	PrivateCallService: "private_call",
+	LiveCallService:    "live_call",
 }
 
 //GetRoleNameConfig : export roleID config
-func GetSerivceConfig() *ServiceConfig {
+func GetServiceConfig() *ServiceConfig {
 	return &serviceConfig
 }

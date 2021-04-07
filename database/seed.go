@@ -92,7 +92,8 @@ func SeedRolesForAccounts(db *gorm.DB, accounts *[]models.Account) {
 		case roleNameConfig.Learner:
 			{
 				db.Create(&models.Learner{
-					AccountID: (*accounts)[i].ID,
+					AccountID:          (*accounts)[i].ID,
+					AvailableCoinCount: 10000,
 				})
 				break
 			}
@@ -102,7 +103,7 @@ func SeedRolesForAccounts(db *gorm.DB, accounts *[]models.Account) {
 					AccountID:                 (*accounts)[i].ID,
 					CanChat:                   true,
 					CanJoinTranslationSession: true,
-					CanJoinPrivateCallSession: true,
+					CanJoinLiveCallSession:    true,
 				})
 				break
 			}
@@ -124,29 +125,56 @@ func SeedRolesForAccounts(db *gorm.DB, accounts *[]models.Account) {
 func SeedPricings(db *gorm.DB) {
 
 	pricings := []models.Pricing{
-
+		//Messaging
 		{
-			ID:           config.GetPricingIDConfig().MessagingSessionPricingID,
 			ServiceName:  "messaging_session",
 			Quantity:     1,
 			QuantityUnit: "session",
 			Price:        30,
 			PriceUnit:    "coin(s)",
 		},
+		//LiveCall
 		{
-			ID:           config.GetPricingIDConfig().TranslationSessionPricingID,
-			ServiceName:  "translation_session",
-			Quantity:     1,
-			QuantityUnit: "session",
+			ServiceName:  "short_live_call_session",
+			Quantity:     5,
+			QuantityUnit: "minutes",
+			Price:        40,
+			PriceUnit:    "coin(s)",
+		},
+		{
+			ServiceName:  "normal_live_call_session",
+			Quantity:     10,
+			QuantityUnit: "minutes",
 			Price:        50,
 			PriceUnit:    "coin(s)",
 		},
 		{
-			ID:           config.GetPricingIDConfig().PrivateCallSessionPricingID,
-			ServiceName:  "private_call_session",
-			Quantity:     1,
-			QuantityUnit: "session",
-			Price:        40,
+			ServiceName:  "long_live_call_session",
+			Quantity:     30,
+			QuantityUnit: "minutes",
+			Price:        60,
+			PriceUnit:    "coin(s)",
+		},
+		//Translation
+		{
+			ServiceName:  "short_translation_call_session",
+			Quantity:     5,
+			QuantityUnit: "minutes",
+			Price:        60,
+			PriceUnit:    "coin(s)",
+		},
+		{
+			ServiceName:  "normal_translation_call_session",
+			Quantity:     10,
+			QuantityUnit: "minutes",
+			Price:        70,
+			PriceUnit:    "coin(s)",
+		},
+		{
+			ServiceName:  "long_translation_call_session",
+			Quantity:     30,
+			QuantityUnit: "minutes",
+			Price:        80,
 			PriceUnit:    "coin(s)",
 		},
 	}

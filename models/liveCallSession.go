@@ -6,12 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// PrivateCallSession model struct
-type PrivateCallSession struct {
+// LiveCallSession model struct
+type LiveCallSession struct {
 	gorm.Model        `json:"-"`
 	ID                string `gorm:"column:id;size:255;not null; unique; primaryKey;" json:"id"`
 	DurationInSeconds *uint  `gorm:"column:duration_in_seconds" json:"duration_in_seconds,omitempty"`
-	//PrivateCall status
+	//LiveCall status
 	IsCancelled bool       `gorm:"default:false;" json:"is_cancelled"`
 	IsFinished  bool       `gorm:"default:false;" json:"is_finished"`
 	StartedAt   *time.Time `gorm:"column:started_at" json:"started_at"`
@@ -25,8 +25,8 @@ type PrivateCallSession struct {
 	Expert   *Expert `gorm:"foreignKey:ExpertID" json:"-"`
 	ExpertID *uint   `gorm:"size:255" json:"expert_id,omitempty"`
 	//An messaging session can only have one pricing.
-	Pricing   *Pricing `gorm:"foreignKey:PricingID" json:"-"`
-	PricingID *uint    `gorm:"size:255" json:"pricing_id,omitempty"`
+	Pricing   Pricing `gorm:"foreignKey:PricingID" json:"-"`
+	PricingID uint    `gorm:"size:255" json:"pricing_id,omitempty"`
 	//An messaging session can only be rated once.
 	Rating   *Rating `gorm:"foreignKey:RatingID" json:"rating,omitempty"`
 	RatingID *uint   `gorm:"size:255" json:"rating_id,omitempty"`

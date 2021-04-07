@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateTranaltionSessionHandler(w http.ResponseWriter, r *http.Request) {
+func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		// params  = mux.Vars(r)
@@ -22,15 +22,7 @@ func CreateTranaltionSessionHandler(w http.ResponseWriter, r *http.Request) {
 	//Get learnerID
 	accountID, _ := uuid.Parse(fmt.Sprint(r.Context().Value("id")))
 	availableCoinCount, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
-	//Get pricing
-	pricingDAO := daos.GetPricingDAO()
-	pricing, _ := pricingDAO.GetPricingByID(config.GetPricingIDConfig().TranslationSessionPricingID)
-	if availableCoinCount < int64(pricing.Price) {
-		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
-		return
-	}
-
-	//Get messaging sessions
+	//Get translation sessions
 	translationSession := models.TranslationSession{}
 	if err := json.NewDecoder(r.Body).Decode(&translationSession); err != nil {
 		http.Error(w, "Malformed data", http.StatusBadRequest)
@@ -38,6 +30,19 @@ func CreateTranaltionSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if translationSession.ID == "" {
 		http.Error(w, "Missing (document) id.", http.StatusBadRequest)
+		return
+	}
+	//Check if have pricing id
+	if translationSession.PricingID == 0 {
+		http.Error(w, "Invalid pricing", http.StatusBadRequest)
+		return
+	}
+
+	//Get pricing
+	pricingDAO := daos.GetPricingDAO()
+	pricing, _ := pricingDAO.GetPricingByID(translationSession.PricingID)
+	if availableCoinCount < int64(pricing.Price) {
+		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
 		return
 	}
 	learnerDAO := daos.GetLearnerDAO()
@@ -56,36 +61,3 @@ func CreateTranaltionSessionHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 
 }
-
-// func UpdateTranlationSessionHandler(w http.ResponseWriter, r *http.Request) {
-// 	defer r.Body.Close()
-// 	var (
-// 		params  = mux.Vars(r)
-// 		message = "OK"
-// 	)
-// 	//parse accountID
-
-// 	accountID, _ := uuid.Parse(fmt.Sprint(r.Context().Value("id")))
-// 	translationSession := models.TranslationSession{}
-// 	//parse body
-// 	translationSessionID, _ := strconv.ParseInt(params["translation_session_id"], 10, 0)
-// 	if err := json.NewDecoder(r.Body).Decode(&translationSession); err != nil {
-// 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-// 		return
-// 	}
-// 	translationSession.ID = uint(translationSessionID)
-// 	learnerDAO := daos.GetLearnerDAO()
-// 	learner, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
-
-// 	translationSessionDAO := daos.GetTranlsationSessionDAO()
-// 	translationSession.Learners = learner.ID
-
-// 	result, err := privateCallSessionDAO.UpdatePrivateCallSessionByID(privateCallSession)
-
-// 	if err != nil {
-// 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
-// 		return
-// 	}
-// 	config.ResponseWithSuccess(w, message, result)
-
-// }
