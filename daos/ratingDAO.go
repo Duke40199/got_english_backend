@@ -60,6 +60,7 @@ func (dao *RatingDAO) GetRatings(expertID uint) (*[]models.Rating, error) {
 	var result []models.Rating
 	err = db.Debug().Model(&models.Rating{}).
 		Preload("Learner").
+		Preload("Learner.Account").
 		Preload("TranslationSession").
 		Preload("LiveCallSession").
 		Preload("MessagingSession.Expert").
