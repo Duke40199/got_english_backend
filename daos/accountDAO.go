@@ -132,7 +132,7 @@ func (u *AccountDAO) GetAccounts(account models.Account) (*[]models.Account, err
 		return nil, err
 	}
 	err = db.Debug().Model(&models.Account{}).Preload("Learner").Preload("Expert").Preload("Moderator").Preload("Admin").
-		Find(&accounts, "accounts.role_name LIKE ? AND accounts.username LIKE ?", account.RoleName+"%", *account.Username+"%").Error
+		Find(&accounts, "accounts.role_name LIKE ? AND accounts.username LIKE ?", "%"+account.RoleName+"%", "%"+*account.Username+"%").Error
 	//Only get date from birthdays
 	for i := 0; i < len(accounts); i++ {
 		if accounts[i].Birthday != nil {
