@@ -17,7 +17,8 @@ type TranslationSession struct {
 	StartedAt   *time.Time `gorm:"column:started_at" json:"started_at"`
 	FinishedAt  *time.Time `gorm:"column:finished_at" json:"finished_at"`
 	//A translation session can have many learners
-	Learners []*Learner `gorm:"many2many:translation_session_learners;"`
+	Learners   []Learner `gorm:"many2many:translation_session_learners;" json:"learners"`
+	LearnerIDs []uint    `gorm:"-" json:"learner_ids,omitempty"`
 	//A translation session can have only one expert.
 	Expert   *Expert `gorm:"foreignKey:ExpertID" json:"expert,omitempty"`
 	ExpertID *uint   `gorm:"size:255" json:"expert_id,omitempty"`

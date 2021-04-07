@@ -69,10 +69,10 @@ func init() {
 	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelLiveCallHandler)).Methods("PUT")
 
 	//For translation session functions
+	// apiV1.HandleFunc("/translation-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
 	apiV1.HandleFunc("/translation-sessions", middleware.LearnerAuthentication(controllers.CreateTranslationSessionHandler)).Methods("POST")
-
-	// apiV1.HandleFunc("/translation-sessions/{translation_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSession)).Methods("PUT")
-
+	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateTranslationSessionHandler)).Methods("PUT")
+	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelTranslationSessionHandler)).Methods("PUT")
 	//For ratings functions
 	apiV1.HandleFunc("/ratings", middleware.AdminAuthentication(controllers.GetRatingsHandler)).Methods("GET")
 	apiV1.HandleFunc("/ratings", middleware.LearnerAuthentication(controllers.CreateRatingHandler)).Methods("POST")

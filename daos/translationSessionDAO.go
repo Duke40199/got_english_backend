@@ -49,13 +49,21 @@ func (dao *TranslationSessionDAO) GetCreatedTranslationSessionInTimePeriod(start
 	return uint(len(result)), err
 }
 
-func (u *TranslationSessionDAO) UpdateTranslationSessionByID(translationSession models.TranslationSession) (int64, error) {
+func (u *TranslationSessionDAO) UpdateTranslationSessionByID(id string, translationSession models.TranslationSession, learners []models.Learner) (int64, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {
 		return db.RowsAffected, err
 	}
-	result := db.Model(&models.TranslationSession{}).Where("id = ?", translationSession.ID).
+	result := db.Debug().Model(&models.TranslationSession{}).Where("id = ?", id).
 		Updates(&translationSession)
+	//If add learner to translation session
+	if len(learners) > 0 {
+		_ = db.Debug().Preload("Learners").
+			Where(&models.TranslationSession{ID: id}).
+			Find(&translationSession).
+			Association("Learners").
+			Append(&learners)
+	}
 	return result.RowsAffected, result.Error
 }
