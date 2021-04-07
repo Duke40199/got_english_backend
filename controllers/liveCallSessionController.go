@@ -98,11 +98,17 @@ func CreateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	//Create
 	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
 	result, err := liveCallSessionDAO.CreateLiveCallSession(liveCallSession)
-
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
+	//reduce learner available coin
+	learner := models.Learner{
+		AvailableCoinCount: uint(availableCoinCount) - pricing.Price,
+	}
+	learnerDAO := daos.GetLearnerDAO()
+	_, _ = learnerDAO.UpdateLearnerByLearnerID(uint(learnerID), learner)
+
 	config.ResponseWithSuccess(w, message, result)
 
 }
@@ -139,6 +145,7 @@ func CancelLiveCallHandler(w http.ResponseWriter, r *http.Request) {
 	//parse accountID
 
 	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
+	availableCoinCount, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 0)
 	liveCallSessionID := params["live_call_session_id"]
 	if liveCallSessionID == "" {
 		http.Error(w, "missing session id.", http.StatusBadRequest)
@@ -166,6 +173,15 @@ func CancelLiveCallHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
+	//refund
+	pricingDAO := daos.GetPricingDAO()
+	pricing, _ := pricingDAO.GetPricingByID(tmpSession.PricingID)
+	currentLearner := models.Learner{
+		ID:                 uint(learnerID),
+		AvailableCoinCount: uint(availableCoinCount) + pricing.Price,
+	}
+	learnerDAO := daos.GetLearnerDAO()
+	_, _ = learnerDAO.UpdateLearnerByLearnerID(uint(learnerID), currentLearner)
 	config.ResponseWithSuccess(w, message, result)
 
 }

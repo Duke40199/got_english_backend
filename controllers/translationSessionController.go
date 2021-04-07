@@ -45,6 +45,7 @@ func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
 		return
 	}
+	//add creator learner
 	learnerDAO := daos.GetLearnerDAO()
 	learner, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
 	translationSession.Learners = append(translationSession.Learners, learner)
@@ -58,6 +59,9 @@ func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
+	//reduce learner available coin
+	learner.AvailableCoinCount = uint(availableCoinCount) - pricing.Price
+	_, _ = learnerDAO.UpdateLearnerByLearnerID(learner.ID, *learner)
 	config.ResponseWithSuccess(w, message, result)
 
 }

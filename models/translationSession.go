@@ -23,7 +23,7 @@ type TranslationSession struct {
 	ExpertID *uint   `gorm:"size:255" json:"expert_id,omitempty"`
 	//An messaging session can only have one pricing.
 	Pricing   Pricing `gorm:"foreignKey:PricingID"`
-	PricingID uint    `gorm:"size:255" `
+	PricingID uint    `gorm:"size:255" json:"pricing_id"`
 	//An messaging session can only be rated once.
 	Rating   *Rating `gorm:"foreignKey:RatingID"`
 	RatingID *uint   `gorm:"column:rating_id;size:255" json:"rating_id,omitempty"`

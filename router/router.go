@@ -66,7 +66,7 @@ func init() {
 	apiV1.HandleFunc("/live-call-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
 	apiV1.HandleFunc("/live-call-sessions", middleware.LearnerAuthentication(controllers.CreateLiveCallSessionHandler)).Methods("POST")
 	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateLiveCallSessionHandler)).Methods("PUT")
-	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/cancel", middleware.LearnerExpertAuthentication(controllers.CancelLiveCallHandler)).Methods("PUT")
+	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelLiveCallHandler)).Methods("PUT")
 
 	//For translation session functions
 	apiV1.HandleFunc("/translation-sessions", middleware.LearnerAuthentication(controllers.CreateTranslationSessionHandler)).Methods("POST")
