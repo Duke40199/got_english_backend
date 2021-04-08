@@ -36,7 +36,7 @@ func UpdateExpertHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetAvailableExperts(w http.ResponseWriter, r *http.Request) {
+func GetTranslatorExpertsHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		// params  = mux.Vars(r)
@@ -44,7 +44,7 @@ func GetAvailableExperts(w http.ResponseWriter, r *http.Request) {
 	)
 
 	expertDAO := daos.GetExpertDAO()
-	result, err := expertDAO.GetAvailableExperts()
+	result, err := expertDAO.GetTranslatorExperts()
 
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)

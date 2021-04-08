@@ -60,7 +60,7 @@ func (dao *ExpertDAO) UpdateExpertByAccountID(accountID uuid.UUID, expertPermiss
 // This will return experts which:
 // 1. Is not having any translation sessions
 // 2. All of their translation sessions are finished or cancelled
-func (dao *ExpertDAO) GetAvailableExperts() (*[]models.Expert, error) {
+func (dao *ExpertDAO) GetTranslatorExperts() (*[]models.Expert, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
@@ -68,8 +68,9 @@ func (dao *ExpertDAO) GetAvailableExperts() (*[]models.Expert, error) {
 	result := []models.Expert{}
 	err = db.Debug().Model(&models.Expert{}).
 		Preload("Account").
-		Raw("SELECT * FROM got_english_db_local.experts WHERE experts.id IN (SELECT experts.id FROM translation_sessions WHERE translation_sessions.is_finished = ? OR translation_sessions.is_cancelled = ?) OR experts.id NOT IN (SELECT translation_sessions.expert_id FROM got_english_db_local.translation_sessions WHERE translation_sessions.expert_id IS NOT NULL) AND experts.can_join_translation_session = ?;", true, true, true).
-		Find(&result).Error
+
+		// Raw("SELECT * FROM experts WHERE experts.id IN (SELECT experts.id FROM translation_sessions WHERE translation_sessions.is_finished = ? OR translation_sessions.is_cancelled = ?) OR experts.id NOT IN (SELECT translation_sessions.expert_id FROM got_english_db_local.translation_sessions WHERE translation_sessions.expert_id IS NOT NULL) AND experts.can_join_translation_session = ?;", true, true, true).
+		Find(&result, "can_join_translation_session = ?", true).Error
 
 	return &result, err
 }
