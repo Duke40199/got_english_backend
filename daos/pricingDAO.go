@@ -38,6 +38,17 @@ func (dao *PricingDAO) GetPricings(serviceName string, id uint) (*[]models.Prici
 	}
 	return &pricing, err
 }
+
+func (u *PricingDAO) CreatePricingHandler(pricing models.Pricing) (*models.Pricing, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return nil, err
+	}
+	err = db.Debug().Model(&models.Pricing{}).Create(&pricing).Error
+	return &pricing, err
+}
+
 func (u *PricingDAO) UpdatePricingByID(id uint, updateInfo models.Pricing) (int64, error) {
 	db, err := database.ConnectToDB()
 
@@ -46,5 +57,16 @@ func (u *PricingDAO) UpdatePricingByID(id uint, updateInfo models.Pricing) (int6
 	}
 	result := db.Model(&models.Pricing{}).Where("id = ?", id).
 		Updates(updateInfo)
+	return result.RowsAffected, result.Error
+}
+
+func (u *PricingDAO) DeletePricingByID(id uint) (int64, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.Pricing{}).Where("id = ?", id).
+		Delete(&models.Pricing{})
 	return result.RowsAffected, result.Error
 }

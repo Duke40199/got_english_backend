@@ -42,23 +42,54 @@ func GetPricingsHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 }
 
+func CreatePricingHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+		// params  = mux.Vars(r)
+	)
+	//Check if the user is allows to update pricing
+	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_pricing")))
+	if !canManagePricing {
+		http.Error(w, "You cannot manage pricing.", http.StatusForbidden)
+		return
+	}
+	//parse body
+	pricing := models.Pricing{}
+	if err := json.NewDecoder(r.Body).Decode(&pricing); err != nil {
+		http.Error(w, "Malformed data", http.StatusBadRequest)
+		return
+	}
+
+	pricingDAO := daos.GetPricingDAO()
+	result, err := pricingDAO.CreatePricingHandler(pricing)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+
+}
+
 func UpdatePricingHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		message = "OK"
 		params  = mux.Vars(r)
 	)
+	//Check if the user is allows to update pricing
+	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_pricing")))
+	if !canManagePricing {
+		http.Error(w, "You cannot manage pricing.", http.StatusForbidden)
+		return
+	}
 	//parse request param to get accountid
 	pricingID, err := strconv.ParseUint(params["pricing_id"], 10, 0)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_pricing")))
-	if !canManagePricing {
-		http.Error(w, "You cannot manage pricing.", http.StatusForbidden)
-		return
-	}
+
 	//parse body
 	updateInfo := models.Pricing{}
 	if err := json.NewDecoder(r.Body).Decode(&updateInfo); err != nil {
@@ -73,4 +104,30 @@ func UpdatePricingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	config.ResponseWithSuccess(w, message, result)
 
+}
+func DeletePricingHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+		params  = mux.Vars(r)
+	)
+	//Check if the user is allows to update pricing
+	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_pricing")))
+	if !canManagePricing {
+		http.Error(w, "You cannot manage pricing.", http.StatusForbidden)
+		return
+	}
+	//parse request param to get accountid
+	pricingID, err := strconv.ParseUint(params["pricing_id"], 10, 0)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	pricingDAO := daos.GetPricingDAO()
+	result, err := pricingDAO.DeletePricingByID(uint(pricingID))
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
 }

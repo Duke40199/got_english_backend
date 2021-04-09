@@ -62,8 +62,9 @@ func init() {
 
 	//For pricing functions
 	apiV1.HandleFunc("/pricings", middleware.ModeratorAuthentication(controllers.GetPricingsHandler)).Methods("GET")
+	apiV1.HandleFunc("/pricings", middleware.ModeratorAuthentication(controllers.CreatePricingHandler)).Methods("POST")
 	apiV1.HandleFunc("/pricings/{pricing_id}/update", middleware.ModeratorAuthentication(controllers.UpdatePricingHandler)).Methods("PUT")
-
+	apiV1.HandleFunc("/pricings/{pricing_id}/delete", middleware.ModeratorAuthentication(controllers.DeletePricingHandler)).Methods("DELETE")
 	//For live call session functions
 	apiV1.HandleFunc("/live-call-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
 	apiV1.HandleFunc("/live-call-sessions", middleware.LearnerAuthentication(controllers.CreateLiveCallSessionHandler)).Methods("POST")
