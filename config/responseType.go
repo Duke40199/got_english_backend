@@ -25,7 +25,7 @@ type jsonResponse struct {
 
 // ResponseWithJSON formats returned data
 func ResponseWithJSON(w http.ResponseWriter, success bool, msg string, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 
 	response := responser{success, msg, payload}
