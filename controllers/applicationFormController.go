@@ -30,11 +30,14 @@ func CreateApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	for i := 0; i < len(*applicationForm.Types); i++ {
 		formType := (*applicationForm.Types)[i]
-		if formType != "live_call" && formType != "translation" && formType != "messaging" {
-			http.Error(w, "incorrect application type. (live_call|translation|messaging)", http.StatusBadRequest)
+		if formType != "can_chat" && formType != "can_join_translation_session" && formType != "can_join_live_call_session" {
+			http.Error(w, "incorrect application type. (can_chat|can_join_translation_session|can_join_live_call_session)", http.StatusBadRequest)
 			return
 		}
-		applicationForm.Type += formType + ","
+		applicationForm.Type += formType
+		if i < len(*applicationForm.Types)-1 {
+			applicationForm.Type += ","
+		}
 	}
 	//assign expertID to applicationForm
 	applicationForm.ExpertID = uint(expertID)

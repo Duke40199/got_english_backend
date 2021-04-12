@@ -219,7 +219,7 @@ func LearnerExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 					ctx = context.WithValue(ctx, "expert_id", permissions.ID)
 					ctx = context.WithValue(ctx, "can_chat", permissions.CanChat)
 					ctx = context.WithValue(ctx, "can_join_live_call_session", permissions.CanJoinLiveCallSession)
-					ctx = context.WithValue(ctx, "can_join_translation_room", permissions.CanJoinTranslationSession)
+					ctx = context.WithValue(ctx, "can_join_translation_session", permissions.CanJoinTranslationSession)
 					next.ServeHTTP(w, r.WithContext(ctx))
 					break
 				}
@@ -318,7 +318,7 @@ func ExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			ctx = context.WithValue(ctx, "expert_id", expertInfo.ID)
 			ctx = context.WithValue(ctx, "can_chat", expertInfo.CanChat)
 			ctx = context.WithValue(ctx, "can_join_live_call_session", expertInfo.CanJoinLiveCallSession)
-			ctx = context.WithValue(ctx, "can_join_translation_room", expertInfo.CanJoinTranslationSession)
+			ctx = context.WithValue(ctx, "can_join_translation_session", expertInfo.CanJoinTranslationSession)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
