@@ -23,7 +23,7 @@ type Account struct {
 	Address     *string    `gorm:"size:255;" json:"address"`
 	PhoneNumber *string    `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
 	Birthday    *string    `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
-	IsSuspended *bool      `gorm:"column:is_suspended" json:"is_suspended"`
+	IsSuspended bool       `gorm:"column:is_suspended;default:false;" json:"is_suspended"`
 	SuspendedAt *time.Time `gorm:"column:suspended_at" json:"suspended_at"`
 	//Role
 	Learner   *Learner   `gorm:"foreignKey:AccountID" json:"learner_details,omitempty"`

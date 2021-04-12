@@ -30,7 +30,7 @@ func init() {
 	apiV1.HandleFunc("/accounts", middleware.AdminAuthentication(controllers.GetAccountsHandler)).Methods("GET")
 	apiV1.HandleFunc("/accounts", controllers.CreateAccountHandler).Methods("POST")
 	apiV1.HandleFunc("/accounts/{account_id}/update", middleware.UserAuthentication(controllers.UpdateAccountHandler)).Methods("PUT")
-
+	apiV1.HandleFunc("/accounts/{account_id}/suspend", middleware.AdminAuthentication(controllers.SuspendAccountHandler)).Methods("PUT")
 	//For admin functions
 	apiV1.HandleFunc("/admins/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateAdminHandler)).Methods("PUT")
 	//For application form functions

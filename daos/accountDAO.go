@@ -2,6 +2,7 @@ package daos
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -85,14 +86,14 @@ func (u *AccountDAO) CreateAccount(account models.Account, permissions models.Pe
 	return &account, err
 }
 
-func (u *AccountDAO) FindAccountByID(account models.Account) (*models.Account, error) {
+func (u *AccountDAO) FindAccountByID(id uuid.UUID) (*models.Account, error) {
 	accountResult := models.Account{}
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
 	}
 	err = db.Debug().Model(&models.Account{}).Preload("Learner").Preload("Expert").Preload("Moderator").Preload("Admin").
-		First(&accountResult, "id=?", account.ID).Error
+		First(&accountResult, "id=?", fmt.Sprint(id)).Error
 	//Only get date from birthdays
 	if accountResult.Birthday != nil {
 		*accountResult.Birthday = strings.Split(*accountResult.Birthday, "T")[0]

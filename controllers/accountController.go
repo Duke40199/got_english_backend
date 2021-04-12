@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"firebase.google.com/go/auth"
 	"github.com/golang/got_english_backend/config"
@@ -149,6 +151,73 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func SuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+		params  = mux.Vars(r)
+	)
+	//parse request param to get accountid
+	accountID, _ := uuid.Parse(params["account_id"])
+	//Validate if the account owner is requesting the update.
+	accountDAO := daos.GetAccountDAO()
+	accountToSuspend, err := accountDAO.FindAccountByID(accountID)
+	if accountToSuspend.IsSuspended {
+		http.Error(w, "Account is already suspended.", http.StatusBadRequest)
+		return
+	}
+	switch accountToSuspend.RoleName {
+	case config.GetRoleNameConfig().Admin:
+		{
+			canManageAdmin, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_admin")))
+			if !canManageAdmin {
+				http.Error(w, "You don't have the permission to manange "+
+					config.GetRoleNameConfig().Moderator+"s.", http.StatusUnauthorized)
+				return
+			}
+			break
+		}
+	case config.GetRoleNameConfig().Moderator:
+		{
+			canManageModerator, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_moderator")))
+			if !canManageModerator {
+				http.Error(w, "You don't have the permission to manange "+
+					config.GetRoleNameConfig().Moderator+"s.", http.StatusUnauthorized)
+				return
+			}
+			break
+		}
+	case config.GetRoleNameConfig().Expert:
+		{
+			canManageExpert, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_expert")))
+			if !canManageExpert {
+				http.Error(w, "You don't have the permission to manange "+
+					config.GetRoleNameConfig().Expert+"s.", http.StatusUnauthorized)
+				return
+			}
+			break
+		}
+	case config.GetRoleNameConfig().Learner:
+		{
+			canManageLearner, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_learner")))
+			if !canManageLearner {
+				http.Error(w, "You don't have the permission to manange "+
+					config.GetRoleNameConfig().Learner+"s.", http.StatusUnauthorized)
+				return
+			}
+			break
+		}
+	}
+	timeNow := time.Now()
+	result, err := accountDAO.UpdateAccountByID(accountID, models.Account{IsSuspended: true, SuspendedAt: &timeNow})
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+
+}
+
 func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
@@ -169,9 +238,7 @@ func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	accountDAO := daos.GetAccountDAO()
-	userDetails, err := accountDAO.FindAccountByID(models.Account{
-		ID: accountID,
-	})
+	userDetails, err := accountDAO.FindAccountByID(accountID)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
