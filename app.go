@@ -44,6 +44,3 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, c.Handler(r)))
 
 }
-
-func init() {
-}

@@ -77,7 +77,7 @@ func ModeratorAuthentication(next http.HandlerFunc) http.HandlerFunc {
 
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			//set permission into context
-			ctx = context.WithValue(ctx, "can_manage_application_form", permissions.CanManageCoinBundle)
+			ctx = context.WithValue(ctx, "can_manage_application_form", permissions.CanManageApplicationForm)
 			ctx = context.WithValue(ctx, "can_manage_coin_bundle", permissions.CanManageCoinBundle)
 			ctx = context.WithValue(ctx, "can_manage_pricing", permissions.CanManagePricing)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
@@ -216,6 +216,7 @@ func LearnerExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 					accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
 					permissions, _ := expertDAO.GetExpertByAccountID(accountID)
 					//set permission into context
+					ctx = context.WithValue(ctx, "expert_id", permissions.ID)
 					ctx = context.WithValue(ctx, "can_chat", permissions.CanChat)
 					ctx = context.WithValue(ctx, "can_join_live_call_session", permissions.CanJoinLiveCallSession)
 					ctx = context.WithValue(ctx, "can_join_translation_room", permissions.CanJoinTranslationSession)
@@ -309,6 +310,15 @@ func ExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
+			//Get permissions and put it in context
+			expertDAO := daos.GetExpertDAO()
+			accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
+			expertInfo, _ := expertDAO.GetExpertByAccountID(accountID)
+			//set permission into context
+			ctx = context.WithValue(ctx, "expert_id", expertInfo.ID)
+			ctx = context.WithValue(ctx, "can_chat", expertInfo.CanChat)
+			ctx = context.WithValue(ctx, "can_join_live_call_session", expertInfo.CanJoinLiveCallSession)
+			ctx = context.WithValue(ctx, "can_join_translation_room", expertInfo.CanJoinTranslationSession)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)

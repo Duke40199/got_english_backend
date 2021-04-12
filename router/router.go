@@ -37,7 +37,8 @@ func init() {
 	apiV1.HandleFunc("/application-forms", middleware.ExpertAuthentication(controllers.CreateApplicationFormHandler)).Methods("POST")
 	apiV1.HandleFunc("/application-forms", middleware.ModeratorAuthentication(controllers.GetApplicationFormsHandler)).Methods("GET")
 	apiV1.HandleFunc("/application-forms/history", middleware.ExpertAuthentication(controllers.GetApplicationFormsHandler)).Methods("GET")
-
+	apiV1.HandleFunc("/application-forms/{application_form_id}/approve", middleware.ModeratorAuthentication(controllers.ApproveApplicationFormHandler)).Methods("GET")
+	apiV1.HandleFunc("/application-forms/{application_form_id}/reject", middleware.ModeratorAuthentication(controllers.RejectApplicationFormHandler)).Methods("GET")
 	//For coin bundle functions
 	apiV1.HandleFunc("/coin-bundles", middleware.UserAuthentication(controllers.GetCoinBundlesHandler)).Methods("GET")
 	apiV1.HandleFunc("/coin-bundles", middleware.ModeratorAuthentication(controllers.CreateCoinBundleHandler)).Methods("POST")
