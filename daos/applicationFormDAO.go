@@ -31,6 +31,7 @@ func (dao *ApplicationFormDAO) GetApplicationForms() (*[]models.ApplicationForm,
 	applicationForms := []models.ApplicationForm{}
 	err = db.Debug().Model(&models.ApplicationForm{}).
 		Preload("Expert").
+		Preload("Expert.Account").
 		Select("application_forms.*").Find(&applicationForms).Error
 	return &applicationForms, err
 }
