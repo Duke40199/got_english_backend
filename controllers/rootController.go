@@ -40,6 +40,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprint(err.Error()), http.StatusForbidden)
 			return
 		}
+		if result.IsSuspended {
+			http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+			return
+		}
 	} else {
 		http.Error(w, "Missing Firebase ID Token.", http.StatusForbidden)
 		return
@@ -103,6 +107,10 @@ func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 	//Create a new account from firebase to db
 	accountDAO := daos.GetAccountDAO()
 	result, _ = accountDAO.FindAccountByEmail(account)
+	if result.IsSuspended {
+		http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+		return
+	}
 	if result.Email == nil {
 		result, _ = accountDAO.CreateAccount(account, models.PermissionStruct{})
 		ctx := r.Context()

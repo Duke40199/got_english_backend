@@ -6,12 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 
 	"firebase.google.com/go/auth"
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
+	"github.com/golang/got_english_backend/middleware"
 	"github.com/golang/got_english_backend/models"
 	"github.com/golang/got_english_backend/utils"
 	"github.com/gorilla/mux"
@@ -166,50 +165,45 @@ func SuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Account is already suspended.", http.StatusBadRequest)
 		return
 	}
-	switch accountToSuspend.RoleName {
-	case config.GetRoleNameConfig().Admin:
-		{
-			canManageAdmin, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_admin")))
-			if !canManageAdmin {
-				http.Error(w, "You don't have the permission to manange "+
-					config.GetRoleNameConfig().Moderator+"s.", http.StatusUnauthorized)
-				return
-			}
-			break
-		}
-	case config.GetRoleNameConfig().Moderator:
-		{
-			canManageModerator, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_moderator")))
-			if !canManageModerator {
-				http.Error(w, "You don't have the permission to manange "+
-					config.GetRoleNameConfig().Moderator+"s.", http.StatusUnauthorized)
-				return
-			}
-			break
-		}
-	case config.GetRoleNameConfig().Expert:
-		{
-			canManageExpert, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_expert")))
-			if !canManageExpert {
-				http.Error(w, "You don't have the permission to manange "+
-					config.GetRoleNameConfig().Expert+"s.", http.StatusUnauthorized)
-				return
-			}
-			break
-		}
-	case config.GetRoleNameConfig().Learner:
-		{
-			canManageLearner, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_learner")))
-			if !canManageLearner {
-				http.Error(w, "You don't have the permission to manange "+
-					config.GetRoleNameConfig().Learner+"s.", http.StatusUnauthorized)
-				return
-			}
-			break
-		}
+	//Check current admin permission
+	permission := middleware.GetPermissionByRoleName(accountToSuspend.RoleName)
+	isAuthenticated := middleware.CheckAdminPermission(permission, r)
+	if !isAuthenticated {
+		http.Error(w, "You don't have permission to manage "+accountToSuspend.RoleName+"s.", http.StatusUnauthorized)
+		return
 	}
-	timeNow := time.Now()
-	result, err := accountDAO.UpdateAccountByID(accountID, models.Account{IsSuspended: true, SuspendedAt: &timeNow})
+	result, err := accountDAO.SuspendAccountByID(accountID)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+
+}
+
+func UnsuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+		params  = mux.Vars(r)
+	)
+	//parse request param to get accountid
+	accountID, _ := uuid.Parse(params["account_id"])
+	//Validate if the account owner is requesting the update.
+	accountDAO := daos.GetAccountDAO()
+	accountToSuspend, err := accountDAO.FindAccountByID(accountID)
+	if !accountToSuspend.IsSuspended {
+		http.Error(w, "Account is not yet suspended.", http.StatusBadRequest)
+		return
+	}
+	//Check current admin permission
+	permission := middleware.GetPermissionByRoleName(accountToSuspend.RoleName)
+	isAuthenticated := middleware.CheckAdminPermission(permission, r)
+	if !isAuthenticated {
+		http.Error(w, "You don't have permission to manage "+accountToSuspend.RoleName+"s.", http.StatusUnauthorized)
+		return
+	}
+	result, err := accountDAO.UnsuspendAccountByID(accountID)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return

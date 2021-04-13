@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/database"
@@ -152,6 +153,28 @@ func (u *AccountDAO) UpdateAccountByID(accountID uuid.UUID, updateInfo models.Ac
 		return db.RowsAffected, err
 	}
 	result := db.Model(&models.Account{}).Where("id = ?", accountID).
-		Updates(updateInfo)
+		Updates(&updateInfo)
+	return result.RowsAffected, result.Error
+}
+
+func (u *AccountDAO) SuspendAccountByID(accountID uuid.UUID) (int64, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.Account{}).Where("id = ?", accountID).
+		Updates(map[string]interface{}{"is_suspended": true, "suspended_at": time.Now()})
+	return result.RowsAffected, result.Error
+}
+
+func (u *AccountDAO) UnsuspendAccountByID(accountID uuid.UUID) (int64, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.Account{}).Where("id = ?", accountID).
+		Updates(map[string]interface{}{"is_suspended": false, "suspended_at": nil})
 	return result.RowsAffected, result.Error
 }
