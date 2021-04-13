@@ -17,8 +17,6 @@ var r = mux.NewRouter()
 func init() {
 	log.Println("Initializing Router")
 	apiV1 := r.PathPrefix("/").Subrouter()
-	//For administrator (web admin) functions
-	apiV1.HandleFunc("/administrator/summary", middleware.UserAuthentication(controllers.GetAdministratorSummary)).Methods("GET")
 
 	//For root functions
 	apiV1.HandleFunc("/", RootRoute).Methods("GET")
@@ -26,6 +24,9 @@ func init() {
 	apiV1.HandleFunc("/login/google", controllers.LoginWithGoogleHandler).Methods("POST")
 	apiV1.HandleFunc("/profile", middleware.UserAuthentication(controllers.ViewProfileHandler)).Methods("GET")
 
+	//For administrator (web admin) functions
+	apiV1.HandleFunc("/administrator/summary", middleware.UserAuthentication(controllers.GetAdministratorSummaryHandler)).Methods("GET")
+	apiV1.HandleFunc("/administrator/service-summary", middleware.UserAuthentication(controllers.GetAdministratorSummaryHandler)).Methods("GET")
 	//For account functions
 	apiV1.HandleFunc("/accounts", middleware.AdminAuthentication(controllers.GetAccountsHandler)).Methods("GET")
 	apiV1.HandleFunc("/accounts", controllers.CreateAccountHandler).Methods("POST")
