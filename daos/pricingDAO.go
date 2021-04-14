@@ -32,9 +32,9 @@ func (dao *PricingDAO) GetPricings(serviceName string, id uint) (*[]models.Prici
 	pricing := []models.Pricing{}
 	// If id is not inputted
 	if id == 0 {
-		err = db.Debug().Find(&pricing, "pricings.service_name LIKE ?", "%"+serviceName+"%").Error
+		err = db.Debug().Where("pricings.service_name LIKE ?", "%"+serviceName+"%").Find(&pricing).Error
 	} else {
-		err = db.Debug().Find(&pricing, "pricings.service_name LIKE ? AND pricings.id = ?", "%"+serviceName+"%", id).Error
+		err = db.Debug().Where("pricings.service_name LIKE ? AND pricings.id = ?", "%"+serviceName+"%", id).Find(&pricing).Error
 	}
 	return &pricing, err
 }

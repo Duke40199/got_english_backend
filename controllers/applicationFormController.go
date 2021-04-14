@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	responseConfig "github.com/golang/got_english_backend/config"
+	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
 	"github.com/gorilla/mux"
@@ -47,7 +47,7 @@ func CreateApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 	}
-	responseConfig.ResponseWithSuccess(w, message, result)
+	config.ResponseWithSuccess(w, message, result)
 }
 
 func GetApplicationFormsHandler(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +62,7 @@ func GetApplicationFormsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	responseConfig.ResponseWithSuccess(w, message, applicationForms)
+	config.ResponseWithSuccess(w, message, applicationForms)
 
 }
 func GetApplicationFormHistoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +78,7 @@ func GetApplicationFormHistoryHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	responseConfig.ResponseWithSuccess(w, message, applicationForms)
+	config.ResponseWithSuccess(w, message, applicationForms)
 
 }
 func ApproveApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
@@ -99,8 +99,8 @@ func ApproveApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//check application status
 	applicationFormDAO := daos.GetApplicationFormDAO()
-	applicationForm, err := applicationFormDAO.GetApplicationFormByID(uint(applicationFormID))
-	if applicationForm.Status != responseConfig.GetApplicationFormStatusConfig().Pending {
+	applicationForm, _ := applicationFormDAO.GetApplicationFormByID(uint(applicationFormID))
+	if applicationForm.Status != config.GetApplicationFormStatusConfig().Pending {
 		http.Error(w, "Application form is already being either approved or rejected.", http.StatusBadRequest)
 		return
 	}
@@ -110,7 +110,7 @@ func ApproveApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	responseConfig.ResponseWithSuccess(w, message, updateResult)
+	config.ResponseWithSuccess(w, message, updateResult)
 }
 func RejectApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -130,8 +130,8 @@ func RejectApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//check application status
 	applicationFormDAO := daos.GetApplicationFormDAO()
-	applicationForm, err := applicationFormDAO.GetApplicationFormByID(uint(applicationFormID))
-	if applicationForm.Status != responseConfig.GetApplicationFormStatusConfig().Pending {
+	applicationForm, _ := applicationFormDAO.GetApplicationFormByID(uint(applicationFormID))
+	if applicationForm.Status != config.GetApplicationFormStatusConfig().Pending {
 		http.Error(w, "Application form is already being either approved or rejected.", http.StatusBadRequest)
 		return
 	}
@@ -141,5 +141,5 @@ func RejectApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	responseConfig.ResponseWithSuccess(w, message, updateResult)
+	config.ResponseWithSuccess(w, message, updateResult)
 }

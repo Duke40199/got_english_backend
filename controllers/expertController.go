@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/golang/got_english_backend/config"
-	responseConfig "github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -55,7 +54,7 @@ func GetTranslatorExpertsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	responseConfig.ResponseWithSuccess(w, message, result)
+	config.ResponseWithSuccess(w, message, result)
 
 }
 
@@ -80,6 +79,6 @@ func UpdateExpertHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	responseConfig.ResponseWithSuccess(w, message, result)
+	config.ResponseWithSuccess(w, message, result)
 
 }

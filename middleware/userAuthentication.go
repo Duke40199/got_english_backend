@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
+	"github.com/golang/got_english_backend/models"
 	"github.com/google/uuid"
 )
 
@@ -27,9 +29,9 @@ func UserAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			//Check if suspended
-			isSuspended := CheckIfSuspended(userInfo["id"])
-			if isSuspended {
-				http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+			_, err := GetAccountFullInfo(userInfo["id"])
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 				return
 			}
 			//Check if correct role
@@ -60,9 +62,9 @@ func ModeratorAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			//Check if suspended
-			isSuspended := CheckIfSuspended(userInfo["id"])
-			if isSuspended {
-				http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+			accountInfo, err := GetAccountFullInfo(userInfo["id"])
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 				return
 			}
 			//Check if correct role
@@ -70,16 +72,11 @@ func ModeratorAuthentication(next http.HandlerFunc) http.HandlerFunc {
 				http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
 				return
 			}
-			//Get permissions and put it in context
-			moderatorDAO := daos.GetModeratorDAO()
-			accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
-			permissions, _ := moderatorDAO.GetModeratorByAccountID(accountID)
-
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			//set permission into context
-			ctx = context.WithValue(ctx, "can_manage_application_form", permissions.CanManageApplicationForm)
-			ctx = context.WithValue(ctx, "can_manage_coin_bundle", permissions.CanManageCoinBundle)
-			ctx = context.WithValue(ctx, "can_manage_pricing", permissions.CanManagePricing)
+			ctx = context.WithValue(ctx, "can_manage_application_form", accountInfo.Moderator.CanManageApplicationForm)
+			ctx = context.WithValue(ctx, "can_manage_coin_bundle", accountInfo.Moderator.CanManageCoinBundle)
+			ctx = context.WithValue(ctx, "can_manage_pricing", accountInfo.Moderator.CanManagePricing)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -102,9 +99,9 @@ func ModeratorAdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			//Check if suspended
-			isSuspended := CheckIfSuspended(userInfo["id"])
-			if isSuspended {
-				http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+			accountInfo, err := GetAccountFullInfo(userInfo["id"])
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 				return
 			}
 			//Check if correct role
@@ -114,28 +111,20 @@ func ModeratorAdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			switch userInfo["role_name"] {
 			case roleNameConfig.Moderator:
 				{
-					//Get permissions and put it in context
-					moderatorDAO := daos.GetModeratorDAO()
-					accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
-					permissions, _ := moderatorDAO.GetModeratorByAccountID(accountID)
 					//set permission into context
-					ctx = context.WithValue(ctx, "can_manage_application_form", permissions.CanManageCoinBundle)
-					ctx = context.WithValue(ctx, "can_manage_coin_bundle", permissions.CanManageCoinBundle)
-					ctx = context.WithValue(ctx, "can_manage_pricing", permissions.CanManagePricing)
+					ctx = context.WithValue(ctx, "can_manage_application_form", accountInfo.Moderator.CanManageCoinBundle)
+					ctx = context.WithValue(ctx, "can_manage_coin_bundle", accountInfo.Moderator.CanManageCoinBundle)
+					ctx = context.WithValue(ctx, "can_manage_pricing", accountInfo.Moderator.CanManagePricing)
 
 					break
 				}
 			case roleNameConfig.Admin:
 				{
-					//Get permissions and put it in context
-					adminDAO := daos.GetAdminDAO()
-					accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
-					permissions, _ := adminDAO.GetAdminByAccountID(accountID)
 					//set permission into context
-					ctx = context.WithValue(ctx, "can_manage_admin", permissions.CanManageAdmin)
-					ctx = context.WithValue(ctx, "can_manage_expert", permissions.CanManageExpert)
-					ctx = context.WithValue(ctx, "can_manage_moderator", permissions.CanManageModerator)
-					ctx = context.WithValue(ctx, "can_manage_learner", permissions.CanManageLearner)
+					ctx = context.WithValue(ctx, "can_manage_admin", accountInfo.Admin.CanManageAdmin)
+					ctx = context.WithValue(ctx, "can_manage_expert", accountInfo.Admin.CanManageExpert)
+					ctx = context.WithValue(ctx, "can_manage_moderator", accountInfo.Admin.CanManageModerator)
+					ctx = context.WithValue(ctx, "can_manage_learner", accountInfo.Admin.CanManageLearner)
 					break
 				}
 			}
@@ -157,9 +146,9 @@ func LearnerAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			//Check if suspended
-			isSuspended := CheckIfSuspended(userInfo["id"])
-			if isSuspended {
-				http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+			accountInfo, err := GetAccountFullInfo(userInfo["id"])
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 				return
 			}
 			//Check if correct role
@@ -168,13 +157,10 @@ func LearnerAuthentication(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 			//Get permissions and put it in context
-			learnerDAO := daos.GetLearnerDAO()
-			accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
-			learnerInfo, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
-			ctx = context.WithValue(ctx, "learner_id", learnerInfo.ID)
-			ctx = context.WithValue(ctx, "available_coin_count", learnerInfo.AvailableCoinCount)
+			ctx = context.WithValue(ctx, "learner_id", accountInfo.Learner.ID)
+			ctx = context.WithValue(ctx, "available_coin_count", accountInfo.Learner.AvailableCoinCount)
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			next.ServeHTTP(w, r.WithContext(ctx))
 
@@ -195,9 +181,9 @@ func LearnerExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			//Check if suspended
-			isSuspended := CheckIfSuspended(userInfo["id"])
-			if isSuspended {
-				http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+			accountInfo, err := GetAccountFullInfo(userInfo["id"])
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 				return
 			}
 			//Check if correct role
@@ -211,27 +197,19 @@ func LearnerExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			switch userInfo["role_name"] {
 			case roleNameConfig.Expert:
 				{
-					//Get permissions and put it in context
-					expertDAO := daos.GetExpertDAO()
-					accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
-					permissions, _ := expertDAO.GetExpertByAccountID(accountID)
 					//set permission into context
-					ctx = context.WithValue(ctx, "expert_id", permissions.ID)
-					ctx = context.WithValue(ctx, "can_chat", permissions.CanChat)
-					ctx = context.WithValue(ctx, "can_join_live_call_session", permissions.CanJoinLiveCallSession)
-					ctx = context.WithValue(ctx, "can_join_translation_session", permissions.CanJoinTranslationSession)
+					ctx = context.WithValue(ctx, "expert_id", accountInfo.Expert.ID)
+					ctx = context.WithValue(ctx, "can_chat", accountInfo.Expert.CanChat)
+					ctx = context.WithValue(ctx, "can_join_live_call_session", accountInfo.Expert.CanJoinLiveCallSession)
+					ctx = context.WithValue(ctx, "can_join_translation_session", accountInfo.Expert.CanJoinTranslationSession)
 					next.ServeHTTP(w, r.WithContext(ctx))
 					break
 				}
 			case roleNameConfig.Learner:
 				{
-					//Get permissions and put it in context
-					learnerDAO := daos.GetLearnerDAO()
-					accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
-					learnerInfo, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
 					//set permission into context
-					ctx = context.WithValue(ctx, "learner_id", learnerInfo.ID)
-					ctx = context.WithValue(ctx, "available_coin_count", learnerInfo.AvailableCoinCount)
+					ctx = context.WithValue(ctx, "learner_id", accountInfo.Learner.ID)
+					ctx = context.WithValue(ctx, "available_coin_count", accountInfo.Learner.AvailableCoinCount)
 					break
 				}
 			}
@@ -255,9 +233,9 @@ func AdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			//Check if suspended
-			isSuspended := CheckIfSuspended(userInfo["id"])
-			if isSuspended {
-				http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+			accountInfo, err := GetAccountFullInfo(userInfo["id"])
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 				return
 			}
 			//Check if correct role;
@@ -265,18 +243,15 @@ func AdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 				http.Error(w, "Your current role cannot access this function.", http.StatusForbidden)
 				return
 			}
-			//Get permissions and put it in context
-			adminDAO := daos.GetAdminDAO()
-			accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
-			permissions, _ := adminDAO.GetAdminByAccountID(accountID)
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			//set permission into context
-			ctx = context.WithValue(ctx, "can_manage_admin", permissions.CanManageAdmin)
-			ctx = context.WithValue(ctx, "can_manage_expert", permissions.CanManageExpert)
-			ctx = context.WithValue(ctx, "can_manage_moderator", permissions.CanManageModerator)
-			ctx = context.WithValue(ctx, "can_manage_learner", permissions.CanManageLearner)
+			ctx = context.WithValue(ctx, "admin_id", accountInfo.Admin.ID)
+			ctx = context.WithValue(ctx, "can_manage_admin", accountInfo.Admin.CanManageAdmin)
+			ctx = context.WithValue(ctx, "can_manage_expert", accountInfo.Admin.CanManageExpert)
+			ctx = context.WithValue(ctx, "can_manage_moderator", accountInfo.Admin.CanManageModerator)
+			ctx = context.WithValue(ctx, "can_manage_learner", accountInfo.Admin.CanManageLearner)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
@@ -297,9 +272,9 @@ func ExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			//Check if suspended
-			isSuspended := CheckIfSuspended(userInfo["id"])
-			if isSuspended {
-				http.Error(w, "Your account has been suspended.", http.StatusUnauthorized)
+			accountInfo, err := GetAccountFullInfo(userInfo["id"])
+			if err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 				return
 			}
 			//Check if correct role
@@ -310,18 +285,15 @@ func ExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
-			//Get permissions and put it in context
-			expertDAO := daos.GetExpertDAO()
-			accountID, _ := uuid.Parse(fmt.Sprint(userInfo["id"]))
-			expertInfo, _ := expertDAO.GetExpertByAccountID(accountID)
 			//set permission into context
-			ctx = context.WithValue(ctx, "expert_id", expertInfo.ID)
-			ctx = context.WithValue(ctx, "can_chat", expertInfo.CanChat)
-			ctx = context.WithValue(ctx, "can_join_live_call_session", expertInfo.CanJoinLiveCallSession)
-			ctx = context.WithValue(ctx, "can_join_translation_session", expertInfo.CanJoinTranslationSession)
+			ctx = context.WithValue(ctx, "expert_id", accountInfo.Expert.ID)
+			ctx = context.WithValue(ctx, "can_chat", accountInfo.Expert.CanChat)
+			ctx = context.WithValue(ctx, "can_join_live_call_session", accountInfo.Expert.CanJoinLiveCallSession)
+			ctx = context.WithValue(ctx, "can_join_translation_session", accountInfo.Expert.CanJoinTranslationSession)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
+			return
 		}
 	}
 }
@@ -341,12 +313,20 @@ func CheckIfValidToken(r *http.Request) (bool, *jwt.Token) {
 	}
 }
 
-func CheckIfSuspended(id interface{}) bool {
+func GetAccountFullInfo(id interface{}) (*models.Account, error) {
 	accountDAO := daos.GetAccountDAO()
 	accountID, _ := uuid.Parse(fmt.Sprint(id))
-	accountInfo, _ := accountDAO.FindAccountByID(accountID)
-	if accountInfo.IsSuspended {
-		return true
+	accountInfo, err := accountDAO.FindAccountByID(accountID)
+	if err != nil {
+		return nil, err
 	}
-	return false
+	//If account doesn't exist.
+	if accountInfo == nil {
+		return nil, errors.New("account doesn't exist")
+	}
+	//If account is suspended.
+	if accountInfo.IsSuspended {
+		return nil, errors.New("your account has been suspended")
+	}
+	return accountInfo, nil
 }

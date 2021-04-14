@@ -161,6 +161,10 @@ func SuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 	//Validate if the account owner is requesting the update.
 	accountDAO := daos.GetAccountDAO()
 	accountToSuspend, err := accountDAO.FindAccountByID(accountID)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
 	if accountToSuspend.IsSuspended {
 		http.Error(w, "Account is already suspended.", http.StatusBadRequest)
 		return
@@ -192,6 +196,10 @@ func UnsuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 	//Validate if the account owner is requesting the update.
 	accountDAO := daos.GetAccountDAO()
 	accountToSuspend, err := accountDAO.FindAccountByID(accountID)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
 	if !accountToSuspend.IsSuspended {
 		http.Error(w, "Account is not yet suspended.", http.StatusBadRequest)
 		return

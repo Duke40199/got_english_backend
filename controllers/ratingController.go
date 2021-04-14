@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/golang/got_english_backend/config"
-	responseConfig "github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
 )
@@ -132,7 +131,7 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	responseConfig.ResponseWithSuccess(w, message, result)
+	config.ResponseWithSuccess(w, message, result)
 
 }
 
