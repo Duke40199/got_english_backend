@@ -16,6 +16,8 @@ type TranslationSession struct {
 	IsFinished  bool       `gorm:"default:false;" json:"is_finished"`
 	StartedAt   *time.Time `gorm:"column:started_at" json:"started_at"`
 	FinishedAt  *time.Time `gorm:"column:finished_at" json:"finished_at"`
+	//Coins paid at the FinishedAt time
+	PaidCoins uint `gorm:"column:paid_coins" json:"paid_coins"`
 	//A translation session can have many learners
 	Learners   []Learner `gorm:"many2many:translation_session_learners;" json:"learners"`
 	LearnerIDs []uint    `gorm:"-" json:"learner_ids,omitempty"`
