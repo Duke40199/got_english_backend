@@ -65,6 +65,22 @@ func GetApplicationFormsHandler(w http.ResponseWriter, r *http.Request) {
 	responseConfig.ResponseWithSuccess(w, message, applicationForms)
 
 }
+func GetApplicationFormHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params   = mux.Vars(r)
+		message = "OK"
+	)
+	expertID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+	applicationFormDAO := daos.GetApplicationFormDAO()
+	applicationForms, err := applicationFormDAO.GetApplicationFormsByExpertID(uint(expertID))
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	responseConfig.ResponseWithSuccess(w, message, applicationForms)
+
+}
 func ApproveApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (

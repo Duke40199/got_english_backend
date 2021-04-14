@@ -38,7 +38,7 @@ func init() {
 	//For application form functions
 	apiV1.HandleFunc("/application-forms", middleware.ExpertAuthentication(controllers.CreateApplicationFormHandler)).Methods("POST")
 	apiV1.HandleFunc("/application-forms", middleware.ModeratorAuthentication(controllers.GetApplicationFormsHandler)).Methods("GET")
-	apiV1.HandleFunc("/application-forms/history", middleware.ExpertAuthentication(controllers.GetApplicationFormsHandler)).Methods("GET")
+	apiV1.HandleFunc("/application-forms/history", middleware.ExpertAuthentication(controllers.GetApplicationFormHistoryHandler)).Methods("GET")
 	apiV1.HandleFunc("/application-forms/{application_form_id}/approve", middleware.ModeratorAuthentication(controllers.ApproveApplicationFormHandler)).Methods("GET")
 	apiV1.HandleFunc("/application-forms/{application_form_id}/reject", middleware.ModeratorAuthentication(controllers.RejectApplicationFormHandler)).Methods("GET")
 	//For coin bundle functions
@@ -64,7 +64,7 @@ func init() {
 	apiV1.HandleFunc("/moderators/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateModeratorHandler)).Methods("PUT")
 
 	//For pricing functions
-	apiV1.HandleFunc("/pricings", middleware.ModeratorAuthentication(controllers.GetPricingsHandler)).Methods("GET")
+	apiV1.HandleFunc("/pricings", middleware.UserAuthentication(controllers.GetPricingsHandler)).Methods("GET")
 	apiV1.HandleFunc("/pricings", middleware.ModeratorAuthentication(controllers.CreatePricingHandler)).Methods("POST")
 	apiV1.HandleFunc("/pricings/{pricing_id}/update", middleware.ModeratorAuthentication(controllers.UpdatePricingHandler)).Methods("PUT")
 	apiV1.HandleFunc("/pricings/{pricing_id}/delete", middleware.ModeratorAuthentication(controllers.DeletePricingHandler)).Methods("DELETE")
@@ -80,7 +80,7 @@ func init() {
 	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateTranslationSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelTranslationSessionHandler)).Methods("PUT")
 	//For ratings functions
-	apiV1.HandleFunc("/ratings", middleware.AdminAuthentication(controllers.GetRatingsHandler)).Methods("GET")
+	apiV1.HandleFunc("/ratings", middleware.UserAuthentication(controllers.GetRatingsHandler)).Methods("GET")
 	apiV1.HandleFunc("/ratings", middleware.LearnerAuthentication(controllers.CreateRatingHandler)).Methods("POST")
 
 	// For changelogs

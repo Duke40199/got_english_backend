@@ -48,6 +48,16 @@ func (dao *ApplicationFormDAO) GetApplicationFormByID(id uint) (*models.Applicat
 
 }
 
+func (dao *ApplicationFormDAO) GetApplicationFormsByExpertID(expertID uint) (*[]models.ApplicationForm, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	applicationForms := []models.ApplicationForm{}
+	err = db.Debug().Order("created_at desc").Model(&models.ApplicationForm{}).
+		Select("application_forms.*").Find(&applicationForms, "expert_id=?", expertID).Error
+	return &applicationForms, err
+}
 func (dao *ApplicationFormDAO) UpdateApplicationFormByID(id uint, applicationForm models.ApplicationForm) (int64, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
