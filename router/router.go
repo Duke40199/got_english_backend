@@ -47,8 +47,11 @@ func init() {
 	apiV1.HandleFunc("/coin-bundles/{coin_bundle_id}/update", middleware.ModeratorAuthentication(controllers.UpdateCoinBundleHandler)).Methods("PUT")
 
 	//For expert functions
-	apiV1.HandleFunc("/experts/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
+	apiV1.HandleFunc("/experts", middleware.UserAuthentication(controllers.GetExpertsHandler)).Methods("GET")
 	apiV1.HandleFunc("/experts/translators", middleware.LearnerAuthentication(controllers.GetTranslatorExpertsHandler)).Methods("GET")
+	apiV1.HandleFunc("/experts/{account_id}", middleware.UserAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
+	apiV1.HandleFunc("/experts/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
+
 	//For invoice functions
 	apiV1.HandleFunc("/invoices", middleware.LearnerAuthentication(controllers.CreateInvoiceHandler)).Methods("POST")
 	apiV1.HandleFunc("/invoices/history", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("GET")

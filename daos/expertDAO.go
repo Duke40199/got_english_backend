@@ -35,7 +35,24 @@ func (dao *ExpertDAO) GetExpertByAccountID(accountID uuid.UUID) (*models.Expert,
 	err = db.Debug().First(&result, "account_id = ?", accountID).Error
 	return &result, err
 }
-
+func (dao *ExpertDAO) GetExpertByID(expertID uint) (*models.Expert, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := models.Expert{}
+	err = db.Debug().Preload("Account").First(&result, "id = ?", expertID).Error
+	return &result, err
+}
+func (dao *ExpertDAO) GetExperts() (*[]models.Expert, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := []models.Expert{}
+	err = db.Debug().Preload("Account").Find(&result).Error
+	return &result, err
+}
 func (dao *ExpertDAO) GetCreatedExpertsInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
