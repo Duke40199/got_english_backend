@@ -73,17 +73,17 @@ func (dao *RatingDAO) GetRatings(expertID uint) (*[]models.Rating, error) {
 			messagingSession := result[i].MessagingSession
 			liveCallSession := result[i].LiveCallSession
 			translationSession := result[i].TranslationSession
-			if messagingSession != nil {
+			if messagingSession != nil && messagingSession.ExpertID != nil {
 				if *messagingSession.ExpertID != expertID {
 					result = append(result[:i], result[(i+1):]...)
 				}
 			}
-			if liveCallSession != nil {
+			if liveCallSession != nil && liveCallSession.ExpertID != nil {
 				if *liveCallSession.ExpertID != expertID {
 					result = append(result[:i], result[(i+1):]...)
 				}
 			}
-			if translationSession != nil {
+			if translationSession != nil && translationSession.ExpertID != nil {
 				if *translationSession.ExpertID != expertID {
 					result = append(result[:i], result[(i+1):]...)
 				}
