@@ -66,6 +66,7 @@ func SeedDB(db *gorm.DB) {
 	SeedRolesForAccounts(db, &accounts)
 	SeedPricings(db)
 	SeedCoinBundles(db)
+	SeedExchangeRates(db)
 }
 
 //SeedAccounts will seed users to the DB
@@ -114,6 +115,7 @@ func SeedRolesForAccounts(db *gorm.DB, accounts *[]models.Account) {
 					CanManageCoinBundle:      true,
 					CanManagePricing:         true,
 					CanManageApplicationForm: true,
+					CanManageExchangeRate:    true,
 				})
 				break
 			}
@@ -127,7 +129,7 @@ func SeedPricings(db *gorm.DB) {
 	pricings := []models.Pricing{
 		//Messaging
 		{
-			ServiceName:  "messaging_session",
+			PricingName:  "messaging_session",
 			Quantity:     1,
 			QuantityUnit: "session",
 			Price:        30,
@@ -135,21 +137,21 @@ func SeedPricings(db *gorm.DB) {
 		},
 		//LiveCall
 		{
-			ServiceName:  "short_live_call_session",
+			PricingName:  "live_call_session",
 			Quantity:     5,
 			QuantityUnit: "minutes",
 			Price:        40,
 			PriceUnit:    "coin(s)",
 		},
 		{
-			ServiceName:  "normal_live_call_session",
+			PricingName:  "live_call_session",
 			Quantity:     10,
 			QuantityUnit: "minutes",
 			Price:        50,
 			PriceUnit:    "coin(s)",
 		},
 		{
-			ServiceName:  "long_live_call_session",
+			PricingName:  "live_call_session",
 			Quantity:     30,
 			QuantityUnit: "minutes",
 			Price:        60,
@@ -157,25 +159,32 @@ func SeedPricings(db *gorm.DB) {
 		},
 		//Translation
 		{
-			ServiceName:  "short_translation_call_session",
+			PricingName:  "translation_call_session",
 			Quantity:     5,
 			QuantityUnit: "minutes",
 			Price:        60,
 			PriceUnit:    "coin(s)",
 		},
 		{
-			ServiceName:  "normal_translation_call_session",
+			PricingName:  "translation_call_session",
 			Quantity:     10,
 			QuantityUnit: "minutes",
 			Price:        70,
 			PriceUnit:    "coin(s)",
 		},
 		{
-			ServiceName:  "long_translation_call_session",
+			PricingName:  "translation_call_session",
 			Quantity:     30,
 			QuantityUnit: "minutes",
 			Price:        80,
 			PriceUnit:    "coin(s)",
+		},
+		{
+			PricingName:  "coin_value",
+			Quantity:     1,
+			QuantityUnit: "coin",
+			Price:        2000,
+			PriceUnit:    "VND",
 		},
 	}
 	db.Create(&pricings)
@@ -210,4 +219,25 @@ func SeedCoinBundles(db *gorm.DB) {
 	}
 	db.Create(&bundles)
 	fmt.Println("======= Coin bundles seeded.")
+}
+
+func SeedExchangeRates(db *gorm.DB) {
+
+	rates := []models.ExchangeRate{
+
+		{
+			Rate:        0.2,
+			ServiceName: "messaging_session",
+		},
+		{
+			Rate:        0.3,
+			ServiceName: "live_call_session",
+		},
+		{
+			Rate:        0.4,
+			ServiceName: "translation_session",
+		},
+	}
+	db.Create(&rates)
+	fmt.Println("======= Exchange rates seeded.")
 }

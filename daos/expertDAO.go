@@ -74,9 +74,6 @@ func (dao *ExpertDAO) UpdateExpertByAccountID(accountID uuid.UUID, expertPermiss
 	return result.RowsAffected, result.Error
 }
 
-// This will return experts which:
-// 1. Is not having any translation sessions
-// 2. All of their translation sessions are finished or cancelled
 func (dao *ExpertDAO) GetTranslatorExperts() (*[]models.Expert, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {

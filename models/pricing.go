@@ -10,7 +10,7 @@ import (
 type Pricing struct {
 	gorm.Model   `json:"-"`
 	ID           uint   `gorm:"column:id;autoIncrement;not null; unique; primaryKey;" json:"id"`
-	ServiceName  string `gorm:"column:service_name;size:255" json:"service_name"`
+	PricingName  string `gorm:"column:pricing_name;size:255" json:"pricing_name"`
 	Quantity     uint   `gorm:"column:quantity;" json:"quantity"`
 	QuantityUnit string `gorm:"column:quantity_unit;" json:"quantity_unit"`
 	Price        uint   `gorm:"column:price;" json:"price"`

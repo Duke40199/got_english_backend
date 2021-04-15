@@ -67,6 +67,7 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 	)
 	//Get learnerID
+	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
 	availableCoinCount, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
 	//Get messaging sessions
 	messagingSession := models.MessagingSession{}
@@ -89,10 +90,13 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
 		return
 	}
-	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
-
+	//Get exchange rate
+	exchangeRateDAO := daos.GetExchangeRateDAO()
+	exchangeRate, _ := exchangeRateDAO.GetExchangeRateByServiceName(config.GetServiceConfig().MessagingService)
+	//Set data on model
 	messagingSession.LearnerID = uint(learnerID)
 	messagingSession.Pricing = *pricing
+	messagingSession.ExchangeRate = *exchangeRate
 	//Create
 	messagingSessionDAO := daos.GetMessagingSessionDAO()
 	result, err := messagingSessionDAO.CreateMessagingSession(messagingSession)

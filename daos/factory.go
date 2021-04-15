@@ -7,6 +7,7 @@ var (
 	accountDAO            = AccountDAO{}
 	applicationFormDAO    = ApplicationFormDAO{}
 	coinBundleDAO         = CoinBundleDAO{}
+	exchangeRateDAO       = ExchangeRateDAO{}
 	expertDAO             = ExpertDAO{}
 	invoiceDAO            = InvoiceDAO{}
 	learnerDAO            = LearnerDAO{}
@@ -33,6 +34,9 @@ func GetApplicationFormDAO() ApplicationFormDAO {
 }
 func GetCoinBundleDAO() CoinBundleDAO {
 	return coinBundleDAO
+}
+func GetExchangeRateDAO() ExchangeRateDAO {
+	return exchangeRateDAO
 }
 func GetExpertDAO() ExpertDAO {
 	return expertDAO

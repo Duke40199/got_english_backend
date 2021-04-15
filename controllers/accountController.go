@@ -170,7 +170,7 @@ func SuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//Check current admin permission
-	permission := middleware.GetPermissionByRoleName(accountToSuspend.RoleName)
+	permission := middleware.GetAdminPermissionByRoleName(accountToSuspend.RoleName)
 	isAuthenticated := middleware.CheckAdminPermission(permission, r)
 	if !isAuthenticated {
 		http.Error(w, "You don't have permission to manage "+accountToSuspend.RoleName+"s.", http.StatusUnauthorized)
@@ -205,7 +205,7 @@ func UnsuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//Check current admin permission
-	permission := middleware.GetPermissionByRoleName(accountToSuspend.RoleName)
+	permission := middleware.GetAdminPermissionByRoleName(accountToSuspend.RoleName)
 	isAuthenticated := middleware.CheckAdminPermission(permission, r)
 	if !isAuthenticated {
 		http.Error(w, "You don't have permission to manage "+accountToSuspend.RoleName+"s.", http.StatusUnauthorized)

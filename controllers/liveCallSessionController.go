@@ -69,6 +69,7 @@ func CreateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	//Get learnerID
+	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
 	availableCoinCount, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
 	//Get messaging sessions
 	liveCallSession := models.LiveCallSession{}
@@ -91,10 +92,13 @@ func CreateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
 		return
 	}
-	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
+	//Get exchange rate
+	exchangeRateDAO := daos.GetExchangeRateDAO()
+	exchangeRate, _ := exchangeRateDAO.GetExchangeRateByServiceName(config.GetServiceConfig().LiveCallService)
 
 	liveCallSession.LearnerID = uint(learnerID)
 	liveCallSession.Pricing = *pricing
+	liveCallSession.ExchangeRate = *exchangeRate
 	//Create
 	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
 	result, err := liveCallSessionDAO.CreateLiveCallSession(liveCallSession)

@@ -49,8 +49,12 @@ func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	//add creator learner
 	learnerDAO := daos.GetLearnerDAO()
 	learner, _ := learnerDAO.GetLearnerInfoByAccountID(accountID)
+	//Get exchange rate
+	exchangeRateDAO := daos.GetExchangeRateDAO()
+	exchangeRate, _ := exchangeRateDAO.GetExchangeRateByServiceName(config.GetServiceConfig().TranslationService)
 	translationSession.Learners = append(translationSession.Learners, *learner)
 	translationSession.Pricing = *pricing
+	translationSession.ExchangeRate = *exchangeRate
 	translationSession.CreatedAt = time.Now()
 	translationSession.UpdatedAt = time.Now()
 	//Create

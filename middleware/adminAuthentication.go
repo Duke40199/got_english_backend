@@ -11,7 +11,7 @@ import (
 func CheckAdminPermission(permission string, r *http.Request) bool {
 	var isAuthenticated = false
 	switch permission {
-	case config.GetPermissionConfig().CanManageAdmin:
+	case config.GetAdminPermissionConfig().CanManageAdmin:
 		{
 			canManageAdmin, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_admin")))
 			if canManageAdmin {
@@ -19,7 +19,7 @@ func CheckAdminPermission(permission string, r *http.Request) bool {
 			}
 			break
 		}
-	case config.GetPermissionConfig().CanManageModerator:
+	case config.GetAdminPermissionConfig().CanManageModerator:
 		{
 			canManageModerator, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_moderator")))
 			if canManageModerator {
@@ -27,7 +27,7 @@ func CheckAdminPermission(permission string, r *http.Request) bool {
 			}
 			break
 		}
-	case config.GetPermissionConfig().CanManageExpert:
+	case config.GetAdminPermissionConfig().CanManageExpert:
 		{
 			canManageExpert, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_expert")))
 			if canManageExpert {
@@ -35,7 +35,7 @@ func CheckAdminPermission(permission string, r *http.Request) bool {
 			}
 			break
 		}
-	case config.GetPermissionConfig().CanManageLearner:
+	case config.GetAdminPermissionConfig().CanManageLearner:
 		{
 			canManageLearner, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_learner")))
 			if canManageLearner {
@@ -47,30 +47,30 @@ func CheckAdminPermission(permission string, r *http.Request) bool {
 	return isAuthenticated
 }
 
-func GetPermissionByRoleName(roleName string) string {
+func GetAdminPermissionByRoleName(roleName string) string {
 	var permission = ""
 	switch roleName {
 	case roleNameConfig.Admin:
 		{
-			permission = config.GetPermissionConfig().CanManageAdmin
+			permission = config.GetAdminPermissionConfig().CanManageAdmin
 			break
 		}
 
 	case config.GetRoleNameConfig().Moderator:
 		{
-			permission = config.GetPermissionConfig().CanManageModerator
+			permission = config.GetAdminPermissionConfig().CanManageModerator
 			break
 		}
 
 	case config.GetRoleNameConfig().Expert:
 		{
-			permission = config.GetPermissionConfig().CanManageExpert
+			permission = config.GetAdminPermissionConfig().CanManageExpert
 			break
 		}
 
 	case config.GetRoleNameConfig().Learner:
 		{
-			permission = config.GetPermissionConfig().CanManageLearner
+			permission = config.GetAdminPermissionConfig().CanManageLearner
 			break
 		}
 	}

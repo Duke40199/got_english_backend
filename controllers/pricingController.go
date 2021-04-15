@@ -19,9 +19,9 @@ func GetPricingsHandler(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 	)
 	var pricingID uint = 0
-	var serviceName string = ""
-	if len(r.URL.Query()["service_name"]) > 0 {
-		serviceName = fmt.Sprint(r.URL.Query()["service_name"][0])
+	var pricingName string = ""
+	if len(r.URL.Query()["pricing_name"]) > 0 {
+		pricingName = fmt.Sprint(r.URL.Query()["pricing_name"][0])
 	}
 	if len(r.URL.Query()["id"]) > 0 {
 		tmp, err := strconv.ParseUint(fmt.Sprint(r.URL.Query()["id"][0]), 10, 0)
@@ -33,7 +33,7 @@ func GetPricingsHandler(w http.ResponseWriter, r *http.Request) {
 		pricingID = uint(tmp)
 	}
 	pricingDAO := daos.GetPricingDAO()
-	result, err := pricingDAO.GetPricings(serviceName, uint(pricingID))
+	result, err := pricingDAO.GetPricings(pricingName, uint(pricingID))
 	if err != nil {
 		fmt.Print(err)
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
