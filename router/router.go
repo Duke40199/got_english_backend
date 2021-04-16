@@ -45,11 +45,14 @@ func init() {
 	apiV1.HandleFunc("/coin-bundles", middleware.UserAuthentication(controllers.GetCoinBundlesHandler)).Methods("GET")
 	apiV1.HandleFunc("/coin-bundles", middleware.ModeratorAuthentication(controllers.CreateCoinBundleHandler)).Methods("POST")
 	apiV1.HandleFunc("/coin-bundles/{coin_bundle_id}/update", middleware.ModeratorAuthentication(controllers.UpdateCoinBundleHandler)).Methods("PUT")
+	//For earnings functions
+	apiV1.HandleFunc("/earnings", middleware.ExpertAuthentication(controllers.GetExpertEarningsHandler)).Methods("GET")
 	//For exchange rate functions
-	apiV1.HandleFunc("/exchange-rate", middleware.ModeratorAuthentication(controllers.GetTranslatorExpertsHandler)).Methods("GET")
-	apiV1.HandleFunc("/exchange-rate", middleware.ModeratorAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
+	apiV1.HandleFunc("/exchange-rates", middleware.ModeratorAuthentication(controllers.GetExchangeRatesHandler)).Methods("GET")
+	apiV1.HandleFunc("/exchange-rates/{exchange_rate_id}/update", middleware.ModeratorAuthentication(controllers.UpdateExchangeRateHandler)).Methods("PUT")
 	//For expert functions
 	apiV1.HandleFunc("/experts", middleware.UserAuthentication(controllers.GetExpertsHandler)).Methods("GET")
+	apiV1.HandleFunc("/experts/earnings", middleware.ExpertAuthentication(controllers.GetExpertEarningsHandler)).Methods("GET")
 	apiV1.HandleFunc("/experts/translators", middleware.LearnerAuthentication(controllers.GetTranslatorExpertsHandler)).Methods("GET")
 	apiV1.HandleFunc("/experts/{account_id}", middleware.UserAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
 	apiV1.HandleFunc("/experts/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
@@ -63,6 +66,7 @@ func init() {
 	//For messaging session functions
 	apiV1.HandleFunc("/messaging-sessions", middleware.UserAuthentication(controllers.GetMessagingSessionHandler)).Methods("GET")
 	apiV1.HandleFunc("/messaging-sessions", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/finish", middleware.LearnerExpertAuthentication(controllers.FinishMessagingSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelMessagingSessionHandler)).Methods("PUT")
 	//For moderator functions
@@ -76,12 +80,14 @@ func init() {
 	//For live call session functions
 	apiV1.HandleFunc("/live-call-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
 	apiV1.HandleFunc("/live-call-sessions", middleware.LearnerAuthentication(controllers.CreateLiveCallSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/finish", middleware.LearnerExpertAuthentication(controllers.FinishLiveCallSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateLiveCallSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelLiveCallHandler)).Methods("PUT")
 
 	//For translation session functions
 	// apiV1.HandleFunc("/translation-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
 	apiV1.HandleFunc("/translation-sessions", middleware.LearnerAuthentication(controllers.CreateTranslationSessionHandler)).Methods("POST")
+	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/finish", middleware.LearnerExpertAuthentication(controllers.FinishTranslationSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateTranslationSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelTranslationSessionHandler)).Methods("PUT")
 	//For ratings functions

@@ -49,14 +49,22 @@ func (dao *TranslationSessionDAO) GetCreatedTranslationSessionInTimePeriod(start
 	return uint(len(result)), err
 }
 
-func (u *TranslationSessionDAO) UpdateTranslationSessionByID(id string, translationSession models.TranslationSession, learners []models.Learner) (int64, error) {
+func (u *TranslationSessionDAO) UpdateTranslationSessionByID(id string, translationSession models.TranslationSession, learners []models.Learner) (int64, *models.TranslationSession, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {
-		return db.RowsAffected, err
+		return db.RowsAffected, nil, err
+	}
+	//Update paid coins if finish session
+	if translationSession.IsFinished {
+		var tmp models.MessagingSession
+		_ = db.Model(&models.MessagingSession{}).Where("id = ?", id).Select("pricing_id").First(&tmp)
+		pricing, _ := pricingDAO.GetPricingByID(tmp.PricingID)
+		translationSession.PaidCoins = pricing.Price
 	}
 	result := db.Debug().Model(&models.TranslationSession{}).Where("id = ?", id).
 		Updates(&translationSession)
+
 	//If add learner to translation session
 	if len(learners) > 0 {
 		_ = db.Debug().Preload("Learners").
@@ -65,5 +73,5 @@ func (u *TranslationSessionDAO) UpdateTranslationSessionByID(id string, translat
 			Association("Learners").
 			Append(&learners)
 	}
-	return result.RowsAffected, result.Error
+	return result.RowsAffected, &translationSession, result.Error
 }

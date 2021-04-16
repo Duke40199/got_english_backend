@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
+	"github.com/golang/got_english_backend/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -130,20 +132,72 @@ func UpdateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//Check if user inputs sessionID
-	if messagingSession.ID != "" {
+	if messagingSession.ID == "" {
 		http.Error(w, "missing session id.", http.StatusBadRequest)
+		return
+	}
+	if messagingSession.IsFinished {
+		http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
 		return
 	}
 	//Update
 	messagingSessionDAO := daos.GetMessagingSessionDAO()
-	result, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSessionID, messagingSession)
+	result, _, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSessionID, messagingSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
 	config.ResponseWithSuccess(w, message, result)
 }
-
+func FinishMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		params  = mux.Vars(r)
+		message = "OK"
+		timeNow = time.Now()
+	)
+	//parse messagingSessionID
+	messagingSessionID := params["messaging_session_id"]
+	//Check if user inputs sessionID
+	if messagingSessionID == "" {
+		http.Error(w, "missing session id.", http.StatusBadRequest)
+		return
+	}
+	//Update session isFinished
+	messagingSessionDAO := daos.GetMessagingSessionDAO()
+	//Check if the session is already finished
+	messagingSession, _ := messagingSessionDAO.GetMessagingSessionByID(messagingSessionID)
+	if messagingSession.IsFinished {
+		http.Error(w, "Session is already finished.", http.StatusBadRequest)
+		return
+	}
+	if messagingSession.IsCancelled {
+		http.Error(w, "Session is already cancelled.", http.StatusBadRequest)
+		return
+	}
+	//Update finish status
+	messagingSession.IsFinished = true
+	messagingSession.FinishedAt = &timeNow
+	result, messagingSession, _ := messagingSessionDAO.UpdateMessagingSessionByID(messagingSessionID, *messagingSession)
+	//Get coin value in VND
+	pricingDAO := daos.GetPricingDAO()
+	coinValue, _ := pricingDAO.GetPricings("coin_value", 0)
+	coinValueInVND := (*coinValue)[0].Price
+	//Calculate earning
+	expertEarnings := utils.CalculateExpertEarningBySession(messagingSession.ExchangeRate.Rate, coinValueInVND, messagingSession.PaidCoins)
+	earningDAO := daos.GetEarningDAO()
+	earning := models.Earning{
+		Value:              expertEarnings,
+		ExpertID:           *messagingSession.ExpertID,
+		MessagingSessionID: &messagingSession.ID,
+	}
+	_, err := earningDAO.CreateEarning(earning)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}
 func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
@@ -178,7 +232,7 @@ func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Expert already joined this session.", http.StatusBadRequest)
 		return
 	}
-	_, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSessionID, messagingSession)
+	_, _, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSessionID, messagingSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return

@@ -77,6 +77,7 @@ func ModeratorAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			ctx = context.WithValue(ctx, "can_manage_application_form", accountInfo.Moderator.CanManageApplicationForm)
 			ctx = context.WithValue(ctx, "can_manage_coin_bundle", accountInfo.Moderator.CanManageCoinBundle)
 			ctx = context.WithValue(ctx, "can_manage_pricing", accountInfo.Moderator.CanManagePricing)
+			ctx = context.WithValue(ctx, "can_manage_exchange_rate", accountInfo.Moderator.CanManageExchangeRate)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			next.ServeHTTP(w, r.WithContext(ctx))

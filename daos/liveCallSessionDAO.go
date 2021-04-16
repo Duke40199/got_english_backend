@@ -85,13 +85,20 @@ func (dao *LiveCallSessionDAO) GetCreatedLiveCallSessionsInTimePeriod(startDate 
 	return uint(len(result)), err
 }
 
-func (u *LiveCallSessionDAO) UpdateLiveCallSessionByID(id string, liveCallSession models.LiveCallSession) (int64, error) {
+func (u *LiveCallSessionDAO) UpdateLiveCallSessionByID(id string, liveCallSession models.LiveCallSession) (int64, *models.LiveCallSession, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {
-		return db.RowsAffected, err
+		return db.RowsAffected, nil, err
+	}
+	//Update paid coins if session is finished
+	if liveCallSession.IsFinished {
+		var tmp models.LiveCallSession
+		_ = db.Model(&models.LiveCallSession{}).Where("id = ?", id).Select("pricing_id").First(&tmp)
+		pricing, _ := pricingDAO.GetPricingByID(tmp.PricingID)
+		liveCallSession.PaidCoins = pricing.Price
 	}
 	result := db.Model(&models.LiveCallSession{}).Where("id = ?", id).
 		Updates(&liveCallSession)
-	return result.RowsAffected, result.Error
+	return result.RowsAffected, &liveCallSession, result.Error
 }

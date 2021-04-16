@@ -16,6 +16,11 @@ func IsEmailValid(e string) bool {
 	return emailRegex.MatchString(e)
 }
 
+func CalculateExpertEarningBySession(exchangeRateValue float32, coinValueInVND uint, coinCount uint) float32 {
+	result := (1 - exchangeRateValue) * float32(coinValueInVND*coinCount)
+	return result
+}
+
 // GetCurrentTime function is used to get the current time in milliseconds.
 func GetCurrentEpochTimeInMiliseconds() int64 {
 	var now = time.Now()

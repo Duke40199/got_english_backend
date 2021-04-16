@@ -24,6 +24,7 @@ var modelList = []interface{}{
 	CoinBundle{},
 	Invoice{},
 	ExchangeRate{},
+	Earning{},
 }
 
 func init() {

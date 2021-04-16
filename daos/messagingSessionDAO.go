@@ -71,7 +71,7 @@ func (dao *MessagingSessionDAO) GetMessagingSessionByID(id string) (*models.Mess
 	}
 	result := models.MessagingSession{}
 	err = db.Debug().Model(&models.MessagingSession{}).
-		Preload("Expert").Preload("Rating").
+		Preload("Expert").Preload("Rating").Preload("ExchangeRate").
 		Find(&result, "id = ?", id).Error
 	return &result, err
 }
@@ -88,11 +88,11 @@ func (dao *MessagingSessionDAO) GetCreatedMessagingSessionsInTimePeriod(startDat
 }
 
 //UPDATE
-func (u *MessagingSessionDAO) UpdateMessagingSessionByID(id string, messagingSession models.MessagingSession) (int64, error) {
+func (u *MessagingSessionDAO) UpdateMessagingSessionByID(id string, messagingSession models.MessagingSession) (int64, *models.MessagingSession, error) {
 	db, err := database.ConnectToDB()
 
 	if err != nil {
-		return db.RowsAffected, err
+		return db.RowsAffected, nil, err
 	}
 	//Update paid coins
 	if messagingSession.IsFinished {
@@ -103,7 +103,7 @@ func (u *MessagingSessionDAO) UpdateMessagingSessionByID(id string, messagingSes
 	}
 	result := db.Model(&models.MessagingSession{}).Where("id = ?", id).
 		Updates(&messagingSession)
-	return result.RowsAffected, result.Error
+	return result.RowsAffected, &messagingSession, result.Error
 }
 
 //UPDATE

@@ -30,8 +30,6 @@ type LiveCallSession struct {
 	//An messaging session can only have one exchange rate.
 	ExchangeRate   ExchangeRate `gorm:"foreignKey:ExchangeRateID" json:"-"`
 	ExchangeRateID uint         `gorm:"size:255" json:"exchange_rate_id,omitempty"`
-	//Pricing in VND
-	PricingInVND uint `gorm:"size:255" json:"pricing_in_vnd,omitempty"`
 	//An messaging session can only be rated once.
 	Rating   *Rating `gorm:"foreignKey:RatingID" json:"rating,omitempty"`
 	RatingID *uint   `gorm:"size:255" json:"rating_id,omitempty"`

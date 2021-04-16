@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
+	"github.com/golang/got_english_backend/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -130,14 +132,67 @@ func UpdateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
+	if liveCallSession.IsFinished {
+		http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
+		return
+	}
 	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
-	result, err := liveCallSessionDAO.UpdateLiveCallSessionByID(liveCallSessionID, liveCallSession)
+	result, _, err := liveCallSessionDAO.UpdateLiveCallSessionByID(liveCallSessionID, liveCallSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
 	config.ResponseWithSuccess(w, message, result)
 
+}
+func FinishLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		params  = mux.Vars(r)
+		message = "OK"
+		timeNow = time.Now()
+	)
+	//parse messagingSessionID
+	liveCallSessionID := params["live_call_session_id"]
+	//Check if user inputs sessionID
+	if liveCallSessionID == "" {
+		http.Error(w, "missing session id.", http.StatusBadRequest)
+		return
+	}
+	//Update session isFinished
+	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
+	//Check if the session is already finished
+	liveCallSession, _ := liveCallSessionDAO.GetLiveCallSessionByID(liveCallSessionID)
+	if liveCallSession.IsFinished {
+		http.Error(w, "Session is already finished.", http.StatusBadRequest)
+		return
+	}
+	if liveCallSession.IsCancelled {
+		http.Error(w, "Session is already cancelled.", http.StatusBadRequest)
+		return
+	}
+	//Update finish status
+	liveCallSession.IsFinished = true
+	liveCallSession.FinishedAt = &timeNow
+	result, liveCallSession, _ := liveCallSessionDAO.UpdateLiveCallSessionByID(liveCallSessionID, *liveCallSession)
+	//Get coin value in VND
+	pricingDAO := daos.GetPricingDAO()
+	coinValue, _ := pricingDAO.GetPricings("coin_value", 0)
+	coinValueInVND := (*coinValue)[0].Price
+	//Calculate earning
+	expertEarnings := utils.CalculateExpertEarningBySession(liveCallSession.ExchangeRate.Rate, coinValueInVND, liveCallSession.PaidCoins)
+	earningDAO := daos.GetEarningDAO()
+	earning := models.Earning{
+		Value:             expertEarnings,
+		ExpertID:          *liveCallSession.ExpertID,
+		LiveCallSessionID: &liveCallSession.ID,
+	}
+	_, err := earningDAO.CreateEarning(earning)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
 }
 
 func CancelLiveCallHandler(w http.ResponseWriter, r *http.Request) {
@@ -172,7 +227,7 @@ func CancelLiveCallHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session is already cancelled.", http.StatusBadRequest)
 		return
 	}
-	result, err := liveCallSessionDAO.UpdateLiveCallSessionByID(liveCallSessionID, liveCallSession)
+	result, _, err := liveCallSessionDAO.UpdateLiveCallSessionByID(liveCallSessionID, liveCallSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return

@@ -10,6 +10,7 @@ import (
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
+	"github.com/golang/got_english_backend/utils"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
@@ -70,6 +71,55 @@ func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 
 }
+func FinishTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		params  = mux.Vars(r)
+		message = "OK"
+		timeNow = time.Now()
+	)
+	//parse messagingSessionID
+	translationSessionID := params["translation_session_id"]
+	//Check if user inputs sessionID
+	if translationSessionID == "" {
+		http.Error(w, "missing session id.", http.StatusBadRequest)
+		return
+	}
+	//Update session isFinished
+	translationSessionDAO := daos.GetTranslationSessionDAO()
+	//Check if the session is already finished
+	translationSession, _ := translationSessionDAO.GetTranslationSessionByID(translationSessionID)
+	if translationSession.IsFinished {
+		http.Error(w, "Session is already finished.", http.StatusBadRequest)
+		return
+	}
+	if translationSession.IsCancelled {
+		http.Error(w, "Session is already cancelled.", http.StatusBadRequest)
+		return
+	}
+	//Update finish status
+	translationSession.IsFinished = true
+	translationSession.FinishedAt = &timeNow
+	result, translationSession, _ := translationSessionDAO.UpdateTranslationSessionByID(translationSessionID, *translationSession, nil)
+	//Get coin value in VND
+	pricingDAO := daos.GetPricingDAO()
+	coinValue, _ := pricingDAO.GetPricings("coin_value", 0)
+	coinValueInVND := (*coinValue)[0].Price
+	//Calculate earning
+	expertEarnings := utils.CalculateExpertEarningBySession(translationSession.ExchangeRate.Rate, coinValueInVND, translationSession.PaidCoins)
+	earningDAO := daos.GetEarningDAO()
+	earning := models.Earning{
+		Value:                expertEarnings,
+		ExpertID:             *translationSession.ExpertID,
+		TranslationSessionID: &translationSession.ID,
+	}
+	_, err := earningDAO.CreateEarning(earning)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}
 
 func UpdateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -93,6 +143,10 @@ func UpdateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing learner ids.", http.StatusBadRequest)
 		return
 	}
+	if translationSession.IsFinished {
+		http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
+		return
+	}
 	//Get learners on learnerIDS
 	learnerDAO := daos.GetLearnerDAO()
 	learners, err := learnerDAO.GetLearnerInfoByIDS(translationSession.LearnerIDs)
@@ -103,7 +157,7 @@ func UpdateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	translationSession.Learners = *learners
 	//Update
 	translationSessionDAO := daos.GetTranslationSessionDAO()
-	result, err := translationSessionDAO.UpdateTranslationSessionByID(translationSessionID, translationSession, *learners)
+	result, _, err := translationSessionDAO.UpdateTranslationSessionByID(translationSessionID, translationSession, *learners)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
@@ -142,7 +196,7 @@ func CancelTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session is already cancelled.", http.StatusBadRequest)
 		return
 	}
-	result, err := liveCallSessionDAO.UpdateTranslationSessionByID(translationSessionID, translationSession, nil)
+	result, _, err := liveCallSessionDAO.UpdateTranslationSessionByID(translationSessionID, translationSession, nil)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
