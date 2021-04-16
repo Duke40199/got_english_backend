@@ -109,3 +109,29 @@ func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	config.ResponseWithSuccess(w, message, result)
 }
+func DeleteCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+		params  = mux.Vars(r)
+	)
+	//Check if the user is allows to update pricing
+	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_coin_bundle")))
+	if !canManagePricing {
+		http.Error(w, "You cannot manage coin bundle.", http.StatusForbidden)
+		return
+	}
+	//parse request param to get accountid
+	coinBundleID, err := strconv.ParseUint(params["coin_bundle_id"], 10, 0)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	coinBundleDAO := daos.GetCoinBundleDAO()
+	result, err := coinBundleDAO.DeleteCoinBundleByID(uint(coinBundleID))
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}

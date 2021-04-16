@@ -1,6 +1,8 @@
 package daos
 
 import (
+	"errors"
+
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 )
@@ -56,5 +58,18 @@ func (dao *CoinBundleDAO) UpdateCoinBundleByID(id uint, coinBundle models.CoinBu
 	coinBundle.ID = id
 	result := db.Model(&coinBundle).Where("id = ?", id).Updates(&coinBundle)
 
+	return result.RowsAffected, result.Error
+}
+func (u *CoinBundleDAO) DeleteCoinBundleByID(id uint) (int64, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.CoinBundle{}).Where("id = ?", id).
+		Delete(&models.CoinBundle{})
+	if result.RowsAffected == 0 {
+		return result.RowsAffected, errors.New("coin bundle not found or already deleted")
+	}
 	return result.RowsAffected, result.Error
 }

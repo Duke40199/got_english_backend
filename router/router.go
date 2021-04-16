@@ -45,6 +45,7 @@ func init() {
 	apiV1.HandleFunc("/coin-bundles", middleware.UserAuthentication(controllers.GetCoinBundlesHandler)).Methods("GET")
 	apiV1.HandleFunc("/coin-bundles", middleware.ModeratorAuthentication(controllers.CreateCoinBundleHandler)).Methods("POST")
 	apiV1.HandleFunc("/coin-bundles/{coin_bundle_id}/update", middleware.ModeratorAuthentication(controllers.UpdateCoinBundleHandler)).Methods("PUT")
+	apiV1.HandleFunc("/coin-bundles/{coin_bundle_id}/delete", middleware.ModeratorAuthentication(controllers.DeleteCoinBundleHandler)).Methods("DELETE")
 	//For earnings functions
 	apiV1.HandleFunc("/earnings", middleware.ExpertAuthentication(controllers.GetExpertEarningsHandler)).Methods("GET")
 	//For exchange rate functions
