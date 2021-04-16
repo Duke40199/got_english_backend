@@ -73,7 +73,15 @@ func (dao *ExpertDAO) UpdateExpertByAccountID(accountID uuid.UUID, expertPermiss
 		Updates(expertPermissions)
 	return result.RowsAffected, result.Error
 }
-
+func (dao *ExpertDAO) UpdateExpertByExpertID(expertID uint, expertPermissions models.Expert) (int64, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.Expert{}).Where("id = ?", expertID).
+		Updates(&expertPermissions)
+	return result.RowsAffected, result.Error
+}
 func (dao *ExpertDAO) GetTranslatorExperts() (*[]models.Expert, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {

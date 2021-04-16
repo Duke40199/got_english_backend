@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
@@ -20,6 +21,13 @@ func CreateApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	applicationForm := models.ApplicationForm{}
 	expertID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+	//validate if expert has already created a pending form
+	applicationFormDAO := daos.GetApplicationFormDAO()
+	tmp, _ := applicationFormDAO.GetApplicationForms(models.ApplicationForm{ExpertID: uint(expertID), Status: config.GetApplicationFormStatusConfig().Pending})
+	if tmp != nil {
+		http.Error(w, "you have a pending session.", http.StatusBadRequest)
+		return
+	}
 	if err := json.NewDecoder(r.Body).Decode(&applicationForm); err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
@@ -41,7 +49,6 @@ func CreateApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//assign expertID to applicationForm
 	applicationForm.ExpertID = uint(expertID)
-	applicationFormDAO := daos.GetApplicationFormDAO()
 	result, err := applicationFormDAO.CreateApplicationForm(applicationForm)
 
 	if err != nil {
@@ -55,9 +62,14 @@ func GetApplicationFormsHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		// params   = mux.Vars(r)
 		message = "OK"
+		status  string
 	)
+	if len(r.URL.Query()["status"]) > 0 {
+		status = fmt.Sprint(r.URL.Query()["status"][0])
+	}
+	applicationForm := models.ApplicationForm{Status: status}
 	applicationFormDAO := daos.GetApplicationFormDAO()
-	applicationForms, err := applicationFormDAO.GetApplicationForms()
+	applicationForms, err := applicationFormDAO.GetApplicationForms(applicationForm)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
@@ -105,12 +117,40 @@ func ApproveApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//update
-	updateResult, err := applicationFormDAO.UpdateApplicationFormByID(uint(applicationFormID), models.ApplicationForm{Status: "Approved"})
+	_, err = applicationFormDAO.UpdateApplicationFormByID(uint(applicationFormID), models.ApplicationForm{Status: "Approved"})
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
-	config.ResponseWithSuccess(w, message, updateResult)
+	//update expert permission
+	permissions := strings.Split(applicationForm.Type, ",")
+	expertDetails := models.Expert{}
+	for i := 0; i < len(permissions); i++ {
+		switch permissions[i] {
+		case "can_chat":
+			{
+				expertDetails.CanChat = true
+				break
+			}
+		case "can_join_translation_session":
+			{
+				expertDetails.CanJoinTranslationSession = true
+				break
+			}
+		case "can_join_live_call_session":
+			{
+				expertDetails.CanJoinLiveCallSession = true
+				break
+			}
+		}
+	}
+	expertDAO := daos.GetExpertDAO()
+	result, err := expertDAO.UpdateExpertByExpertID(applicationForm.ExpertID, expertDetails)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
 }
 func RejectApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()

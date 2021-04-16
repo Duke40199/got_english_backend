@@ -1,6 +1,8 @@
 package daos
 
 import (
+	"fmt"
+
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 )
@@ -23,16 +25,25 @@ func (dao *ApplicationFormDAO) CreateApplicationForm(applicationForm models.Appl
 	return &applicationForm, err
 
 }
-func (dao *ApplicationFormDAO) GetApplicationForms() (*[]models.ApplicationForm, error) {
+func (dao *ApplicationFormDAO) GetApplicationForms(applicationForm models.ApplicationForm) (*[]models.ApplicationForm, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
+	}
+	query := "SELECT * from application_forms WHERE deleted_at IS NULL"
+	//search by status
+	if applicationForm.Status != "" {
+		query += " AND status LIKE " + "'%" + applicationForm.Status + "%'"
+	}
+	if applicationForm.ExpertID != 0 {
+		query += " AND expert_id = " + fmt.Sprint(applicationForm.ExpertID)
 	}
 	applicationForms := []models.ApplicationForm{}
 	err = db.Debug().Model(&models.ApplicationForm{}).
 		Preload("Expert").
 		Preload("Expert.Account").
-		Select("application_forms.*").Find(&applicationForms).Error
+		Raw(query).
+		Find(&applicationForms).Error
 	return &applicationForms, err
 }
 
@@ -43,6 +54,8 @@ func (dao *ApplicationFormDAO) GetApplicationFormByID(id uint) (*models.Applicat
 	}
 	applicationForm := models.ApplicationForm{}
 	err = db.Debug().Model(&models.ApplicationForm{}).
+		Preload("Expert").
+		Preload("Expert.Account").
 		Select("application_forms.*").Find(&applicationForm, "id=?", id).Error
 	return &applicationForm, err
 
