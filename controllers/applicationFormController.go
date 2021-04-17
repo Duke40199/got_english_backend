@@ -24,8 +24,8 @@ func CreateApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	//validate if expert has already created a pending form
 	applicationFormDAO := daos.GetApplicationFormDAO()
 	tmp, _ := applicationFormDAO.GetApplicationForms(models.ApplicationForm{ExpertID: uint(expertID), Status: config.GetApplicationFormStatusConfig().Pending})
-	if tmp != nil {
-		http.Error(w, "you have a pending session.", http.StatusBadRequest)
+	if len(*tmp) > 0 {
+		http.Error(w, "you have a pending application form.", http.StatusBadRequest)
 		return
 	}
 	if err := json.NewDecoder(r.Body).Decode(&applicationForm); err != nil {

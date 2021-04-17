@@ -9,12 +9,13 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/rs/cors v1.7.0
-	golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670
+	github.com/sirupsen/logrus v1.8.1 // indirect
+	golang.org/x/crypto v0.0.0-20210415154028-4f45737414dc
 	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
-	golang.org/x/sys v0.0.0-20210319071255-635bc2c9138d // indirect
-	google.golang.org/api v0.42.0
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/api v0.44.0
+	google.golang.org/protobuf v1.26.0
 	gorm.io/driver/mysql v1.0.5
-	gorm.io/gorm v1.21.4
+	gorm.io/gorm v1.21.8
 )
