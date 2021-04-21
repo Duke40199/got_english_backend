@@ -1,6 +1,8 @@
 package daos
 
 import (
+	"errors"
+
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 )
@@ -67,6 +69,10 @@ func (u *PricingDAO) DeletePricingByID(id uint) (int64, error) {
 		return db.RowsAffected, err
 	}
 	result := db.Model(&models.Pricing{}).Where("id = ?", id).
+		Updates(&models.Pricing{IsDeleted: true}).
 		Delete(&models.Pricing{})
+	if (result.RowsAffected) == 0 {
+		return result.RowsAffected, errors.New("Pricing not found or already deleted.")
+	}
 	return result.RowsAffected, result.Error
 }

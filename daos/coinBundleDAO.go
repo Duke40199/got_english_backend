@@ -2,6 +2,7 @@ package daos
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
@@ -40,13 +41,22 @@ func (dao *CoinBundleDAO) GetCoinBundles(id uint) (*[]models.CoinBundle, error) 
 	return &coinBundles, err
 }
 
-func (dao *CoinBundleDAO) GetCoinBundleByID(id uint) (*models.CoinBundle, error) {
+func (dao *CoinBundleDAO) GetCoinBundleByID(id uint, coinBundle models.CoinBundle) (*models.CoinBundle, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
 	}
-	coinBundle := models.CoinBundle{}
-	err = db.Debug().First(&coinBundle, "id=?", id).Error
+	var query string = "SELECT * from coin_bundles WHERE (is_deleted IS FALSE"
+	//if query for deleted entries
+	if coinBundle.IsDeleted {
+		query += " OR is_deleted IS TRUE)"
+	} else {
+		query += ")"
+	}
+	if id != 0 {
+		query += " AND id =" + fmt.Sprint(id)
+	}
+	err = db.Debug().Model(&models.CoinBundle{}).Raw(query).Find(&coinBundle).Error
 	return &coinBundle, err
 }
 
@@ -67,6 +77,7 @@ func (u *CoinBundleDAO) DeleteCoinBundleByID(id uint) (int64, error) {
 		return db.RowsAffected, err
 	}
 	result := db.Model(&models.CoinBundle{}).Where("id = ?", id).
+		Updates(&models.CoinBundle{IsDeleted: true}).
 		Delete(&models.CoinBundle{})
 	if result.RowsAffected == 0 {
 		return result.RowsAffected, errors.New("coin bundle not found or already deleted")

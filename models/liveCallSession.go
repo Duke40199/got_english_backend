@@ -2,13 +2,10 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // LiveCallSession model struct
 type LiveCallSession struct {
-	gorm.Model        `json:"-"`
 	ID                string `gorm:"column:id;size:255;not null; unique; primaryKey;" json:"id"`
 	DurationInSeconds *uint  `gorm:"column:duration_in_seconds" json:"duration_in_seconds,omitempty"`
 	//LiveCall status
@@ -34,7 +31,6 @@ type LiveCallSession struct {
 	Rating   *Rating `gorm:"foreignKey:RatingID" json:"rating,omitempty"`
 	RatingID *uint   `gorm:"size:255" json:"rating_id,omitempty"`
 	//default timestamps
-	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
-	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
+	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
 }

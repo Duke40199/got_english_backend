@@ -33,7 +33,7 @@ func CreateInvoiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//Get coin bundle by id
 	coinBundleDAO := daos.GetCoinBundleDAO()
-	coinBundle, err := coinBundleDAO.GetCoinBundleByID(invoice.CoinBundleID)
+	coinBundle, err := coinBundleDAO.GetCoinBundleByID(invoice.CoinBundleID, models.CoinBundle{IsDeleted: true})
 	if err != nil || coinBundle.ID == 0 {
 		http.Error(w, "Coin bundle not found.", http.StatusInternalServerError)
 		return

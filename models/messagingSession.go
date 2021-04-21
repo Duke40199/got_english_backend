@@ -2,14 +2,11 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // MessagingSession model struct
 type MessagingSession struct {
-	gorm.Model `json:"-"`
-	ID         string `gorm:"column:id;size:255;not null; unique; primaryKey;" json:"id"`
+	ID string `gorm:"column:id;size:255;not null; unique; primaryKey;" json:"id"`
 	//Coins paid at the FinishedAt time
 	PaidCoins uint `gorm:"column:paid_coins" json:"paid_coins"`
 	//A leaner can have many message sessions.
@@ -34,7 +31,6 @@ type MessagingSession struct {
 	FinishedAt  *time.Time `gorm:"column:finished_at" json:"finished_at"`
 
 	//default timestamps
-	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
-	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
+	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
 }

@@ -1,6 +1,7 @@
 package daos
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/golang/got_english_backend/database"
@@ -30,7 +31,7 @@ func (dao *ApplicationFormDAO) GetApplicationForms(applicationForm models.Applic
 	if err != nil {
 		return nil, err
 	}
-	query := "SELECT * from application_forms WHERE deleted_at IS NULL"
+	query := "SELECT * from application_forms WHERE is_deleted IS FALSE"
 	//search by status
 	if applicationForm.Status != "" {
 		query += " AND status LIKE " + "'%" + applicationForm.Status + "%'"
@@ -79,5 +80,20 @@ func (dao *ApplicationFormDAO) UpdateApplicationFormByID(id uint, applicationFor
 	applicationForm.ID = id
 	result := db.Model(&applicationForm).Where("id = ?", id).Updates(&applicationForm)
 
+	return result.RowsAffected, result.Error
+}
+
+func (u *ApplicationFormDAO) DeleteApplicationFormByID(id uint) (int64, error) {
+	db, err := database.ConnectToDB()
+
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.ApplicationForm{}).Where("id = ?", id).
+		Updates(&models.ApplicationForm{IsDeleted: true, Status: "Deleted"}).
+		Delete(&models.ApplicationForm{})
+	if result.RowsAffected == 0 {
+		return result.RowsAffected, errors.New("application form not found or already deleted")
+	}
 	return result.RowsAffected, result.Error
 }

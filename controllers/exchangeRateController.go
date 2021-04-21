@@ -74,10 +74,6 @@ func UpdateExchangeRateHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	if exchangeRate.DeletedAt != nil {
-		http.Error(w, "cannot delete exchange rate", http.StatusBadRequest)
-		return
-	}
 	exchangeRateDAO := daos.GetExchangeRateDAO()
 	result, err := exchangeRateDAO.UpdateExchangeRateByID(exchangeRate.ID, exchangeRate)
 	if err != nil {

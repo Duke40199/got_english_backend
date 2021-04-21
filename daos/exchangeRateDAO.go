@@ -42,7 +42,7 @@ func (dao *ExchangeRateDAO) GetExchangeRates(exchangeRateQuery models.ExchangeRa
 	if err != nil {
 		return nil, err
 	}
-	var query string = "SELECT * FROM exchange_rates WHERE deleted_at IS NULL"
+	var query string = "SELECT * FROM exchange_rates WHERE id IS NOT NULL"
 	if exchangeRateQuery.ID != 0 {
 		query += " AND exchange_rates.id=" + fmt.Sprint(exchangeRateQuery.ID)
 	}

@@ -4,12 +4,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 // Expert model struct
 type Expert struct {
-	gorm.Model    `json:"-"`
 	ID            uint    `gorm:"column:id;not null;unique; primaryKey;" json:"id"`
 	Profession    string  `gorm:"column:profession" json:"professtion"`
 	AverageRating float32 `gorm:"-" json:"average_rating"`
@@ -23,7 +21,6 @@ type Expert struct {
 	AccountID          uuid.UUID             `gorm:"column:account_id" json:"account_id"`
 	TranslationSession *[]TranslationSession `gorm:"" json:"translation_session,omitempty"`
 	//default timestamps
-	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
-	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
+	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
 }

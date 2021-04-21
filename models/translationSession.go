@@ -2,13 +2,10 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // TranslationSession model struct
 type TranslationSession struct {
-	gorm.Model        `json:"-"`
 	ID                string `gorm:"column:id;size:255;not null; unique; primaryKey;" json:"id"`
 	DurationInSeconds *uint  `gorm:"column:duration_in_seconds" json:"duration_in_seconds"`
 	//TranslationSession timestamps

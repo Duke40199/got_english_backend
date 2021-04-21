@@ -183,3 +183,32 @@ func RejectApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	config.ResponseWithSuccess(w, message, updateResult)
 }
+
+func DeleteApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+		params  = mux.Vars(r)
+	)
+	//parse request param to get accountid
+	applicationFormID, err := strconv.ParseUint(params["application_form_id"], 10, 0)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	applicationFormDAO := daos.GetApplicationFormDAO()
+	applicationForm, err := applicationFormDAO.GetApplicationFormByID(uint(applicationFormID))
+	//Check if expert id matches application form's expert id
+	expertID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+	if uint(expertID) != applicationForm.ExpertID {
+		http.Error(w, "The queried application form is not existed or is not yours.", http.StatusUnauthorized)
+		return
+	}
+	//Delete application form
+	result, err := applicationFormDAO.DeleteApplicationFormByID(uint(applicationFormID))
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}

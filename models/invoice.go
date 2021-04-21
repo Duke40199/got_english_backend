@@ -4,13 +4,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 // Invoice model struct
 type Invoice struct {
-	gorm.Model `json:"-"`
-	ID         uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
+	ID uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
 	//A leaner can have many invoices.
 	Learner   Learner `gorm:"foreignKey:LearnerID" json:"-"`
 	LearnerID uint    `gorm:"size:255" json:"learner_id"`

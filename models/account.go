@@ -10,7 +10,6 @@ import (
 
 // Account model struct
 type Account struct {
-	gorm.Model `json:"-"`
 	//Login
 	ID       uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
 	Username *string   `gorm:"size:255;unique" json:"username"`
@@ -31,9 +30,8 @@ type Account struct {
 	Moderator *Moderator `gorm:"foreignKey:AccountID" json:"moderator_details,omitempty"`
 	Admin     *Admin     `gorm:"foreignKey:AccountID" json:"admin_details,omitempty"`
 	//default timestamps
-	CreatedAt time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time  `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
-	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
+	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`
 }
 
 type PermissionStruct struct {

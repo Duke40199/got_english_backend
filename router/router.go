@@ -37,6 +37,7 @@ func init() {
 	apiV1.HandleFunc("/admins/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateAdminHandler)).Methods("PUT")
 	//For application form functions
 	apiV1.HandleFunc("/application-forms", middleware.ExpertAuthentication(controllers.CreateApplicationFormHandler)).Methods("POST")
+	apiV1.HandleFunc("/application-forms/{application_form_id}/delete", middleware.ExpertAuthentication(controllers.DeleteApplicationFormHandler)).Methods("DELETE")
 	apiV1.HandleFunc("/application-forms", middleware.ModeratorAuthentication(controllers.GetApplicationFormsHandler)).Methods("GET")
 	apiV1.HandleFunc("/application-forms/history", middleware.ExpertAuthentication(controllers.GetApplicationFormHistoryHandler)).Methods("GET")
 	apiV1.HandleFunc("/application-forms/{application_form_id}/approve", middleware.ModeratorAuthentication(controllers.ApproveApplicationFormHandler)).Methods("PUT")
