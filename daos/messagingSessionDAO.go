@@ -64,6 +64,19 @@ func (dao *MessagingSessionDAO) GetMessagingSessions(messagingSession models.Mes
 	return &result, err
 }
 
+func (dao *MessagingSessionDAO) GetMessagingSessionHistory(learnerID uint, startDate time.Time, endDate time.Time) (*[]models.MessagingSession, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := []models.MessagingSession{}
+	err = db.Debug().Model(&models.MessagingSession{}).
+		Preload("Expert").
+		Preload("Pricing").
+		Find(&result, "learner_id = ? AND created_at BETWEEN ? AND ?", learnerID, startDate, endDate).Error
+	return &result, err
+}
+
 func (dao *MessagingSessionDAO) GetMessagingSessionByID(id string) (*models.MessagingSession, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -98,7 +111,7 @@ func (u *MessagingSessionDAO) UpdateMessagingSessionByID(id string, messagingSes
 	if messagingSession.IsFinished {
 		var tmp models.MessagingSession
 		_ = db.Model(&models.MessagingSession{}).Where("id = ?", id).Select("pricing_id").First(&tmp)
-		pricing, _ := pricingDAO.GetPricingByID(tmp.PricingID)
+		pricing, _ := pricingDAO.GetPricingByID(*tmp.PricingID)
 		messagingSession.PaidCoins = pricing.Price
 	}
 	result := db.Model(&models.MessagingSession{}).Where("id = ?", id).

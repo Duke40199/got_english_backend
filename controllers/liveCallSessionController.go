@@ -63,6 +63,37 @@ func GetLiveCallSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 }
 
+func GetLiveCallHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params   = mux.Vars(r)
+		message    = "OK"
+		timePeriod string
+		startDate  time.Time
+		endDate    time.Time
+		err        error
+	)
+	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
+	if len(r.URL.Query()["timePeriod"]) > 0 {
+		timePeriod = fmt.Sprint(r.URL.Query()["timePeriod"][0])
+		startDate, endDate, err = utils.GetTimesByPeriod(timePeriod)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	} else {
+		//Get by month
+		startDate, endDate, err = utils.GetTimesByPeriod("monthly")
+	}
+	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
+	result, err := liveCallSessionDAO.GetLiveCallSessionHistory(uint(learnerID), startDate, endDate)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}
+
 func CreateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
@@ -83,13 +114,13 @@ func CreateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing (document) id.", http.StatusBadRequest)
 		return
 	}
-	if liveCallSession.PricingID == 0 {
+	if *liveCallSession.PricingID == 0 {
 		http.Error(w, "Missing pricing ID.", http.StatusBadRequest)
 		return
 	}
 	//Get pricing
 	pricingDAO := daos.GetPricingDAO()
-	pricing, _ := pricingDAO.GetPricingByID(liveCallSession.PricingID)
+	pricing, _ := pricingDAO.GetPricingByID(*liveCallSession.PricingID)
 	if availableCoinCount < int64(pricing.Price) {
 		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
 		return
@@ -99,7 +130,7 @@ func CreateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	exchangeRate, _ := exchangeRateDAO.GetExchangeRateByServiceName(config.GetServiceConfig().LiveCallService)
 
 	liveCallSession.LearnerID = uint(learnerID)
-	liveCallSession.Pricing = *pricing
+	liveCallSession.Pricing = pricing
 	liveCallSession.ExchangeRate = *exchangeRate
 	//Create
 	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
@@ -234,7 +265,7 @@ func CancelLiveCallHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//refund
 	pricingDAO := daos.GetPricingDAO()
-	pricing, _ := pricingDAO.GetPricingByID(tmpSession.PricingID)
+	pricing, _ := pricingDAO.GetPricingByID(*tmpSession.PricingID)
 	currentLearner := models.Learner{
 		ID:                 uint(learnerID),
 		AvailableCoinCount: uint(availableCoinCount) + pricing.Price,

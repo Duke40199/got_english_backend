@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"time"
@@ -28,7 +29,7 @@ func GetCurrentEpochTimeInMiliseconds() int64 {
 	return ts
 }
 
-func GetTimesByPeriod(period string) (time.Time, time.Time) {
+func GetTimesByPeriod(period string) (time.Time, time.Time, error) {
 	var startDate time.Time
 	var endDate time.Time
 	var timeNow = time.Now()
@@ -54,9 +55,22 @@ func GetTimesByPeriod(period string) (time.Time, time.Time) {
 			endDate = time.Date(timeNow.Year(), timeNow.Month()+1, 0, 23, 59, 59, 0, time.Local)
 			break
 		}
+	case "yearly":
+		{
+			fmt.Println("========= Yearly filter")
+			startDate = time.Date(timeNow.Year(), 1, 1, 00, 00, 00, 00, time.Local)
+			endDate = time.Date(timeNow.Year(), 12, 31, 23, 59, 59, 00, time.Local)
+			break
+		}
+	default:
+		{
+			fmt.Println("============ INVALID")
+			return startDate, endDate, errors.New("Invalid time period")
+		}
 	}
-	return startDate, endDate
+	return startDate, endDate, nil
 }
+
 func GetWeekStart(year, week int) time.Time {
 
 	// Start from the middle of the year:

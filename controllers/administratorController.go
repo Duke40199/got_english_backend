@@ -29,7 +29,7 @@ func GetAdministratorSummaryHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		period = "daily"
 	}
-	startDate, endDate := utils.GetTimesByPeriod(period)
+	startDate, endDate, err := utils.GetTimesByPeriod(period)
 
 	//Get expert count created during the period.
 	expertDAO := daos.GetExpertDAO()

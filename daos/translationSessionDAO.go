@@ -37,6 +37,18 @@ func (dao *TranslationSessionDAO) GetTranslationSessionByID(id string) (*models.
 		Find(&result, "id = ?", id).Error
 	return &result, err
 }
+func (dao *TranslationSessionDAO) GetTranslationSessionHistory(learnerID uint, startDate time.Time, endDate time.Time) (*[]models.TranslationSession, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := []models.TranslationSession{}
+	err = db.Debug().Model(&models.TranslationSession{}).
+		Preload("Expert").
+		Preload("Pricing").
+		Find(&result, "creator_learner_id = ? AND created_at BETWEEN ? AND ?", learnerID, startDate, endDate).Error
+	return &result, err
+}
 
 func (dao *TranslationSessionDAO) GetCreatedTranslationSessionInTimePeriod(startDate time.Time, endDate time.Time) (uint, error) {
 	db, err := database.ConnectToDB()
@@ -59,7 +71,7 @@ func (u *TranslationSessionDAO) UpdateTranslationSessionByID(id string, translat
 	if translationSession.IsFinished {
 		var tmp models.MessagingSession
 		_ = db.Model(&models.MessagingSession{}).Where("id = ?", id).Select("pricing_id").First(&tmp)
-		pricing, _ := pricingDAO.GetPricingByID(tmp.PricingID)
+		pricing, _ := pricingDAO.GetPricingByID(*tmp.PricingID)
 		translationSession.PaidCoins = pricing.Price
 	}
 	result := db.Debug().Model(&models.TranslationSession{}).Where("id = ?", id).

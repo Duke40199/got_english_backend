@@ -62,6 +62,36 @@ func GetMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	config.ResponseWithSuccess(w, message, result)
 }
+func GetMessagingSessionHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params   = mux.Vars(r)
+		message    = "OK"
+		timePeriod string
+		startDate  time.Time
+		endDate    time.Time
+		err        error
+	)
+	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
+	if len(r.URL.Query()["timePeriod"]) > 0 {
+		timePeriod = fmt.Sprint(r.URL.Query()["timePeriod"][0])
+		startDate, endDate, err = utils.GetTimesByPeriod(timePeriod)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	} else {
+		//Get by month
+		startDate, endDate, err = utils.GetTimesByPeriod("monthly")
+	}
+	messagingSessionDAO := daos.GetMessagingSessionDAO()
+	result, err := messagingSessionDAO.GetMessagingSessionHistory(uint(learnerID), startDate, endDate)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}
 func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
@@ -81,13 +111,13 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing (document) id.", http.StatusBadRequest)
 		return
 	}
-	if messagingSession.PricingID == 0 {
+	if *messagingSession.PricingID == 0 {
 		http.Error(w, "Missing pricing id.", http.StatusBadRequest)
 		return
 	}
 	//Get pricing
 	pricingDAO := daos.GetPricingDAO()
-	pricing, _ := pricingDAO.GetPricingByID(messagingSession.PricingID)
+	pricing, _ := pricingDAO.GetPricingByID(*messagingSession.PricingID)
 	if availableCoinCount < int64(pricing.Price) {
 		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
 		return
@@ -97,7 +127,7 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	exchangeRate, _ := exchangeRateDAO.GetExchangeRateByServiceName(config.GetServiceConfig().MessagingService)
 	//Set data on model
 	messagingSession.LearnerID = uint(learnerID)
-	messagingSession.Pricing = *pricing
+	messagingSession.Pricing = pricing
 	messagingSession.ExchangeRate = *exchangeRate
 	//Create
 	messagingSessionDAO := daos.GetMessagingSessionDAO()
@@ -113,7 +143,6 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	config.ResponseWithSuccess(w, message, result)
-
 }
 func UpdateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -239,7 +268,7 @@ func CancelMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//Return the coin for learner
 	pricingDAO := daos.GetPricingDAO()
-	messagingPricing, _ := pricingDAO.GetPricingByID(tmpSession.PricingID)
+	messagingPricing, _ := pricingDAO.GetPricingByID(*tmpSession.PricingID)
 	learnerAvailableCoin, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
 	currentLearner := models.Learner{
 		AvailableCoinCount: uint(learnerAvailableCoin) + messagingPricing.Price,

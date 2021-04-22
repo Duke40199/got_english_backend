@@ -67,6 +67,7 @@ func init() {
 
 	//For messaging session functions
 	apiV1.HandleFunc("/messaging-sessions", middleware.UserAuthentication(controllers.GetMessagingSessionHandler)).Methods("GET")
+	apiV1.HandleFunc("/messaging-sessions/history", middleware.LearnerAuthentication(controllers.GetMessagingSessionHistoryHandler)).Methods("GET")
 	apiV1.HandleFunc("/messaging-sessions", middleware.LearnerAuthentication(controllers.CreateMessagingSessionHandler)).Methods("POST")
 	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/finish", middleware.LearnerExpertAuthentication(controllers.FinishMessagingSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/messaging-sessions/{messaging_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateMessagingSessionHandler)).Methods("PUT")
@@ -81,13 +82,15 @@ func init() {
 	apiV1.HandleFunc("/pricings/{pricing_id}/delete", middleware.ModeratorAuthentication(controllers.DeletePricingHandler)).Methods("DELETE")
 	//For live call session functions
 	apiV1.HandleFunc("/live-call-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
+	apiV1.HandleFunc("/live-call-sessions/history", middleware.LearnerAuthentication(controllers.GetLiveCallHistoryHandler)).Methods("GET")
 	apiV1.HandleFunc("/live-call-sessions", middleware.LearnerAuthentication(controllers.CreateLiveCallSessionHandler)).Methods("POST")
 	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/finish", middleware.LearnerExpertAuthentication(controllers.FinishLiveCallSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateLiveCallSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/live-call-sessions/{live_call_session_id}/cancel", middleware.LearnerAuthentication(controllers.CancelLiveCallHandler)).Methods("PUT")
 
 	//For translation session functions
-	// apiV1.HandleFunc("/translation-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
+	apiV1.HandleFunc("/translation-sessions", middleware.UserAuthentication(controllers.GetLiveCallSessionsHandler)).Methods("GET")
+	apiV1.HandleFunc("/translation-sessions/history", middleware.LearnerAuthentication(controllers.GetTranslationSessionHistoryHandler)).Methods("GET")
 	apiV1.HandleFunc("/translation-sessions", middleware.LearnerAuthentication(controllers.CreateTranslationSessionHandler)).Methods("POST")
 	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/finish", middleware.LearnerExpertAuthentication(controllers.FinishTranslationSessionHandler)).Methods("PUT")
 	apiV1.HandleFunc("/translation-sessions/{translation_session_id}/update", middleware.LearnerExpertAuthentication(controllers.UpdateTranslationSessionHandler)).Methods("PUT")

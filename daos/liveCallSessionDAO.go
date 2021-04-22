@@ -85,6 +85,19 @@ func (dao *LiveCallSessionDAO) GetCreatedLiveCallSessionsInTimePeriod(startDate 
 	return uint(len(result)), err
 }
 
+func (dao *LiveCallSessionDAO) GetLiveCallSessionHistory(learnerID uint, startDate time.Time, endDate time.Time) (*[]models.LiveCallSession, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	result := []models.LiveCallSession{}
+	err = db.Debug().Model(&models.LiveCallSession{}).
+		Preload("Expert").
+		Preload("Pricing").
+		Find(&result, "learner_id = ? AND created_at BETWEEN ? AND ?", learnerID, startDate, endDate).Error
+	return &result, err
+}
+
 func (u *LiveCallSessionDAO) UpdateLiveCallSessionByID(id string, liveCallSession models.LiveCallSession) (int64, *models.LiveCallSession, error) {
 	db, err := database.ConnectToDB()
 
@@ -95,7 +108,7 @@ func (u *LiveCallSessionDAO) UpdateLiveCallSessionByID(id string, liveCallSessio
 	if liveCallSession.IsFinished {
 		var tmp models.LiveCallSession
 		_ = db.Model(&models.LiveCallSession{}).Where("id = ?", id).Select("pricing_id").First(&tmp)
-		pricing, _ := pricingDAO.GetPricingByID(tmp.PricingID)
+		pricing, _ := pricingDAO.GetPricingByID(*tmp.PricingID)
 		liveCallSession.PaidCoins = pricing.Price
 	}
 	result := db.Model(&models.LiveCallSession{}).Where("id = ?", id).

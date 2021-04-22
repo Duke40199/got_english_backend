@@ -23,6 +23,7 @@ func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	//Get learnerID
 	accountID, _ := uuid.Parse(fmt.Sprint(r.Context().Value("id")))
+	learnerID, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("learner_id")), 10, 32)
 	availableCoinCount, _ := strconv.ParseInt(fmt.Sprint(r.Context().Value("available_coin_count")), 10, 32)
 	//Get translation sessions
 	translationSession := models.TranslationSession{}
@@ -54,8 +55,9 @@ func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	exchangeRateDAO := daos.GetExchangeRateDAO()
 	exchangeRate, _ := exchangeRateDAO.GetExchangeRateByServiceName(config.GetServiceConfig().TranslationService)
 	translationSession.Learners = append(translationSession.Learners, *learner)
-	translationSession.Pricing = *pricing
+	translationSession.Pricing = pricing
 	translationSession.ExchangeRate = *exchangeRate
+	translationSession.CreatorLearnerID = uint(learnerID)
 	translationSession.CreatedAt = time.Now()
 	translationSession.UpdatedAt = time.Now()
 	//Create
@@ -71,6 +73,38 @@ func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 
 }
+
+func GetTranslationSessionHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params   = mux.Vars(r)
+		message    = "OK"
+		timePeriod string
+		startDate  time.Time
+		endDate    time.Time
+		err        error
+	)
+	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
+	if len(r.URL.Query()["timePeriod"]) > 0 {
+		timePeriod = fmt.Sprint(r.URL.Query()["timePeriod"][0])
+		startDate, endDate, err = utils.GetTimesByPeriod(timePeriod)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	} else {
+		//Get by month
+		startDate, endDate, err = utils.GetTimesByPeriod("monthly")
+	}
+	translationSessionDAO := daos.GetTranslationSessionDAO()
+	result, err := translationSessionDAO.GetTranslationSessionHistory(uint(learnerID), startDate, endDate)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+}
+
 func FinishTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (

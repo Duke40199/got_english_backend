@@ -16,8 +16,8 @@ type MessagingSession struct {
 	Expert   *Expert `gorm:"foreignKey:ExpertID" json:"expert_info,omitempty"`
 	ExpertID *uint   `gorm:"size:255" json:"expert_id,omitempty"`
 	//An messaging session can only have one pricing.
-	Pricing   Pricing `gorm:"foreignKey:PricingID" json:"-"`
-	PricingID uint    `gorm:"size:255" json:"pricing_id,omitempty"`
+	Pricing   *Pricing `gorm:"foreignKey:PricingID" json:"pricing,omitempty"`
+	PricingID *uint    `gorm:"size:255" json:"pricing_id,omitempty"`
 	//An messaging session can only have one exchange rate.
 	ExchangeRate   ExchangeRate `gorm:"foreignKey:ExchangeRateID" json:"-"`
 	ExchangeRateID uint         `gorm:"size:255" json:"exchange_rate_id,omitempty"`
