@@ -67,6 +67,7 @@ func SeedDB(db *gorm.DB) {
 	SeedPricings(db)
 	SeedCoinBundles(db)
 	SeedExchangeRates(db)
+	SeedRatingAlgorithm(db)
 }
 
 //SeedAccounts will seed users to the DB
@@ -189,6 +190,16 @@ func SeedPricings(db *gorm.DB) {
 	}
 	db.Create(&pricings)
 	fmt.Println("======= Pricings seeded.")
+}
+
+func SeedRatingAlgorithm(db *gorm.DB) {
+	algorithm := models.RatingAlgorithm{
+		ID:                      1,
+		MinimumRatingCount:      100,
+		AverageAllExpertsRating: 0,
+	}
+	db.Create(&algorithm)
+	fmt.Println("======= Rating algorithm seeded.")
 }
 
 func SeedCoinBundles(db *gorm.DB) {

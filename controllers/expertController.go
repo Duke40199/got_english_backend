@@ -40,6 +40,46 @@ func GetExpertsHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, expertDetails)
 }
 
+func GetExpertSuggestionsHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params  = mux.Vars(r)
+		message     = "OK"
+		serviceName string
+		limit       uint64
+		err         error
+	)
+	if len(r.URL.Query()["service_name"]) > 0 {
+		serviceName = fmt.Sprint(r.URL.Query()["service_name"][0])
+		if serviceName != config.GetServiceConfig().MessagingService &&
+			serviceName != config.GetServiceConfig().LiveCallService &&
+			serviceName != config.GetServiceConfig().TranslationService {
+			http.Error(w, "Invalid servicename (messaging,live_call_translation)", http.StatusBadRequest)
+			return
+		}
+	} else {
+		http.Error(w, "Missing service name", http.StatusBadRequest)
+		return
+	}
+	if len(r.URL.Query()["limit"]) > 0 {
+		limit, err = strconv.ParseUint(fmt.Sprint(r.URL.Query()["limit"][0]), 10, 0)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	} else {
+		limit = 1
+	}
+	expertDAO := daos.GetExpertDAO()
+	result, err := expertDAO.GetExpertSuggestions(serviceName, uint(limit))
+
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, result)
+
+}
 func GetTranslatorExpertsHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
@@ -57,7 +97,6 @@ func GetTranslatorExpertsHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, result)
 
 }
-
 func UpdateExpertHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (

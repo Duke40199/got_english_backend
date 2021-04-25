@@ -156,12 +156,13 @@ func UpdateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	messagingSession.LearnerID = uint(learnerID)
 	//parse body
 	messagingSessionID := params["messaging_session_id"]
+	fmt.Printf("============ messID:%s\n", messagingSessionID)
 	if err := json.NewDecoder(r.Body).Decode(&messagingSession); err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
 	//Check if user inputs sessionID
-	if messagingSession.ID == "" {
+	if messagingSessionID == "" {
 		http.Error(w, "missing session id.", http.StatusBadRequest)
 		return
 	}

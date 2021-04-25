@@ -55,6 +55,7 @@ func init() {
 	//For expert functions
 	apiV1.HandleFunc("/experts", middleware.UserAuthentication(controllers.GetExpertsHandler)).Methods("GET")
 	apiV1.HandleFunc("/experts/earnings", middleware.ExpertAuthentication(controllers.GetExpertEarningsHandler)).Methods("GET")
+	apiV1.HandleFunc("/experts/suggestions", middleware.LearnerAuthentication(controllers.GetExpertSuggestionsHandler)).Methods("GET")
 	apiV1.HandleFunc("/experts/translators", middleware.LearnerAuthentication(controllers.GetTranslatorExpertsHandler)).Methods("GET")
 	apiV1.HandleFunc("/experts/{account_id}", middleware.UserAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")
 	apiV1.HandleFunc("/experts/{account_id}/update", middleware.AdminAuthentication(controllers.UpdateExpertHandler)).Methods("PUT")

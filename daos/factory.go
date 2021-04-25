@@ -17,6 +17,7 @@ var (
 	moderatorDAO          = ModeratorDAO{}
 	pricingDAO            = PricingDAO{}
 	ratingDAO             = RatingDAO{}
+	ratingAlgorithmDAO    = RatingAlgorithmDAO{}
 	translationSessionDAO = TranslationSessionDAO{}
 )
 
@@ -63,6 +64,10 @@ func GetModeratorDAO() ModeratorDAO {
 func GetRatingDAO() RatingDAO {
 	return ratingDAO
 }
+func GetRatingAlgorithmDAO() RatingAlgorithmDAO {
+	return ratingAlgorithmDAO
+}
+
 func GetPricingDAO() PricingDAO {
 	return pricingDAO
 }

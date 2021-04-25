@@ -62,7 +62,11 @@ func (dao *RatingDAO) GetRatings(expertID uint) (*[]models.Rating, error) {
 		Preload("Learner").
 		Preload("Learner.Account").
 		Preload("TranslationSession").
+		Preload("TranslationSession.Expert").
+		Preload("TranslationSession.Expert.Account").
 		Preload("LiveCallSession").
+		Preload("LiveCallSession.Expert").
+		Preload("LiveCallSession.Expert.Account").
 		Preload("MessagingSession.Expert").
 		Preload("MessagingSession.Expert.Account").
 		Order("created_at desc").

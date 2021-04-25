@@ -9,13 +9,33 @@ import (
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
 	"github.com/golang/got_english_backend/models"
+	"github.com/golang/got_english_backend/utils"
 )
+
+func UpdateRatingAlgorithm(expertID uint) {
+	//get algorithm config
+	ratingAlgorithmDAO := daos.GetRatingAlgorithmDAO()
+	ratingAlgorithm, _ := ratingAlgorithmDAO.GetRatingAlgorithm()
+	//get all rating
+	ratingDAO := daos.GetRatingDAO()
+	ratingList, _ := ratingDAO.GetRatings(0)
+	//WeightedRating
+	ratingAlgorithm.AverageAllExpertsRating = utils.CalculateAverageRating(ratingList)
+	_, _ = ratingAlgorithmDAO.UpdateRatingAlgorithm(1, *ratingAlgorithm)
+	expertWeightedRating := utils.CalculateExpertWeightedRating(expertID, ratingList, ratingAlgorithm)
+	//Update expertID
+	if expertWeightedRating != 0 {
+		expertDAO := daos.GetExpertDAO()
+		expertDAO.UpdateExpertWeightedRatingnByExpertID(expertID, expertWeightedRating)
+	}
+}
 
 func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		// params  = mux.Vars(r)
-		message = "OK"
+		message  = "OK"
+		expertID uint
 	)
 	var result interface{}
 	ctx := r.Context()
@@ -63,6 +83,8 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Session is already rated.", http.StatusBadRequest)
 				return
 			}
+			//GetExpertID
+			expertID = *messagingSession.ExpertID
 			ratingDAO := daos.GetRatingDAO()
 			result, err = ratingDAO.CreateMessagingSessionRating(*messagingSession, rating)
 			if err != nil {
@@ -90,6 +112,8 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Session is already rated.", http.StatusBadRequest)
 				return
 			}
+			//GetExpertID
+			expertID = *liveCallSession.ExpertID
 			ratingDAO := daos.GetRatingDAO()
 			result, err = ratingDAO.CreateLiveCallSessionRating(*liveCallSession, rating)
 			if err != nil {
@@ -117,6 +141,8 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Session is already rated.", http.StatusBadRequest)
 				return
 			}
+			//GetExpertID
+			expertID = *translationSession.ExpertID
 			ratingDAO := daos.GetRatingDAO()
 			result, err = ratingDAO.CreateTranslationSessionRating(*translationSession, rating)
 			if err != nil {
@@ -131,6 +157,7 @@ func CreateRatingHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	UpdateRatingAlgorithm(expertID)
 	config.ResponseWithSuccess(w, message, result)
 
 }

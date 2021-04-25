@@ -1,8 +1,10 @@
 package daos
 
 import (
+	"errors"
 	"time"
 
+	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
 	"github.com/google/uuid"
@@ -82,6 +84,15 @@ func (dao *ExpertDAO) UpdateExpertByExpertID(expertID uint, expertPermissions mo
 		Updates(&expertPermissions)
 	return result.RowsAffected, result.Error
 }
+func (dao *ExpertDAO) UpdateExpertWeightedRatingnByExpertID(expertID uint, weightedRating float32) (int64, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.Expert{}).Where("id = ?", expertID).
+		Update("weighted_rating", weightedRating)
+	return result.RowsAffected, result.Error
+}
 func (dao *ExpertDAO) GetTranslatorExperts() (*[]models.Expert, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -94,5 +105,40 @@ func (dao *ExpertDAO) GetTranslatorExperts() (*[]models.Expert, error) {
 		// Raw("SELECT * FROM experts WHERE experts.id IN (SELECT experts.id FROM translation_sessions WHERE translation_sessions.is_finished = ? OR translation_sessions.is_cancelled = ?) OR experts.id NOT IN (SELECT translation_sessions.expert_id FROM got_english_db_local.translation_sessions WHERE translation_sessions.expert_id IS NOT NULL) AND experts.can_join_translation_session = ?;", true, true, true).
 		Find(&result, "can_join_translation_session = ?", true).Error
 
+	return &result, err
+}
+func (dao *ExpertDAO) GetExpertSuggestions(serviceName string, limit uint) (*[]models.Expert, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	query := "weighted_rating IS NOT NULL AND "
+	switch serviceName {
+	case config.GetServiceConfig().LiveCallService:
+		{
+			query += "can_join_live_call_session = TRUE"
+			break
+		}
+	case config.GetServiceConfig().MessagingService:
+		{
+			query += "can_chat = TRUE"
+			break
+		}
+	case config.GetServiceConfig().TranslationService:
+		{
+			query += "can_join_translation_session = TRUE"
+			break
+		}
+	default:
+		{
+			return nil, errors.New("DAO Error: Invalid service name.")
+		}
+	}
+	result := []models.Expert{}
+	err = db.Debug().Model(&models.Expert{}).
+		Preload("Account").
+		Order("weighted_rating desc").
+		Limit(int(limit)).
+		Find(&result, query).Error
 	return &result, err
 }
