@@ -149,6 +149,29 @@ func (u *AccountDAO) GetAccounts(account models.Account) (*[]models.Account, err
 	}
 	return &accounts, err
 }
+func (u *AccountDAO) GetAccountByAccountID(id uuid.UUID) (*models.Account, error) {
+	account := models.Account{}
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	err = db.Debug().Model(&models.Account{}).
+		Preload("Learner").
+		Preload("Learner.ID").
+		Preload("Expert").
+		Preload("Expert.ID").
+		Preload("Moderator").
+		Preload("Admin").
+		Find(&account, "id=?", id).Error
+	//Only get date from birthdays
+	if account.Birthday != nil {
+		*account.Birthday = strings.Split(*account.Birthday, "T")[0]
+	}
+	if account.RoleName == config.GetRoleNameConfig().Expert {
+		account.Expert.AverageRating, err = ratingDAO.GetExpertAverageRating(*account.Expert)
+	}
+	return &account, err
+}
 func (u *AccountDAO) UpdateAccountByID(accountID uuid.UUID, updateInfo models.Account) (int64, error) {
 	db, err := database.ConnectToDB()
 

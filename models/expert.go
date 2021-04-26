@@ -18,7 +18,7 @@ type Expert struct {
 	//An expert can have only one account
 	Account            *Account              `gorm:"foreignKey:AccountID" json:"account,omitempty"`
 	AccountID          uuid.UUID             `gorm:"column:account_id" json:"account_id"`
-	TranslationSession *[]TranslationSession `gorm:"" json:"translation_session,omitempty"`
+	TranslationSession *[]TranslationSession `gorm:"-" json:"translation_session,omitempty"`
 	//default timestamps
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime" json:"updated_at"`

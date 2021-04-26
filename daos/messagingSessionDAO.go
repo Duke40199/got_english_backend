@@ -99,6 +99,7 @@ func (dao *MessagingSessionDAO) GetCreatedMessagingSessionsInTimePeriod(startDat
 		Find(&result, "messaging_sessions.created_at BETWEEN ? AND ?", startDate, endDate).Error
 	return uint(len(result)), err
 }
+
 func (dao *MessagingSessionDAO) GetNewMessagingSessionsCountInTimePeriod(startDate time.Time, endDate time.Time) (*[]map[string]interface{}, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -123,6 +124,26 @@ func (dao *MessagingSessionDAO) GetNewMessagingSessionsCountInTimePeriod(startDa
 		}
 	}
 	return &result, err
+}
+func (dao *MessagingSessionDAO) GetMessagingInProgress(learnerID uint, expertID uint) (bool, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return false, err
+	}
+	var query string
+	if learnerID != 0 {
+		query = "SELECT * FROM messaging_sessions WHERE learner_id = " + fmt.Sprint(learnerID) + " AND is_finished = false"
+	}
+	if expertID != 0 {
+		query = "SELECT * FROM messaging_sessions WHERE expert_id = " + fmt.Sprint(expertID) + " AND is_finished = false"
+	}
+	result := []models.MessagingSession{}
+	err = db.Debug().
+		Raw(query).Scan(&result).Error
+	if len(result) > 0 {
+		return true, nil
+	}
+	return false, err
 }
 
 //UPDATE

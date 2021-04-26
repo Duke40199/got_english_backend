@@ -87,7 +87,26 @@ func (dao *TranslationSessionDAO) GetNewTranslationSessionsCountInTimePeriod(sta
 	}
 	return &result, err
 }
-
+func (dao *TranslationSessionDAO) GetTranslationSessionInProgress(learnerID uint, expertID uint) (bool, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return false, err
+	}
+	var query string
+	if learnerID != 0 {
+		query = "SELECT * FROM translation_sessions WHERE creator_learner_id = " + fmt.Sprint(learnerID) + " AND is_finished = false"
+	}
+	if expertID != 0 {
+		query = "SELECT * FROM translation_sessions WHERE expert_id = " + fmt.Sprint(expertID) + " AND is_finished = false"
+	}
+	result := []models.TranslationSession{}
+	err = db.Debug().
+		Raw(query).Scan(&result).Error
+	if len(result) > 0 {
+		return true, nil
+	}
+	return false, err
+}
 func (u *TranslationSessionDAO) UpdateTranslationSessionByID(id string, translationSession models.TranslationSession, learners []models.Learner) (int64, *models.TranslationSession, error) {
 	db, err := database.ConnectToDB()
 

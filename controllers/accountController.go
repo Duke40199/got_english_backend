@@ -176,6 +176,40 @@ func SuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "You don't have permission to manage "+accountToSuspend.RoleName+"s.", http.StatusUnauthorized)
 		return
 	}
+	accountInfo, err := accountDAO.GetAccountByAccountID(accountID)
+
+	if accountInfo.RoleName == config.GetRoleNameConfig().Expert || accountInfo.RoleName == config.GetRoleNameConfig().Learner {
+		var learnerID, expertID uint
+		if accountInfo.Learner == nil {
+			learnerID = 0
+		} else {
+			learnerID = accountInfo.Learner.ID
+		}
+		if accountInfo.Expert == nil {
+			expertID = 0
+		} else {
+			expertID = accountInfo.Expert.ID
+		}
+		//check live call
+		liveCallDAO := daos.GetLiveCallSessionDAO()
+		inProgress, _ := liveCallDAO.GetLiveCallInProgress(learnerID, expertID)
+		if inProgress {
+			http.Error(w, "Account is currently in a live call session", http.StatusBadRequest)
+			return
+		}
+		messagingSessionDAO := daos.GetMessagingSessionDAO()
+		inProgress, _ = messagingSessionDAO.GetMessagingInProgress(learnerID, expertID)
+		if inProgress {
+			http.Error(w, "Account is currently in a messaging session", http.StatusBadRequest)
+			return
+		}
+		translationSessionDAO := daos.GetTranslationSessionDAO()
+		inProgress, _ = translationSessionDAO.GetTranslationSessionInProgress(learnerID, expertID)
+		if inProgress {
+			http.Error(w, "Account is currently in a translation session", http.StatusBadRequest)
+			return
+		}
+	}
 	result, err := accountDAO.SuspendAccountByID(accountID)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)

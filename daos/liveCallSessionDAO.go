@@ -125,6 +125,27 @@ func (dao *LiveCallSessionDAO) GetLiveCallSessionHistory(learnerID uint, startDa
 	return &result, err
 }
 
+func (dao *LiveCallSessionDAO) GetLiveCallInProgress(learnerID uint, expertID uint) (bool, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return false, err
+	}
+	var query string
+	if learnerID != 0 {
+		query = "SELECT * FROM live_call_sessions WHERE learner_id = " + fmt.Sprint(learnerID) + " AND is_finished = false"
+	}
+	if expertID != 0 {
+		query = "SELECT * FROM live_call_sessions WHERE expert_id = " + fmt.Sprint(expertID) + " AND is_finished = false"
+	}
+	result := []models.LiveCallSession{}
+	err = db.Debug().
+		Raw(query).Scan(&result).Error
+	if len(result) > 0 {
+		return true, nil
+	}
+	return false, err
+}
+
 func (u *LiveCallSessionDAO) UpdateLiveCallSessionByID(id string, liveCallSession models.LiveCallSession) (int64, *models.LiveCallSession, error) {
 	db, err := database.ConnectToDB()
 
