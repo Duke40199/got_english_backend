@@ -92,6 +92,7 @@ func GetApplicationFormHistoryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	config.ResponseWithSuccess(w, message, applicationForms)
 }
+
 func ApproveApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (

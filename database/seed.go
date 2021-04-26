@@ -117,6 +117,7 @@ func SeedRolesForAccounts(db *gorm.DB, accounts *[]models.Account) {
 					CanManagePricing:         true,
 					CanManageApplicationForm: true,
 					CanManageExchangeRate:    true,
+					CanManageRatingAlgorithm: true,
 				})
 				break
 			}

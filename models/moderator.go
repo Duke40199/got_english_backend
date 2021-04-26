@@ -15,6 +15,8 @@ type Moderator struct {
 	CanManagePricing         bool `gorm:"column:can_manage_pricing" json:"can_manage_pricing"`
 	CanManageApplicationForm bool `gorm:"column:can_manage_application_form" json:"can_manage_application_form"`
 	CanManageExchangeRate    bool `gorm:"column:can_manage_exchange_rate" json:"can_manage_exchange_rate"`
+	CanManageRatingAlgorithm bool `gorm:"column:can_manage_rating_algorithm" json:"can_manage_rating_algorithm,omitempty"`
+
 	//An expert can have only one account
 	AccountID uuid.UUID `gorm:"column:account_id" json:"account_id"`
 
