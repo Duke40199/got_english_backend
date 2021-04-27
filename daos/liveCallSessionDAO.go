@@ -86,7 +86,7 @@ func (dao *LiveCallSessionDAO) GetCreatedLiveCallSessionsInTimePeriod(startDate 
 	return uint(len(result)), err
 }
 
-func (dao *LiveCallSessionDAO) GetNewLiveCallSessionsCountInTimePeriod(startDate time.Time, endDate time.Time) (*[]map[string]interface{}, error) {
+func (dao *LiveCallSessionDAO) GetNewLiveCallSessionsCountInTimePeriod(startDate time.Time, endDate time.Time) (*map[string]interface{}, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
 		return nil, err
@@ -103,11 +103,9 @@ func (dao *LiveCallSessionDAO) GetNewLiveCallSessionsCountInTimePeriod(startDate
 		Raw(query, startDate, endDate).
 		Find(&value).
 		Error
-	result := make([]map[string]interface{}, len(value))
+	result := make(map[string]interface{}, len(value))
 	for i := 0; i < len(value); i++ {
-		result[i] = map[string]interface{}{
-			fmt.Sprint(len(value)-i) + "_day_ago": value[i],
-		}
+		result[fmt.Sprint(len(value)-i-1)+"_day_ago"] = value[i]
 	}
 	return &result, err
 }

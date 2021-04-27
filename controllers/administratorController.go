@@ -17,82 +17,44 @@ func GetAdministratorSummaryHandler(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 	)
 	result := map[string]interface{}{}
-	startDateDaily, endDateDaily, _ := utils.GetTimesByPeriod("daily")
 	startDateWeekly, _, _ := utils.GetTimesByPeriod("weekly")
 	//Get expert count created during the period.
 	expertDAO := daos.GetExpertDAO()
-	expertCount, err := expertDAO.GetCreatedExpertsInTimePeriod(startDateDaily, endDateDaily)
-	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
-	}
-	result["new_expert_daily_count"] = expertCount
 
 	//Expert weekly
-	expertWeeklyCount, err := expertDAO.GetNewExpertsCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), startDateWeekly)
+	expertWeeklyCount, _ := expertDAO.GetNewExpertsCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), time.Now())
 	result["new_expert_weekly_count"] = expertWeeklyCount
 
 	//Get created learner count during the period.
 	learnerDAO := daos.GetLearnerDAO()
-	learnerCount, err := learnerDAO.GetCreatedLearnersInTimePeriod(startDateDaily, endDateDaily)
-	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
-	}
-	result["new_learner_daily_count"] = learnerCount
 
 	//Learner weekly
-	learnerWeeklyCount, err := learnerDAO.GetNewLearnersCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), startDateWeekly)
+	learnerWeeklyCount, _ := learnerDAO.GetNewLearnersCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), time.Now())
 	result["new_learner_weekly_count"] = learnerWeeklyCount
 
 	//Get created messaging count during the period.
 	messagingSessionDAO := daos.GetMessagingSessionDAO()
-	messagingSessionCount, err := messagingSessionDAO.GetCreatedMessagingSessionsInTimePeriod(startDateDaily, endDateDaily)
-	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
-	}
-	result["new_messaging_session_daily_count"] = messagingSessionCount
 	//messaging session weekly
-	messagingSessionWeeklyCount, err := messagingSessionDAO.GetNewMessagingSessionsCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), startDateWeekly)
+	messagingSessionWeeklyCount, _ := messagingSessionDAO.GetNewMessagingSessionsCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), time.Now())
 	result["new_messaging_session_weekly_count"] = messagingSessionWeeklyCount
 
 	//Get created live call count during the period.
 	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
-	liveCallSessionCount, err := liveCallSessionDAO.GetCreatedLiveCallSessionsInTimePeriod(startDateDaily, endDateDaily)
-	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
-	}
-	result["new_live_call_session_daily_count"] = liveCallSessionCount
-
 	//messaging session weekly
-	liveCallSessionsWeeklyCount, err := liveCallSessionDAO.GetNewLiveCallSessionsCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), startDateWeekly)
+	liveCallSessionsWeeklyCount, _ := liveCallSessionDAO.GetNewLiveCallSessionsCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), time.Now())
 	result["new_live_call_session_weekly_count"] = liveCallSessionsWeeklyCount
 
 	//Get created translation call count during the period.
 	translationSessionDAO := daos.GetTranslationSessionDAO()
-	translationSessionCount, err := translationSessionDAO.GetCreatedTranslationSessionInTimePeriod(startDateDaily, endDateDaily)
-	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
-	}
-	result["new_translation_session_daily_count"] = translationSessionCount
 
 	//messaging session weekly
-	translationSessionsWeeklyCount, err := translationSessionDAO.GetNewTranslationSessionsCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), startDateWeekly)
+	translationSessionsWeeklyCount, _ := translationSessionDAO.GetNewTranslationSessionsCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), time.Now())
 	result["new_translation_session_weekly_count"] = translationSessionsWeeklyCount
 
 	//Get created translation call count during the period.
 	invoiceDAO := daos.GetInvoiceDAO()
-	invoiceCount, err := invoiceDAO.GetCreatedInvoiceInTimePeriod(startDateDaily, endDateDaily)
-	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
-	}
-	result["new_invoice_daily_count"] = invoiceCount
 	//messaging session weekly
-	invoiceWeeklyCount, err := invoiceDAO.GetNewInvoicesCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), startDateWeekly)
+	invoiceWeeklyCount, _ := invoiceDAO.GetNewInvoicesCountInTimePeriod(startDateWeekly.AddDate(0, 0, -7), time.Now())
 	result["new_invoice_weekly_count"] = invoiceWeeklyCount
 
 	config.ResponseWithSuccess(w, message, result)
