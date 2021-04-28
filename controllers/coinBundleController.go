@@ -41,7 +41,7 @@ func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	result, err := coinBundleDAO.CreateCoinBundle(models.CoinBundle{
 		Title:       coinBundle.Title,
 		Description: coinBundle.Description,
-		Quantity:    uint(coinBundle.Quantity),
+		Quantity:    coinBundle.Quantity,
 		Price:       uint(coinBundle.Price),
 		PriceUnit:   coinBundle.PriceUnit,
 	},

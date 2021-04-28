@@ -74,6 +74,10 @@ func UpdateExchangeRateHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
+	if exchangeRate.Rate < 0 || exchangeRate.Rate > 1 {
+		http.Error(w, "Rate is between 0 and 1", http.StatusBadRequest)
+		return
+	}
 	exchangeRateDAO := daos.GetExchangeRateDAO()
 	result, err := exchangeRateDAO.UpdateExchangeRateByID(exchangeRate.ID, exchangeRate)
 	if err != nil {

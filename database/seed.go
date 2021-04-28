@@ -11,6 +11,7 @@ import (
 )
 
 var roleNameConfig = config.GetRoleNameConfig()
+var priceEachCoin = 2000
 
 //SeedDB function will trigger all seed functions below
 func SeedDB(db *gorm.DB) {
@@ -21,7 +22,7 @@ func SeedDB(db *gorm.DB) {
 	uuid4, _ := uuid.Parse("4b481c87-f208-4dfe-bc44-18c631a95a34")
 	ids := []uuid.UUID{uuid1, uuid2, uuid3, uuid4}
 	usernames := []string{"TuanAnh", "DucPhi", "TuanNguyen", "LocTr"}
-	fullnames := []string{"Nguyen Tuan Anh", "Phi Do Hong Duc", "Nguyen Tran Quoc Tuan", "Tran Thien Loc"}
+	fullnames := []string{"Nguyễn Tuấn Anh", "Phí Đỗ Hồng Đức", "Nguyễn Trần Quốc Tuấn", "Trần Thiên Lộc"}
 	emails := []string{"anhntse130266@fpt.edu.vn", "hongduc5412@gmail.com", "tuanntqse62351@fpt.edu.vn", "ttloc1999@gmail.com"}
 	avatarUrls := []string{
 		"https://scontent-hkt1-1.xx.fbcdn.net/v/t1.0-9/136993742_3749756998379656_496491351021530940_n.jpg?_nc_cat=107&ccb=1-3&_nc_sid=09cbfe&_nc_ohc=kvndP9qcIusAX-iZQVs&_nc_ht=scontent-hkt1-1.xx&oh=5768c6a74d45c1c23b69b2ef86dfa77c&oe=6072A896",
@@ -185,7 +186,7 @@ func SeedPricings(db *gorm.DB) {
 			PricingName:  "coin_value",
 			Quantity:     1,
 			QuantityUnit: "coin",
-			Price:        2000,
+			Price:        uint(priceEachCoin),
 			PriceUnit:    "VND",
 		},
 	}
@@ -204,29 +205,32 @@ func SeedRatingAlgorithm(db *gorm.DB) {
 }
 
 func SeedCoinBundles(db *gorm.DB) {
-
+	titles := []string{"Gói Khởi Động", "Gói Chuyên Nghiệp", "Gói Lâu Dài"}
+	descriptions := []string{"Phù hợp với những người dùng mới bắt đầu", "Phù hợp với những người dùng tần suất cao", "Phù hợp với những người dùng lâu dài"}
+	quantities := []uint{10, 20, 30}
+	priceUnit := "VND"
 	bundles := []models.CoinBundle{
 
 		{
-			Title:       "Pack of Coins",
-			Description: "Recommended for new users to try out.",
-			Quantity:    10,
-			Price:       10000,
-			PriceUnit:   "VND",
+			Title:       &titles[0],
+			Description: &descriptions[0],
+			Quantity:    &quantities[0],
+			Price:       uint(priceEachCoin) * (quantities[0]),
+			PriceUnit:   &priceUnit,
 		},
 		{
-			Title:       "Pocket of Coins",
-			Description: "Recommended for active users.",
-			Quantity:    20,
-			Price:       15000,
-			PriceUnit:   "VND",
+			Title:       &titles[1],
+			Description: &descriptions[1],
+			Quantity:    &quantities[1],
+			Price:       uint(priceEachCoin) * (quantities[1]),
+			PriceUnit:   &priceUnit,
 		},
 		{
-			Title:       "Bunch of Coins",
-			Description: "Best offer available at the moment.",
-			Quantity:    60,
-			Price:       30000,
-			PriceUnit:   "VND",
+			Title:       &titles[2],
+			Description: &descriptions[2],
+			Quantity:    &quantities[2],
+			Price:       uint(priceEachCoin) * (quantities[2]),
+			PriceUnit:   &priceUnit,
 		},
 	}
 	db.Create(&bundles)

@@ -26,7 +26,7 @@ func GetExpertEarningsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	startDate, endDate, err := utils.GetTimesByPeriod(duration)
+	startDate, endDate, _ := utils.GetTimesByPeriod(duration)
 	expertID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
 	earningDAO := daos.GetEarningDAO()
 	result, err := earningDAO.GetEarningByExpertID(uint(expertID), startDate, endDate)

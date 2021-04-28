@@ -36,14 +36,14 @@ func CreateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//Check if have pricing id
-	if translationSession.PricingID == 0 {
+	if *translationSession.PricingID == 0 {
 		http.Error(w, "Invalid pricing", http.StatusBadRequest)
 		return
 	}
 
 	//Get pricing
 	pricingDAO := daos.GetPricingDAO()
-	pricing, _ := pricingDAO.GetPricingByID(translationSession.PricingID)
+	pricing, _ := pricingDAO.GetPricingByID(*translationSession.PricingID)
 	if availableCoinCount < int64(pricing.Price) {
 		http.Error(w, "Insufficient coin.", http.StatusBadRequest)
 		return
@@ -237,7 +237,7 @@ func CancelTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//refund
 	pricingDAO := daos.GetPricingDAO()
-	pricing, _ := pricingDAO.GetPricingByID(tmpSession.PricingID)
+	pricing, _ := pricingDAO.GetPricingByID(*tmpSession.PricingID)
 	currentLearner := models.Learner{
 		ID:                 uint(learnerID),
 		AvailableCoinCount: uint(availableCoinCount) + pricing.Price,

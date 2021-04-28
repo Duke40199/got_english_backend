@@ -73,6 +73,29 @@ func IsUsernameValid(e string) (bool, error) {
 	}
 }
 
+// isEmailValid checks if the email provided passes the required structure and length.
+func IsBirthdayValid(e string) (bool, error) {
+	if e != "" {
+		t, err := time.Parse("2006-01-02", e)
+		if err != nil {
+			return false, err
+		}
+		timeNow := time.Now()
+		if t.Year() > timeNow.Year() {
+			return false, errors.New("birthday cannot set in the future")
+		} else if t.Year() == timeNow.Year() {
+			if t.Month() > timeNow.Month() {
+				return false, errors.New("birthday cannot set in the future")
+			} else if t.Day() > timeNow.Day() {
+				return false, errors.New("birthday cannot set in the future")
+			}
+		}
+		return true, nil
+	} else {
+		return false, errors.New(`birthday contains ""`)
+	}
+}
+
 func CalculateExpertEarningBySession(exchangeRateValue float32, coinValueInVND uint, coinCount uint) float32 {
 	result := (1 - exchangeRateValue) * float32(coinValueInVND*coinCount)
 	return result

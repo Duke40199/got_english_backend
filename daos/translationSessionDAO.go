@@ -113,8 +113,8 @@ func (u *TranslationSessionDAO) UpdateTranslationSessionByID(id string, translat
 	}
 	//Update paid coins if finish session
 	if translationSession.IsFinished {
-		var tmp models.MessagingSession
-		_ = db.Model(&models.MessagingSession{}).Where("id = ?", id).Select("pricing_id").First(&tmp)
+		var tmp models.TranslationSession
+		_ = db.Model(&models.TranslationSession{}).Where("id = ?", id).Select("pricing_id").First(&tmp)
 		pricing, _ := pricingDAO.GetPricingByID(*tmp.PricingID)
 		translationSession.PaidCoins = pricing.Price
 	}

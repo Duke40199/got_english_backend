@@ -10,8 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
-
 //ConnectToDB will connect the BE to the database
 func ConnectToDB() (*gorm.DB, error) {
 	config := config.GetConfig()
@@ -38,6 +36,7 @@ func SyncDB(isForced bool) {
 	modelList := models.GetModelList()
 	db, err := ConnectToDB()
 	if isForced {
+
 		//DB will be synced forcefully.
 		if err != nil {
 			panic(err)
@@ -45,10 +44,14 @@ func SyncDB(isForced bool) {
 		for i := 0; i < len(modelList); i++ {
 			if db.Migrator().HasTable(modelList[i]) {
 				db.Migrator().DropTable(modelList[i])
-				db.Migrator().CreateTable(modelList[i])
+				db.Set("gorm:table_options", " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_vietnamese_ci").Migrator().AutoMigrate(modelList[i])
 			} else {
-				db.Migrator().CreateTable(modelList[i])
+				db.Set("gorm:table_options", " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_vietnamese_ci").Migrator().CreateTable(modelList[i])
 			}
+		}
+		db.Set("gorm:table_options", " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_vietnamese_ci").Migrator().AutoMigrate(&models.TranslationSession{})
+		if !db.Migrator().HasTable(&models.Earning{}) {
+			db.Set("gorm:table_options", " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_vietnamese_ci").Migrator().CreateTable(&models.Earning{})
 		}
 		SeedDB(db)
 		//Setup custom relations
@@ -56,7 +59,7 @@ func SyncDB(isForced bool) {
 		// db.Exec("ALTER TABLE `learners` ADD CONSTRAINT `fk_learner_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
 		// db.Exec("ALTER TABLE `moderators` ADD CONSTRAINT `fk_moderator_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
 		// db.Exec("ALTER TABLE `admins` ADD CONSTRAINT `fk_admin_accounts1` FOREIGN KEY (`accounts_id`) REFERENCES `accounts` (`id`)")
-		db.AutoMigrate(&models.TranslationSession{}, &models.Learner{})
+
 	} else {
 		fmt.Println("No seeding needed.")
 		// fmt.Println("seeding...")

@@ -12,20 +12,16 @@ var modelList = []interface{}{
 	Admin{},
 	Moderator{},
 	ApplicationForm{},
-
-	//Service-related
-	MessagingSession{},
-	TranslationSession{},
-	LiveCallSession{},
-	Rating{},
-
 	//Finance-related
 	Pricing{},
 	CoinBundle{},
 	Invoice{},
 	ExchangeRate{},
-	Earning{},
 	RatingAlgorithm{},
+	//Service-related
+	MessagingSession{},
+	LiveCallSession{},
+	Rating{},
 }
 
 func init() {

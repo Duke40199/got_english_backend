@@ -156,6 +156,13 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	if updateInfo.Birthday != nil {
+		valid, err := utils.IsBirthdayValid(*updateInfo.Birthday)
+		if !valid {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	}
 	//if password is updated, update it on firebase.
 	if updateInfo.Password != nil {
 		firebaseUpdateUserParams := (&auth.UserToUpdate{}).
