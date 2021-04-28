@@ -12,15 +12,15 @@ import (
 type Account struct {
 	//Login
 	ID       uuid.UUID `gorm:"size:255;column:id;not null;unique; primaryKey;" json:"id"`
-	Username *string   `gorm:"size:255;unique" json:"username"`
-	Fullname *string   `gorm:"size:255;" json:"fullname"`
-	Email    *string   `gorm:"size:100;not null;unique;" json:"email"`
+	Username *string   `gorm:"size:55;unique" json:"username"`
+	Fullname *string   `gorm:"size:55;" json:"fullname"`
+	Email    *string   `gorm:"size:55;not null;unique;" json:"email"`
 	Password *string   `gorm:"-" json:"password,omitempty"`
 	RoleName string    `gorm:"size:100;not null;" json:"role_name"`
 	//Info
 	AvatarURL   *string    `gorm:"size:255" json:"avatar_url"`
-	Address     *string    `gorm:"size:255;" json:"address"`
-	PhoneNumber *string    `gorm:"column:phone_number;autoCreateTime" json:"phone_number"`
+	Address     *string    `gorm:"size:100;" json:"address"`
+	PhoneNumber *string    `gorm:"size:15;column:phone_number;autoCreateTime" json:"phone_number"`
 	Birthday    *string    `gorm:"column:birthday;type:date" json:"birthday" sql:"date"`
 	IsSuspended bool       `gorm:"column:is_suspended;default:false;" json:"is_suspended"`
 	SuspendedAt *time.Time `gorm:"column:suspended_at" json:"suspended_at"`

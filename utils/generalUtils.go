@@ -8,13 +8,69 @@ import (
 )
 
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+var fullnameRegex = regexp.MustCompile("([a-zA-Z',.-]+( [a-zA-Z',.-]+)*){2,30}")
+var phoneNumberRegex = regexp.MustCompile(`\+?(84|03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b`)
 
 // isEmailValid checks if the email provided passes the required structure and length.
 func IsEmailValid(e string) bool {
-	if len(e) < 3 && len(e) > 254 {
+	if len(e) < 3 && len(e) > 55 {
 		return false
 	}
 	return emailRegex.MatchString(e)
+}
+
+// isEmailValid checks if the email provided passes the required structure and length.
+func IsPhoneNumberValid(e string) (bool, error) {
+	if e != "" {
+		if len(e) < 3 || len(e) > 15 {
+			return false, errors.New("invalid phone number length (3 to 15 characters)")
+		}
+		if !phoneNumberRegex.MatchString(e) {
+			return false, errors.New("incorrect phone number format")
+		}
+		return true, nil
+	} else {
+		return false, errors.New(`phone number contains ""`)
+	}
+}
+
+// isEmailValid checks if the email provided passes the required structure and length.
+func IsFullnameValid(e string) (bool, error) {
+	if e != "" {
+		if len(e) < 3 || len(e) > 55 {
+			return false, errors.New("invalid fullname length (3 to 55 characters)")
+		}
+		if !fullnameRegex.MatchString(e) {
+			return false, errors.New("incorrect fullname format")
+		}
+		return true, nil
+	} else {
+		return false, errors.New(`fullname contains ""`)
+	}
+}
+
+// isEmailValid checks if the email provided passes the required structure and length.
+func IsAddressValid(e string) (bool, error) {
+	if e != "" {
+		if len(e) < 3 || len(e) > 100 {
+			return false, errors.New("invalid address length (3 to 100 characters)")
+		}
+		return true, nil
+	} else {
+		return false, errors.New(`address contains ""`)
+	}
+}
+
+// isEmailValid checks if the email provided passes the required structure and length.
+func IsUsernameValid(e string) (bool, error) {
+	if e != "" {
+		if len(e) < 3 || len(e) > 55 {
+			return false, errors.New("invalid username length (3 to 55 characters)")
+		}
+		return true, nil
+	} else {
+		return false, errors.New(`username contains ""`)
+	}
 }
 
 func CalculateExpertEarningBySession(exchangeRateValue float32, coinValueInVND uint, coinCount uint) float32 {
@@ -65,7 +121,7 @@ func GetTimesByPeriod(period string) (time.Time, time.Time, error) {
 	default:
 		{
 			fmt.Println("============ INVALID")
-			return startDate, endDate, errors.New("Invalid time period")
+			return startDate, endDate, errors.New("invalid time period")
 		}
 	}
 	return startDate, endDate, nil

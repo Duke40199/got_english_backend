@@ -128,6 +128,34 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Cannot update email.", http.StatusBadRequest)
 		return
 	}
+	if updateInfo.Fullname != nil {
+		valid, err := utils.IsFullnameValid(*updateInfo.Fullname)
+		if !valid {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	}
+	if updateInfo.PhoneNumber != nil {
+		valid, err := utils.IsPhoneNumberValid(*updateInfo.PhoneNumber)
+		if !valid {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	}
+	if updateInfo.Address != nil {
+		valid, err := utils.IsAddressValid(*updateInfo.Address)
+		if !valid {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	}
+	if updateInfo.Username != nil {
+		valid, err := utils.IsUsernameValid(*updateInfo.Username)
+		if !valid {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+	}
 	//if password is updated, update it on firebase.
 	if updateInfo.Password != nil {
 		firebaseUpdateUserParams := (&auth.UserToUpdate{}).

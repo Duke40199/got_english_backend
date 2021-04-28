@@ -96,7 +96,7 @@ func (u *AccountDAO) FindAccountByID(id uuid.UUID) (*models.Account, error) {
 	err = db.Debug().Model(&models.Account{}).Preload("Learner").Preload("Expert").Preload("Moderator").Preload("Admin").
 		First(&accountResult, "id=?", fmt.Sprint(id)).Error
 	if err != nil {
-		return nil, errors.New("account not found.")
+		return nil, errors.New("account not found based on credentials")
 	}
 	//Only get date from birthdays
 	if accountResult.Birthday != nil {
