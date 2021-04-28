@@ -72,7 +72,7 @@ func (u *PricingDAO) DeletePricingByID(id uint) (int64, error) {
 		Updates(&models.Pricing{IsDeleted: true}).
 		Delete(&models.Pricing{})
 	if (result.RowsAffected) == 0 {
-		return result.RowsAffected, errors.New("Pricing not found or already deleted.")
+		return result.RowsAffected, errors.New("pricing not found or already deleted")
 	}
 	return result.RowsAffected, result.Error
 }

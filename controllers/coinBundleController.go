@@ -37,12 +37,16 @@ func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Malformed data", http.StatusBadRequest)
 		return
 	}
+	isValidInput, err := models.VaildateCoinBundleInput(coinBundle)
+	if !isValidInput {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
 	coinBundleDAO := daos.GetCoinBundleDAO()
 	result, err := coinBundleDAO.CreateCoinBundle(models.CoinBundle{
 		Title:       coinBundle.Title,
 		Description: coinBundle.Description,
 		Quantity:    coinBundle.Quantity,
-		Price:       uint(coinBundle.Price),
 		PriceUnit:   coinBundle.PriceUnit,
 	},
 	)
@@ -100,6 +104,11 @@ func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	coinBundleDAO := daos.GetCoinBundleDAO()
 	if err := json.NewDecoder(r.Body).Decode(&coinBundle); err != nil {
 		http.Error(w, "Malformed data", http.StatusBadRequest)
+		return
+	}
+	isValidInput, err := models.VaildateCoinBundleInput(coinBundle)
+	if !isValidInput {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
 	result, err := coinBundleDAO.UpdateCoinBundleByID(uint(coinBundleID), coinBundle)

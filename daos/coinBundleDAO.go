@@ -22,6 +22,11 @@ func (dao *CoinBundleDAO) CreateCoinBundle(coinBundle models.CoinBundle) (*model
 	if err != nil {
 		return nil, err
 	}
+	pricingDAO := GetPricingDAO()
+	pricing, _ := pricingDAO.GetPricings("coin_value", 0)
+	//Calculate pricing
+	bundlePrice := (*pricing)[0].Price * *coinBundle.Quantity
+	coinBundle.Price = &bundlePrice
 	err = db.Debug().Create(&coinBundle).Error
 	return &coinBundle, err
 
@@ -65,7 +70,12 @@ func (dao *CoinBundleDAO) UpdateCoinBundleByID(id uint, coinBundle models.CoinBu
 	if err != nil {
 		return db.RowsAffected, err
 	}
-	coinBundle.ID = id
+	coinBundle.ID = &id
+	pricingDAO := GetPricingDAO()
+	pricing, _ := pricingDAO.GetPricings("coin_value", 0)
+	//Calculate pricing
+	bundlePrice := (*pricing)[0].Price * *coinBundle.Quantity
+	coinBundle.Price = &bundlePrice
 	result := db.Model(&coinBundle).Where("id = ?", id).Updates(&coinBundle)
 
 	return result.RowsAffected, result.Error

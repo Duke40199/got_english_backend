@@ -155,7 +155,7 @@ func (dao *ExpertDAO) GetExpertSuggestions(serviceName string, limit uint) (*[]m
 		}
 	default:
 		{
-			return nil, errors.New("DAO Error: Invalid service name.")
+			return nil, errors.New("dao error: invalid service name")
 		}
 	}
 	result := []models.Expert{}

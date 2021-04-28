@@ -11,7 +11,7 @@ import (
 )
 
 var roleNameConfig = config.GetRoleNameConfig()
-var priceEachCoin = 2000
+var priceEachCoin uint = 2000
 
 //SeedDB function will trigger all seed functions below
 func SeedDB(db *gorm.DB) {
@@ -208,6 +208,7 @@ func SeedCoinBundles(db *gorm.DB) {
 	titles := []string{"Gói Khởi Động", "Gói Chuyên Nghiệp", "Gói Lâu Dài"}
 	descriptions := []string{"Phù hợp với những người dùng mới bắt đầu", "Phù hợp với những người dùng tần suất cao", "Phù hợp với những người dùng lâu dài"}
 	quantities := []uint{10, 20, 30}
+	pricings := []uint{10 * priceEachCoin, 20 * priceEachCoin, 30 * priceEachCoin}
 	priceUnit := "VND"
 	bundles := []models.CoinBundle{
 
@@ -215,21 +216,21 @@ func SeedCoinBundles(db *gorm.DB) {
 			Title:       &titles[0],
 			Description: &descriptions[0],
 			Quantity:    &quantities[0],
-			Price:       uint(priceEachCoin) * (quantities[0]),
+			Price:       &pricings[0],
 			PriceUnit:   &priceUnit,
 		},
 		{
 			Title:       &titles[1],
 			Description: &descriptions[1],
 			Quantity:    &quantities[1],
-			Price:       uint(priceEachCoin) * (quantities[1]),
+			Price:       &pricings[1],
 			PriceUnit:   &priceUnit,
 		},
 		{
 			Title:       &titles[2],
 			Description: &descriptions[2],
 			Quantity:    &quantities[2],
-			Price:       uint(priceEachCoin) * (quantities[2]),
+			Price:       &pricings[2],
 			PriceUnit:   &priceUnit,
 		},
 	}

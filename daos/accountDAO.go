@@ -31,7 +31,7 @@ func (u *AccountDAO) CreateAccount(account models.Account, permissions models.Pe
 	//validate if account already exists
 	accountAvailable, _ := accountDAO.FindAccountByEmail(account)
 	if accountAvailable.Email != nil {
-		return &account, errors.New("account unavailable.")
+		return &account, errors.New("account unavailable")
 	}
 	//Generate username if reqbody doesn't have one
 	if account.Username == nil {
