@@ -30,7 +30,7 @@ func IsPhoneNumberValid(e string) (bool, error) {
 		}
 		return true, nil
 	} else {
-		return false, errors.New(`phone number contains ""`)
+		return true, nil
 	}
 }
 
@@ -45,7 +45,7 @@ func IsFullnameValid(e string) (bool, error) {
 		}
 		return true, nil
 	} else {
-		return false, errors.New(`fullname contains ""`)
+		return true, nil
 	}
 }
 
@@ -57,7 +57,7 @@ func IsAddressValid(e string) (bool, error) {
 		}
 		return true, nil
 	} else {
-		return false, errors.New(`address contains ""`)
+		return true, nil
 	}
 }
 
