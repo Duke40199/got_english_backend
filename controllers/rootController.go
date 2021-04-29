@@ -72,6 +72,37 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	config.ResponseWithSuccess(w, message, resp)
 }
 
+//LoginHandler will handle the login function
+func LearnerLoginHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		// params   = mux.Vars(r)
+		message = "OK"
+	)
+	accountDAO := daos.GetAccountDAO()
+	accountInfo := models.Account{}
+	if err := json.NewDecoder(r.Body).Decode(&accountInfo); err != nil {
+		http.Error(w, "Malformed data", http.StatusBadRequest)
+		return
+	}
+	//account not found.
+	if accountInfo.Email == nil {
+		http.Error(w, "Wrong username/email or password.", http.StatusForbidden)
+		return
+	}
+	account, _ := accountDAO.FindAccountByEmail(accountInfo)
+	if account.RoleName != config.GetRoleNameConfig().Learner {
+		http.Error(w, "account is not a learner account.", http.StatusForbidden)
+		return
+	}
+	if account == nil {
+		http.Error(w, "Wrong username/email or password.", http.StatusForbidden)
+		return
+	}
+	//set account role for token
+	config.ResponseWithSuccess(w, message, "")
+}
+
 func LoginWithGoogleHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		// params   = mux.Vars(r)

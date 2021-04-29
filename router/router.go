@@ -21,6 +21,7 @@ func init() {
 	//For root functions
 	apiV1.HandleFunc("/", RootRoute).Methods("GET")
 	apiV1.HandleFunc("/login", controllers.LoginHandler).Methods("POST")
+	apiV1.HandleFunc("/login/learner", controllers.LearnerLoginHandler).Methods("POST")
 	apiV1.HandleFunc("/login/google", controllers.LoginWithGoogleHandler).Methods("POST")
 	apiV1.HandleFunc("/profile", middleware.UserAuthentication(controllers.ViewProfileHandler)).Methods("GET")
 	//For administrator (web admin) functions
