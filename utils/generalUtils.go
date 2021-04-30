@@ -9,7 +9,7 @@ import (
 
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 var fullnameRegex = regexp.MustCompile("([a-zA-Z',.-]+( [a-zA-Z',.-]+)*){2,30}")
-var phoneNumberRegex = regexp.MustCompile(`\+?(84|03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b`)
+var phoneNumberRegex = regexp.MustCompile(`\+?(84|03|05|07|08|09|01[2|6|8|9])+([0-9]{8,10})\b`)
 
 // isEmailValid checks if the email provided passes the required structure and length.
 func IsEmailValid(e string) bool {
