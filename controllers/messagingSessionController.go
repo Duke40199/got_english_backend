@@ -147,31 +147,43 @@ func CreateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 func UpdateMessagingSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
-		params  = mux.Vars(r)
-		message = "OK"
+		params              = mux.Vars(r)
+		message             = "OK"
+		messagingSessionID  = params["messaging_session_id"]
+		messagingSession    = models.MessagingSession{}
+		messagingSessionDAO = daos.GetMessagingSessionDAO()
 	)
-	//parse accountID
-	messagingSession := models.MessagingSession{}
-	learnerID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("learner_id")), 10, 0)
-	messagingSession.LearnerID = uint(learnerID)
-	//parse body
-	messagingSessionID := params["messaging_session_id"]
-	fmt.Printf("============ messID:%s\n", messagingSessionID)
-	if err := json.NewDecoder(r.Body).Decode(&messagingSession); err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
+	expertID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+	expertIDUint := uint(expertID)
+	//if expert is using this endpoint, check if the session already has expert
+	if expertID != 0 {
+		tmp, err := messagingSessionDAO.GetMessagingSessionByID(messagingSessionID)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+		if tmp.ExpertID != nil {
+			http.Error(w, "An expert is already in this session", http.StatusBadRequest)
+			return
+		}
+		messagingSession.ExpertID = &expertIDUint
+	} else {
+		//Learner is using the endpoint
+		//parse body
+		if err := json.NewDecoder(r.Body).Decode(&messagingSession); err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+		//Check if user inputs sessionID
+		if messagingSession.ID != "" {
+			http.Error(w, "missing session id.", http.StatusBadRequest)
+			return
+		}
+		if messagingSession.IsFinished {
+			http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
+			return
+		}
 	}
-	//Check if user inputs sessionID
-	if messagingSessionID == "" {
-		http.Error(w, "missing session id.", http.StatusBadRequest)
-		return
-	}
-	if messagingSession.IsFinished {
-		http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
-		return
-	}
-	//Update
-	messagingSessionDAO := daos.GetMessagingSessionDAO()
 	result, _, err := messagingSessionDAO.UpdateMessagingSessionByID(messagingSessionID, messagingSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)

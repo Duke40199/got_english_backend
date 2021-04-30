@@ -101,7 +101,6 @@ func init() {
 	//For ratings functions
 	apiV1.HandleFunc("/ratings", middleware.UserAuthentication(controllers.GetRatingsHandler)).Methods("GET")
 	apiV1.HandleFunc("/ratings", middleware.LearnerAuthentication(controllers.CreateRatingHandler)).Methods("POST")
-
 	// For changelogs
 	//apiV1.HandleFunc("/cms/changelogs", controller.ShowChangelogsHandler).Methods("GET")
 	//apiV1.HandleFunc("/cms/health-check", controller.GetHealthCHeck).Methods("GET")

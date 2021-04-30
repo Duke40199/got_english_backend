@@ -152,29 +152,49 @@ func CreateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 func UpdateLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
-		params  = mux.Vars(r)
-		message = "OK"
+		params             = mux.Vars(r)
+		message            = "OK"
+		liveCallSessionID  = params["live_call_session_id"]
+		liveCallSession    = models.LiveCallSession{}
+		liveCallSessionDAO = daos.GetLiveCallSessionDAO()
 	)
-	//parse accountID
-	liveCallSession := models.LiveCallSession{}
-	//parse body
-	liveCallSessionID := params["live_call_session_id"]
-	if err := json.NewDecoder(r.Body).Decode(&liveCallSession); err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
+	expertID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+	expertIDUint := uint(expertID)
+	//if expert is using this endpoint, check if the session already has expert
+	if expertID != 0 {
+		tmp, err := liveCallSessionDAO.GetLiveCallSessionByID(liveCallSessionID)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+		if tmp.ExpertID != nil {
+			http.Error(w, "An expert is already in this session", http.StatusBadRequest)
+			return
+		}
+		liveCallSession.ExpertID = &expertIDUint
+	} else {
+		//Learner is using the endpoint
+		//parse body
+		if err := json.NewDecoder(r.Body).Decode(&liveCallSession); err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+		//Check if user inputs sessionID
+		if liveCallSession.ID != "" {
+			http.Error(w, "missing session id.", http.StatusBadRequest)
+			return
+		}
+		if liveCallSession.IsFinished {
+			http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
+			return
+		}
 	}
-	if liveCallSession.IsFinished {
-		http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
-		return
-	}
-	liveCallSessionDAO := daos.GetLiveCallSessionDAO()
 	result, _, err := liveCallSessionDAO.UpdateLiveCallSessionByID(liveCallSessionID, liveCallSession)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
 	config.ResponseWithSuccess(w, message, result)
-
 }
 func FinishLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()

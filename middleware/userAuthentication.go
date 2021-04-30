@@ -203,7 +203,6 @@ func LearnerExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 					ctx = context.WithValue(ctx, "can_chat", accountInfo.Expert.CanChat)
 					ctx = context.WithValue(ctx, "can_join_live_call_session", accountInfo.Expert.CanJoinLiveCallSession)
 					ctx = context.WithValue(ctx, "can_join_translation_session", accountInfo.Expert.CanJoinTranslationSession)
-					next.ServeHTTP(w, r.WithContext(ctx))
 					break
 				}
 			case roleNameConfig.Learner:
@@ -215,8 +214,10 @@ func LearnerExpertAuthentication(next http.HandlerFunc) http.HandlerFunc {
 				}
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
+			return
 		} else {
 			http.Error(w, "Unauthorized", http.StatusForbidden)
+			return
 		}
 	}
 }

@@ -158,40 +158,53 @@ func FinishTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 func UpdateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
-		params  = mux.Vars(r)
-		message = "OK"
+		params                = mux.Vars(r)
+		message               = "OK"
+		learners              = []models.Learner{}
+		translationSessionID  = params["translation_session_id"]
+		translationSession    = models.TranslationSession{}
+		translationSessionDAO = daos.GetTranslationSessionDAO()
 	)
-	translationSession := models.TranslationSession{}
-	//parse body
-	translationSessionID := params["translation_session_id"]
-	if err := json.NewDecoder(r.Body).Decode(&translationSession); err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
+	expertID, _ := strconv.ParseUint(fmt.Sprint(r.Context().Value("expert_id")), 10, 0)
+	expertIDUint := uint(expertID)
+	//if expert is using this endpoint, check if the session already has expert
+	if expertID != 0 {
+		tmp, err := translationSessionDAO.GetTranslationSessionByID(translationSessionID)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+		if tmp.ExpertID != nil {
+			http.Error(w, "An expert is already in this session", http.StatusBadRequest)
+			return
+		}
+		translationSession.ExpertID = &expertIDUint
+	} else {
+		//Learner is using the endpoint
+		//parse body
+		if err := json.NewDecoder(r.Body).Decode(&translationSession); err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+		//Check if user inputs sessionID
+		if translationSession.ID != "" {
+			http.Error(w, "missing session id.", http.StatusBadRequest)
+			return
+		}
+		if translationSession.IsFinished {
+			http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
+			return
+		}
+		//Get learners on learnerIDS
+		learnerDAO := daos.GetLearnerDAO()
+		learners, err := learnerDAO.GetLearnerInfoByIDS(translationSession.LearnerIDs)
+		if err != nil {
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
+		translationSession.Learners = *learners
 	}
-	//Check if user inputs sessionID
-	if translationSession.ID != "" {
-		http.Error(w, "missing session id.", http.StatusBadRequest)
-		return
-	}
-	if len(translationSession.LearnerIDs) == 0 {
-		http.Error(w, "missing learner ids.", http.StatusBadRequest)
-		return
-	}
-	if translationSession.IsFinished {
-		http.Error(w, "Cannot update finish status using this call.", http.StatusBadRequest)
-		return
-	}
-	//Get learners on learnerIDS
-	learnerDAO := daos.GetLearnerDAO()
-	learners, err := learnerDAO.GetLearnerInfoByIDS(translationSession.LearnerIDs)
-	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
-	}
-	translationSession.Learners = *learners
-	//Update
-	translationSessionDAO := daos.GetTranslationSessionDAO()
-	result, _, err := translationSessionDAO.UpdateTranslationSessionByID(translationSessionID, translationSession, *learners)
+	result, _, err := translationSessionDAO.UpdateTranslationSessionByID(translationSessionID, translationSession, learners)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
