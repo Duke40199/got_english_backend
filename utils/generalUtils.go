@@ -82,17 +82,17 @@ func IsBirthdayValid(e string) (bool, error) {
 		}
 		timeNow := time.Now()
 		if t.Year() > timeNow.Year() {
-			return false, errors.New("birthday cannot set in the future")
+			return false, errors.New("birthday year cannot set in the future")
 		} else if t.Year() == timeNow.Year() {
 			if t.Month() > timeNow.Month() {
-				return false, errors.New("birthday cannot set in the future")
-			} else if t.Day() > timeNow.Day() {
-				return false, errors.New("birthday cannot set in the future")
+				return false, errors.New("birthday month cannot set in the future")
+			} else if t.Day() > timeNow.Day() && t.Month() >= timeNow.Month() && t.Year() >= timeNow.Year() {
+				return false, errors.New("birthday day cannot set in the future")
 			}
 		}
 		return true, nil
 	} else {
-		return false, errors.New(`birthday contains ""`)
+		return true, nil
 	}
 }
 
