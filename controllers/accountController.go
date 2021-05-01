@@ -127,39 +127,11 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if currentSessionRoleName == config.GetRoleNameConfig().Admin {
-		switch accountInfo.RoleName {
-		case config.GetRoleNameConfig().Learner:
-			{
-				havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageLearner, r)
-				if !havePermission {
-					http.Error(w, "you cannot manage learner", http.StatusUnauthorized)
-					return
-				}
-			}
-		case config.GetRoleNameConfig().Expert:
-			{
-				havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageExpert, r)
-				if !havePermission {
-					http.Error(w, "you cannot manage expert", http.StatusUnauthorized)
-					return
-				}
-			}
-		case config.GetRoleNameConfig().Moderator:
-			{
-				havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageModerator, r)
-				if !havePermission {
-					http.Error(w, "you cannot manage moderator", http.StatusUnauthorized)
-					return
-				}
-			}
-		case config.GetRoleNameConfig().Admin:
-			{
-				havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageAdmin, r)
-				if !havePermission {
-					http.Error(w, "you cannot manage admin", http.StatusUnauthorized)
-					return
-				}
-			}
+		permission := middleware.GetAdminPermissionByRoleName(accountInfo.RoleName)
+		isAuthenticated := middleware.CheckAdminPermission(permission, r)
+		if !isAuthenticated {
+			http.Error(w, "You don't have permission to manage "+strings.ToLower(accountInfo.RoleName)+"s.", http.StatusUnauthorized)
+			return
 		}
 	}
 
@@ -255,7 +227,7 @@ func SuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "You don't have permission to manage "+accountToSuspend.RoleName+"s.", http.StatusUnauthorized)
 		return
 	}
-	accountInfo, err := accountDAO.GetAccountByAccountID(accountID)
+	accountInfo, _ := accountDAO.GetAccountByAccountID(accountID)
 
 	if accountInfo.RoleName == config.GetRoleNameConfig().Expert || accountInfo.RoleName == config.GetRoleNameConfig().Learner {
 		var learnerID, expertID uint
@@ -341,6 +313,7 @@ func ViewProfileHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	var accountID uuid.UUID
 	var err error
+
 	//If the user is looking for another profile
 	if len(r.URL.Query()["account_id"]) > 0 {
 		accountID, err = uuid.Parse(r.URL.Query()["account_id"][0])
@@ -380,45 +353,11 @@ func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		username = ""
 	}
-	switch strings.Title(role) {
-	case config.GetRoleNameConfig().Learner:
-		{
-			havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageLearner, r)
-			if !havePermission {
-				http.Error(w, "you cannot manage learner", http.StatusUnauthorized)
-				return
-			}
-		}
-	case config.GetRoleNameConfig().Expert:
-		{
-			havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageExpert, r)
-			if !havePermission {
-				http.Error(w, "you cannot manage expert", http.StatusUnauthorized)
-				return
-			}
-		}
-	case config.GetRoleNameConfig().Moderator:
-		{
-			havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageModerator, r)
-			if !havePermission {
-				http.Error(w, "you cannot manage moderator", http.StatusUnauthorized)
-				return
-			}
-		}
-	case config.GetRoleNameConfig().Admin:
-		{
-			havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageAdmin, r)
-			if !havePermission {
-				http.Error(w, "you cannot manage admin", http.StatusUnauthorized)
-				return
-			}
-		}
-	default:
-		{
-			http.Error(w, "Invalid role name {Learner/Admin/Expert/Moderator}", http.StatusBadRequest)
-			return
-
-		}
+	permission := middleware.GetAdminPermissionByRoleName(role)
+	isAuthenticated := middleware.CheckAdminPermission(permission, r)
+	if !isAuthenticated {
+		http.Error(w, "You don't have permission to manage "+strings.ToLower(role)+"s.", http.StatusUnauthorized)
+		return
 	}
 	accountDAO := daos.GetAccountDAO()
 	userDetails, err := accountDAO.GetAccounts(models.Account{

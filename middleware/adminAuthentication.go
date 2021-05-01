@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/golang/got_english_backend/config"
 )
@@ -49,7 +50,7 @@ func CheckAdminPermission(permission string, r *http.Request) bool {
 
 func GetAdminPermissionByRoleName(roleName string) string {
 	var permission = ""
-	switch roleName {
+	switch strings.Title(roleName) {
 	case roleNameConfig.Admin:
 		{
 			permission = config.GetAdminPermissionConfig().CanManageAdmin
