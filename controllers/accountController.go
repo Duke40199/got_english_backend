@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"firebase.google.com/go/auth"
 	"github.com/golang/got_english_backend/config"
@@ -119,6 +120,49 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	accountDAO := daos.GetAccountDAO()
+	//if admin is updating, check admin permission
+	accountInfo, err := accountDAO.GetAccountByAccountID(accountID)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	if currentSessionRoleName == config.GetRoleNameConfig().Admin {
+		switch accountInfo.RoleName {
+		case config.GetRoleNameConfig().Learner:
+			{
+				havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageLearner, r)
+				if !havePermission {
+					http.Error(w, "you cannot manage learner", http.StatusUnauthorized)
+					return
+				}
+			}
+		case config.GetRoleNameConfig().Expert:
+			{
+				havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageExpert, r)
+				if !havePermission {
+					http.Error(w, "you cannot manage expert", http.StatusUnauthorized)
+					return
+				}
+			}
+		case config.GetRoleNameConfig().Moderator:
+			{
+				havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageModerator, r)
+				if !havePermission {
+					http.Error(w, "you cannot manage moderator", http.StatusUnauthorized)
+					return
+				}
+			}
+		case config.GetRoleNameConfig().Admin:
+			{
+				havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageAdmin, r)
+				if !havePermission {
+					http.Error(w, "you cannot manage admin", http.StatusUnauthorized)
+					return
+				}
+			}
+		}
+	}
+
 	updateInfo := models.Account{}
 	if err := json.NewDecoder(r.Body).Decode(&updateInfo); err != nil {
 		http.Error(w, "Malformed data", http.StatusBadRequest)
@@ -335,6 +379,46 @@ func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
 		username = r.URL.Query()["username"][0]
 	} else {
 		username = ""
+	}
+	switch strings.Title(role) {
+	case config.GetRoleNameConfig().Learner:
+		{
+			havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageLearner, r)
+			if !havePermission {
+				http.Error(w, "you cannot manage learner", http.StatusUnauthorized)
+				return
+			}
+		}
+	case config.GetRoleNameConfig().Expert:
+		{
+			havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageExpert, r)
+			if !havePermission {
+				http.Error(w, "you cannot manage expert", http.StatusUnauthorized)
+				return
+			}
+		}
+	case config.GetRoleNameConfig().Moderator:
+		{
+			havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageModerator, r)
+			if !havePermission {
+				http.Error(w, "you cannot manage moderator", http.StatusUnauthorized)
+				return
+			}
+		}
+	case config.GetRoleNameConfig().Admin:
+		{
+			havePermission := middleware.CheckAdminPermission(config.GetAdminPermissionConfig().CanManageAdmin, r)
+			if !havePermission {
+				http.Error(w, "you cannot manage admin", http.StatusUnauthorized)
+				return
+			}
+		}
+	default:
+		{
+			http.Error(w, "Invalid role name {Learner/Admin/Expert/Moderator}", http.StatusBadRequest)
+			return
+
+		}
 	}
 	accountDAO := daos.GetAccountDAO()
 	userDetails, err := accountDAO.GetAccounts(models.Account{
