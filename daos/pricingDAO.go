@@ -2,6 +2,7 @@ package daos
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/golang/got_english_backend/database"
 	models "github.com/golang/got_english_backend/models"
@@ -57,8 +58,31 @@ func (u *PricingDAO) UpdatePricingByID(id uint, updateInfo models.Pricing) (int6
 	if err != nil {
 		return db.RowsAffected, err
 	}
-	result := db.Model(&models.Pricing{}).Where("id = ?", id).
-		Updates(updateInfo)
+	var result = db
+	pricingInfo := models.Pricing{}
+	_ = db.Model(&models.Pricing{}).First(&pricingInfo, "id = ?", id)
+	//check if the pricing is a coin value
+	if pricingInfo.PricingName == "coin_value" {
+		result = db.Model(&models.Pricing{}).Where("id = ?", id).
+			Updates(map[string]interface{}{"price": updateInfo.Price})
+		//update coin bundles based on new price value
+		coinBundles := []models.CoinBundle{}
+		var bundleUpdateQuery = "INSERT into `coin_bundles` (id, price,price_unit) VALUES "
+		_ = db.Model(&models.CoinBundle{}).Find(&coinBundles)
+		for i := 0; i < len(coinBundles); i++ {
+			coinNewValueQuery := "(" + fmt.Sprint(i+1) + "," + fmt.Sprint(updateInfo.Price*(*coinBundles[i].Quantity)) + "," + "'VND') "
+			if i < len(coinBundles)-1 {
+				coinNewValueQuery += ", "
+			}
+			bundleUpdateQuery += coinNewValueQuery
+		}
+		bundleUpdateQuery += "ON DUPLICATE KEY UPDATE price = VALUES(price);"
+		_ = db.Exec(bundleUpdateQuery)
+	} else {
+		result = db.Model(&models.Pricing{}).Where("id = ?", id).
+			Updates(updateInfo)
+	}
+
 	return result.RowsAffected, result.Error
 }
 

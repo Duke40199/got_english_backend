@@ -100,7 +100,6 @@ func UpdatePricingHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-
 	//parse body
 	updateInfo := models.Pricing{}
 	if err := json.NewDecoder(r.Body).Decode(&updateInfo); err != nil {
