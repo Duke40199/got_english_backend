@@ -8,18 +8,10 @@ import (
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
+	"github.com/golang/got_english_backend/middleware"
 	"github.com/golang/got_english_backend/models"
 	"github.com/gorilla/mux"
 )
-
-func ValidateManageExchangeRatePermission(w http.ResponseWriter, r *http.Request) bool {
-	canManageExchangeRate, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_exchange_rate")))
-	if !canManageExchangeRate {
-		http.Error(w, "You don't have the permission to manage exchange rates", http.StatusUnauthorized)
-		return false
-	}
-	return true
-}
 
 func GetExchangeRatesHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -27,9 +19,15 @@ func GetExchangeRatesHandler(w http.ResponseWriter, r *http.Request) {
 		// params  = mux.Vars(r)
 		message = "OK"
 	)
-	//Get perm
-	if !ValidateManageExchangeRatePermission(w, r) {
-		return
+	ctx := r.Context()
+	roleName := fmt.Sprint(ctx.Value("role_name"))
+	//If moderator queries, check perm
+	if roleName == config.GetRoleNameConfig().Moderator {
+		isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageExchangeRate, r)
+		if !isPermissioned {
+			http.Error(w, "You don't have permission to manage exchange rates", http.StatusUnauthorized)
+			return
+		}
 	}
 	exchangeRate := models.ExchangeRate{}
 	//Get id
@@ -60,7 +58,9 @@ func UpdateExchangeRateHandler(w http.ResponseWriter, r *http.Request) {
 		params  = mux.Vars(r)
 		message = "OK"
 	)
-	if !ValidateManageExchangeRatePermission(w, r) {
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageExchangeRate, r)
+	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage exchange rates", http.StatusUnauthorized)
 		return
 	}
 	exchangeRate := models.ExchangeRate{}

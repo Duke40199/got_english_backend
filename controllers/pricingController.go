@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
+	"github.com/golang/got_english_backend/middleware"
 	"github.com/golang/got_english_backend/models"
 	"github.com/gorilla/mux"
 )
@@ -18,6 +19,16 @@ func GetPricingsHandler(w http.ResponseWriter, r *http.Request) {
 		// params  = mux.Vars(r)
 		message = "OK"
 	)
+	ctx := r.Context()
+	roleName := fmt.Sprint(ctx.Value("role_name"))
+	//If moderator queries, check perm
+	if roleName == config.GetRoleNameConfig().Moderator {
+		isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManagePricing, r)
+		if !isPermissioned {
+			http.Error(w, "You don't have permission to manage pricings", http.StatusUnauthorized)
+			return
+		}
+	}
 	var pricingID uint = 0
 	var pricingName string = ""
 	if len(r.URL.Query()["pricing_name"]) > 0 {
@@ -49,9 +60,9 @@ func CreatePricingHandler(w http.ResponseWriter, r *http.Request) {
 		// params  = mux.Vars(r)
 	)
 	//Check if the user is allows to update pricing
-	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_pricing")))
-	if !canManagePricing {
-		http.Error(w, "You cannot manage pricing.", http.StatusForbidden)
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManagePricing, r)
+	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage pricings", http.StatusUnauthorized)
 		return
 	}
 	//parse body
@@ -78,9 +89,9 @@ func UpdatePricingHandler(w http.ResponseWriter, r *http.Request) {
 		params  = mux.Vars(r)
 	)
 	//Check if the user is allows to update pricing
-	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_pricing")))
-	if !canManagePricing {
-		http.Error(w, "You cannot manage pricing.", http.StatusForbidden)
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManagePricing, r)
+	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage pricings", http.StatusUnauthorized)
 		return
 	}
 	//parse request param to get accountid
@@ -112,9 +123,9 @@ func DeletePricingHandler(w http.ResponseWriter, r *http.Request) {
 		params  = mux.Vars(r)
 	)
 	//Check if the user is allows to update pricing
-	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_pricing")))
-	if !canManagePricing {
-		http.Error(w, "You cannot manage pricing.", http.StatusForbidden)
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManagePricing, r)
+	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage pricings", http.StatusUnauthorized)
 		return
 	}
 	//parse request param to get accountid

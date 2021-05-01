@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
+	"github.com/golang/got_english_backend/middleware"
 	"github.com/golang/got_english_backend/models"
 	"github.com/gorilla/mux"
 )
@@ -64,6 +65,16 @@ func GetApplicationFormsHandler(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 		status  string
 	)
+	ctx := r.Context()
+	roleName := fmt.Sprint(ctx.Value("role_name"))
+	//If moderator queries, check perm
+	if roleName == config.GetRoleNameConfig().Moderator {
+		isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageApplicationForm, r)
+		if !isPermissioned {
+			http.Error(w, "You don't have permission to manage application forms", http.StatusUnauthorized)
+			return
+		}
+	}
 	if len(r.URL.Query()["status"]) > 0 {
 		status = fmt.Sprint(r.URL.Query()["status"][0])
 	}
@@ -99,9 +110,9 @@ func ApproveApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 		params  = mux.Vars(r)
 		message = "OK"
 	)
-	canManageApplicationForm, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_application_form")))
-	if !canManageApplicationForm {
-		http.Error(w, "You don't have the permission to manage application forms.", http.StatusUnauthorized)
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageApplicationForm, r)
+	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage application forms", http.StatusUnauthorized)
 		return
 	}
 	applicationFormID, err := strconv.ParseUint(fmt.Sprint(params["application_form_id"]), 10, 0)
@@ -158,9 +169,9 @@ func RejectApplicationFormHandler(w http.ResponseWriter, r *http.Request) {
 		params  = mux.Vars(r)
 		message = "OK"
 	)
-	canManageApplicationForm, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_application_form")))
-	if !canManageApplicationForm {
-		http.Error(w, "You don't have the permission to manage application forms.", http.StatusUnauthorized)
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageApplicationForm, r)
+	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage application forms", http.StatusUnauthorized)
 		return
 	}
 	applicationFormID, err := strconv.ParseUint(fmt.Sprint(params["application_form_id"]), 10, 0)

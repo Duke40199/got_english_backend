@@ -8,18 +8,10 @@ import (
 
 	"github.com/golang/got_english_backend/config"
 	"github.com/golang/got_english_backend/daos"
+	"github.com/golang/got_english_backend/middleware"
 	"github.com/golang/got_english_backend/models"
 	"github.com/gorilla/mux"
 )
-
-func ValidateManageCoinBundlePermission(w http.ResponseWriter, r *http.Request) bool {
-	canManageCoinBundle, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_coin_bundle")))
-	if !canManageCoinBundle {
-		http.Error(w, "Your account's permission to 'manage coin bundle' has been disabled.", http.StatusForbidden)
-		return false
-	}
-	return true
-}
 
 func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -28,8 +20,9 @@ func CreateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 	)
 	//Check if current moderator has the manage coin bundle permission
-	isPermissioned := ValidateManageCoinBundlePermission(w, r)
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageCoinBundle, r)
 	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage coin bundles", http.StatusUnauthorized)
 		return
 	}
 	var coinBundle = models.CoinBundle{}
@@ -64,6 +57,16 @@ func GetCoinBundlesHandler(w http.ResponseWriter, r *http.Request) {
 		message           = "OK"
 		queryCoinBundleID = r.URL.Query()["id"]
 	)
+	ctx := r.Context()
+	roleName := fmt.Sprint(ctx.Value("role_name"))
+	//If moderator queries, check perm
+	if roleName == config.GetRoleNameConfig().Moderator {
+		isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageCoinBundle, r)
+		if !isPermissioned {
+			http.Error(w, "You don't have permission to manage coin bundles", http.StatusUnauthorized)
+			return
+		}
+	}
 	//If user input id
 	var coinBundleID int64
 	var err error
@@ -94,8 +97,9 @@ func UpdateCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 		params  = mux.Vars(r)
 	)
 	//Check if current moderator has the manage coin bundle permission
-	isPermissioned := ValidateManageCoinBundlePermission(w, r)
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageCoinBundle, r)
 	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage coin bundles", http.StatusUnauthorized)
 		return
 	}
 	//parse request param to get accountid
@@ -124,10 +128,10 @@ func DeleteCoinBundleHandler(w http.ResponseWriter, r *http.Request) {
 		message = "OK"
 		params  = mux.Vars(r)
 	)
-	//Check if the user is allows to update pricing
-	canManagePricing, _ := strconv.ParseBool(fmt.Sprint(r.Context().Value("can_manage_coin_bundle")))
-	if !canManagePricing {
-		http.Error(w, "You cannot manage coin bundle.", http.StatusForbidden)
+	//Check if current moderator has the manage coin bundle permission
+	isPermissioned := middleware.CheckModeratorPermission(config.GetModeratorPermissionConfig().CanManageCoinBundle, r)
+	if !isPermissioned {
+		http.Error(w, "You don't have permission to manage coin bundles", http.StatusUnauthorized)
 		return
 	}
 	//parse request param to get accountid
