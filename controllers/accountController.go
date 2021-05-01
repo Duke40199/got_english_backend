@@ -345,7 +345,8 @@ func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	if len(r.URL.Query()["role"]) > 0 {
 		role = r.URL.Query()["role"][0]
 	} else {
-		role = ""
+		http.Error(w, "Missing role", http.StatusBadRequest)
+		return
 	}
 	var username string
 	if len(r.URL.Query()["username"]) > 0 {
