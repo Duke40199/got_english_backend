@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -75,7 +76,7 @@ func IsUsernameValid(e string) (bool, error) {
 
 // isEmailValid checks if the email provided passes the required structure and length.
 func IsBirthdayValid(e string) (bool, error) {
-	if e != "" {
+	if strings.Trim(e, " ") != "" {
 		t, err := time.Parse("2006-01-02", e)
 		if err != nil {
 			return false, err

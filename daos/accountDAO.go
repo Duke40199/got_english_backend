@@ -178,8 +178,16 @@ func (u *AccountDAO) UpdateAccountByID(accountID uuid.UUID, updateInfo models.Ac
 	if err != nil {
 		return db.RowsAffected, err
 	}
+	//If want to delete birthday
+
+	if strings.Trim(*updateInfo.Birthday, " ") == "" {
+		_ = db.Model(&models.Account{}).Where("id = ?", accountID).
+			Updates(map[string]interface{}{"birthday": nil})
+		updateInfo.Birthday = nil
+	}
 	result := db.Model(&models.Account{}).Where("id = ?", accountID).
 		Updates(&updateInfo)
+
 	return result.RowsAffected, result.Error
 }
 
