@@ -145,9 +145,11 @@ func (dao *ExpertDAO) GetTranslatorExperts() (*[]models.Expert, error) {
 	result := []models.Expert{}
 	err = db.Debug().Model(&models.Expert{}).
 		Preload("Account").
-
 		// Raw("SELECT * FROM experts WHERE experts.id IN (SELECT experts.id FROM translation_sessions WHERE translation_sessions.is_finished = ? OR translation_sessions.is_cancelled = ?) OR experts.id NOT IN (SELECT translation_sessions.expert_id FROM got_english_db_local.translation_sessions WHERE translation_sessions.expert_id IS NOT NULL) AND experts.can_join_translation_session = ?;", true, true, true).
 		Find(&result, "can_join_translation_session = ?", true).Error
+	for i := 0; i < len(result); i++ {
+		result[i].AverageRating, err = ratingDAO.GetExpertAverageRating(result[i])
+	}
 
 	return &result, err
 }
@@ -184,5 +186,9 @@ func (dao *ExpertDAO) GetExpertSuggestions(serviceName string, limit uint) (*[]m
 		Order("weighted_rating desc").
 		Limit(int(limit)).
 		Find(&result, query).Error
+	for i := 0; i < len(result); i++ {
+		result[i].AverageRating, err = ratingDAO.GetExpertAverageRating(result[i])
+	}
 	return &result, err
+
 }
