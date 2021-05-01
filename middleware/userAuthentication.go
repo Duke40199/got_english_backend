@@ -29,7 +29,7 @@ func UserAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			claims, _ := token.Claims.(jwt.MapClaims)
 			userInfo := claims["claims"].(map[string]interface{})
 			//Check if suspended
-			_, err := GetAccountFullInfo(userInfo["id"])
+			accountInfo, err := GetAccountFullInfo(userInfo["id"])
 			if err != nil {
 				http.Error(w, fmt.Sprint(err), http.StatusForbidden)
 				return
@@ -42,6 +42,43 @@ func UserAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			ctx := context.WithValue(r.Context(), "UserAccessToken", token)
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
+			switch userInfo["role_name"] {
+			case config.GetRoleNameConfig().Admin:
+				{
+					//set permission into context
+					ctx = context.WithValue(ctx, "can_manage_admin", accountInfo.Admin.CanManageAdmin)
+					ctx = context.WithValue(ctx, "can_manage_expert", accountInfo.Admin.CanManageExpert)
+					ctx = context.WithValue(ctx, "can_manage_moderator", accountInfo.Admin.CanManageModerator)
+					ctx = context.WithValue(ctx, "can_manage_learner", accountInfo.Admin.CanManageLearner)
+					break
+				}
+			case config.GetRoleNameConfig().Moderator:
+				{
+					//set permission into context
+					ctx = context.WithValue(ctx, "can_manage_application_form", accountInfo.Moderator.CanManageApplicationForm)
+					ctx = context.WithValue(ctx, "can_manage_coin_bundle", accountInfo.Moderator.CanManageCoinBundle)
+					ctx = context.WithValue(ctx, "can_manage_pricing", accountInfo.Moderator.CanManagePricing)
+					ctx = context.WithValue(ctx, "can_manage_exchange_rate", accountInfo.Moderator.CanManageExchangeRate)
+					ctx = context.WithValue(ctx, "can_manage_rating_algorithm", accountInfo.Moderator.CanManageRatingAlgorithm)
+					break
+				}
+			case config.GetRoleNameConfig().Learner:
+				{
+					ctx = context.WithValue(ctx, "learner_id", accountInfo.Learner.ID)
+					ctx = context.WithValue(ctx, "available_coin_count", accountInfo.Learner.AvailableCoinCount)
+					ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
+				}
+			case roleNameConfig.Expert:
+				{
+					//set permission into context
+					ctx = context.WithValue(ctx, "expert_id", accountInfo.Expert.ID)
+					ctx = context.WithValue(ctx, "can_chat", accountInfo.Expert.CanChat)
+					ctx = context.WithValue(ctx, "can_join_live_call_session", accountInfo.Expert.CanJoinLiveCallSession)
+					ctx = context.WithValue(ctx, "can_join_translation_session", accountInfo.Expert.CanJoinTranslationSession)
+					break
+				}
+			}
+
 			next.ServeHTTP(w, r.WithContext(ctx))
 
 		} else {
@@ -78,6 +115,8 @@ func ModeratorAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			ctx = context.WithValue(ctx, "can_manage_coin_bundle", accountInfo.Moderator.CanManageCoinBundle)
 			ctx = context.WithValue(ctx, "can_manage_pricing", accountInfo.Moderator.CanManagePricing)
 			ctx = context.WithValue(ctx, "can_manage_exchange_rate", accountInfo.Moderator.CanManageExchangeRate)
+			ctx = context.WithValue(ctx, "can_manage_rating_algorithm", accountInfo.Moderator.CanManageRatingAlgorithm)
+
 			ctx = context.WithValue(ctx, "id", userInfo["id"])
 			ctx = context.WithValue(ctx, "role_name", userInfo["role_name"])
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -113,9 +152,11 @@ func ModeratorAdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			case roleNameConfig.Moderator:
 				{
 					//set permission into context
-					ctx = context.WithValue(ctx, "can_manage_application_form", accountInfo.Moderator.CanManageCoinBundle)
+					ctx = context.WithValue(ctx, "can_manage_application_form", accountInfo.Moderator.CanManageApplicationForm)
 					ctx = context.WithValue(ctx, "can_manage_coin_bundle", accountInfo.Moderator.CanManageCoinBundle)
 					ctx = context.WithValue(ctx, "can_manage_pricing", accountInfo.Moderator.CanManagePricing)
+					ctx = context.WithValue(ctx, "can_manage_exchange_rate", accountInfo.Moderator.CanManageExchangeRate)
+					ctx = context.WithValue(ctx, "can_manage_rating_algorithm", accountInfo.Moderator.CanManageRatingAlgorithm)
 
 					break
 				}
