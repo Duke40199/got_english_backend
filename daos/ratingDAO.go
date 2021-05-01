@@ -96,6 +96,7 @@ func (dao *RatingDAO) GetRatings(expertID uint) (*[]models.Rating, error) {
 	}
 	return &result, err
 }
+
 func (dao *RatingDAO) GetExpertAverageRating(expert models.Expert) (float32, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {

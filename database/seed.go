@@ -195,10 +195,12 @@ func SeedPricings(db *gorm.DB) {
 }
 
 func SeedRatingAlgorithm(db *gorm.DB) {
+	var minimumRatingCount uint = 5
+	var averageAllExpertsRating float32 = 0
 	algorithm := models.RatingAlgorithm{
 		ID:                      1,
-		MinimumRatingCount:      100,
-		AverageAllExpertsRating: 0,
+		MinimumRatingCount:      minimumRatingCount,
+		AverageAllExpertsRating: averageAllExpertsRating,
 	}
 	db.Create(&algorithm)
 	fmt.Println("======= Rating algorithm seeded.")

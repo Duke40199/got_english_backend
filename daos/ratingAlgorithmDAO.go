@@ -31,6 +31,6 @@ func (u *RatingAlgorithmDAO) UpdateRatingAlgorithm(id uint, updateInfo models.Ra
 		return db.RowsAffected, err
 	}
 	result := db.Model(&models.RatingAlgorithm{}).Where("id = ?", id).
-		Updates(updateInfo)
+		Updates(map[string]interface{}{"minimum_rating_count": updateInfo.MinimumRatingCount})
 	return result.RowsAffected, result.Error
 }

@@ -38,6 +38,15 @@ func (dao *ExpertDAO) GetExpertByAccountID(accountID uuid.UUID) (*models.Expert,
 	err = db.Debug().First(&result, "account_id = ?", accountID).Error
 	return &result, err
 }
+func (dao *ExpertDAO) GetExpertRowCount() (uint, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return 0, err
+	}
+	var rowsCount int64
+	err = db.Debug().Model(&models.Expert{}).Count(&rowsCount).Error
+	return uint(rowsCount), err
+}
 func (dao *ExpertDAO) GetExpertByID(expertID uint) (*models.Expert, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
@@ -99,6 +108,17 @@ func (dao *ExpertDAO) UpdateExpertByAccountID(accountID uuid.UUID, expertPermiss
 		Updates(expertPermissions)
 	return result.RowsAffected, result.Error
 }
+
+func (dao *ExpertDAO) UpdateWeightedRatingByExpertID(expertID uint, weightedRating float32) (int64, error) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return db.RowsAffected, err
+	}
+	result := db.Model(&models.Expert{}).Where("id = ?", expertID).
+		Updates(map[string]interface{}{"weighted_rating": weightedRating})
+	return result.RowsAffected, result.Error
+}
+
 func (dao *ExpertDAO) UpdateExpertByExpertID(expertID uint, expertPermissions models.Expert) (int64, error) {
 	db, err := database.ConnectToDB()
 	if err != nil {
