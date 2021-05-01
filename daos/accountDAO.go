@@ -162,7 +162,7 @@ func (u *AccountDAO) GetAccountByAccountID(id uuid.UUID) (*models.Account, error
 		Preload("Expert.ID").
 		Preload("Moderator").
 		Preload("Admin").
-		Find(&account, "id=?", id).Error
+		First(&account, "id=?", id).Error
 	//Only get date from birthdays
 	if account.Birthday != nil {
 		*account.Birthday = strings.Split(*account.Birthday, "T")[0]

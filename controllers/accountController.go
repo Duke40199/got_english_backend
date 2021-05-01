@@ -20,7 +20,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
+func RegisterAccountHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
 		message = "OK"
@@ -54,6 +54,104 @@ func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if account.RoleName == "" {
 		http.Error(w, "Missing role_name", http.StatusBadRequest)
+		return
+	}
+	if account.RoleName == config.GetRoleNameConfig().Admin || account.RoleName == config.GetRoleNameConfig().Moderator {
+		http.Error(w, "Cannot register as moderator / admin", http.StatusBadRequest)
+		return
+	}
+	//create account on db
+	result, err := accountDAO.CreateAccount(models.Account{
+		ID:       account.ID,
+		Username: account.Username,
+		Email:    account.Email,
+		RoleName: account.RoleName,
+	}, accountPermission)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+	//create account on firebase
+	ctx := r.Context()
+	params := (&auth.UserToCreate{}).
+		UID(result.ID.String()).
+		Email(*result.Email).
+		EmailVerified(true).
+		Password(*account.Password).
+		Disabled(false)
+	firebaseAuth, context := config.SetupFirebase()
+	_, err = firebaseAuth.CreateUser(ctx, params)
+	if err != nil {
+		fmt.Print("Firebase account already existed.")
+	}
+	//return firebase custom token with claims
+	claims := map[string]interface{}{
+		"id":        result.ID,
+		"email":     result.Email,
+		"role_name": result.RoleName,
+		"username":  result.Username,
+	}
+	token, err := firebaseAuth.CustomTokenWithClaims(context, result.ID.String(), claims)
+	if err != nil {
+		log.Fatalf("error minting custom token: %v\n", err)
+		config.ResponseWithError(w, message, err)
+	}
+	resp := map[string]interface{}{
+		"username": &result.Username,
+		"token":    token,
+	}
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return
+	}
+	config.ResponseWithSuccess(w, message, resp)
+}
+
+func CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var (
+		message = "OK"
+	)
+
+	accountDAO := daos.GetAccountDAO()
+
+	//validations
+	requestBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Malformed data", http.StatusBadRequest)
+		return
+	}
+	var account = models.Account{}
+	if err := json.Unmarshal(requestBody, &account); err != nil {
+		http.Error(w, "Malformed account data", http.StatusBadRequest)
+		return
+	}
+	if account.RoleName == "" {
+		http.Error(w, "Missing role_name", http.StatusBadRequest)
+		return
+	}
+	//Check current admin permission
+	permission := middleware.GetAdminPermissionByRoleName(account.RoleName)
+	if permission == "" {
+		http.Error(w, "Invalid role", http.StatusBadRequest)
+		return
+	}
+	isAuthenticated := middleware.CheckAdminPermission(permission, r)
+	if !isAuthenticated {
+		http.Error(w, "You don't have permission to manage "+account.RoleName+"s.", http.StatusUnauthorized)
+		return
+	}
+	var accountPermission = models.PermissionStruct{}
+	if err := json.Unmarshal(requestBody, &accountPermission); err != nil {
+		http.Error(w, "Malformed permission data", http.StatusBadRequest)
+		return
+	}
+	if !utils.IsEmailValid(*account.Email) {
+		http.Error(w, "Invalid email.", http.StatusBadRequest)
+		return
+	}
+	if account.Password == nil {
+		http.Error(w, "Password is invalid or missing", http.StatusBadRequest)
 		return
 	}
 
@@ -120,10 +218,9 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	accountDAO := daos.GetAccountDAO()
-	//if admin is updating, check admin permission
-	accountInfo, err := accountDAO.GetAccountByAccountID(accountID)
+	accountInfo, err := accountDAO.FindAccountByID(accountID)
 	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		http.Error(w, "============OI"+fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
 	if currentSessionRoleName == config.GetRoleNameConfig().Admin {

@@ -25,13 +25,14 @@ func init() {
 	apiV1.HandleFunc("/login/expert", controllers.ExpertLoginHandler).Methods("POST")
 	apiV1.HandleFunc("/login/google", controllers.LoginWithGoogleHandler).Methods("POST")
 	apiV1.HandleFunc("/profile", middleware.UserAuthentication(controllers.ViewProfileHandler)).Methods("GET")
+	apiV1.HandleFunc("/register", controllers.RegisterAccountHandler).Methods("POST")
 	//For administrator (web admin) functions
 	apiV1.HandleFunc("/administrator/daily-summary", middleware.UserAuthentication(controllers.GetAdministratorSummaryHandler)).Methods("GET")
 	apiV1.HandleFunc("/administrator/service-monthly-summary", middleware.UserAuthentication(controllers.GetAdministratorMonthlyServiceSummaryHandler)).Methods("GET")
 	apiV1.HandleFunc("/administrator/account-monthly-summary", middleware.UserAuthentication(controllers.GetAdministratorMonthlyAccountSummaryHandler)).Methods("GET")
 	//For account functions
 	apiV1.HandleFunc("/accounts", middleware.AdminAuthentication(controllers.GetAccountsHandler)).Methods("GET")
-	apiV1.HandleFunc("/accounts", controllers.CreateAccountHandler).Methods("POST")
+	apiV1.HandleFunc("/accounts", middleware.AdminAuthentication(controllers.CreateAccountHandler)).Methods("POST")
 	apiV1.HandleFunc("/accounts/{account_id}/update", middleware.UserAuthentication(controllers.UpdateAccountHandler)).Methods("PUT")
 	apiV1.HandleFunc("/accounts/{account_id}/suspend", middleware.AdminAuthentication(controllers.SuspendAccountHandler)).Methods("PUT")
 	apiV1.HandleFunc("/accounts/{account_id}/unsuspend", middleware.AdminAuthentication(controllers.UnsuspendAccountHandler)).Methods("PUT")
