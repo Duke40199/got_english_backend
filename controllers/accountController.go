@@ -128,6 +128,10 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if currentSessionRoleName == config.GetRoleNameConfig().Admin {
 		permission := middleware.GetAdminPermissionByRoleName(accountInfo.RoleName)
+		if permission == "" {
+			http.Error(w, "Invalid role", http.StatusBadRequest)
+			return
+		}
 		isAuthenticated := middleware.CheckAdminPermission(permission, r)
 		if !isAuthenticated {
 			http.Error(w, "You don't have permission to manage "+strings.ToLower(accountInfo.RoleName)+"s.", http.StatusUnauthorized)
@@ -222,6 +226,10 @@ func SuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//Check current admin permission
 	permission := middleware.GetAdminPermissionByRoleName(accountToSuspend.RoleName)
+	if permission == "" {
+		http.Error(w, "Invalid role", http.StatusBadRequest)
+		return
+	}
 	isAuthenticated := middleware.CheckAdminPermission(permission, r)
 	if !isAuthenticated {
 		http.Error(w, "You don't have permission to manage "+accountToSuspend.RoleName+"s.", http.StatusUnauthorized)
@@ -291,6 +299,10 @@ func UnsuspendAccountHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//Check current admin permission
 	permission := middleware.GetAdminPermissionByRoleName(accountToSuspend.RoleName)
+	if permission == "" {
+		http.Error(w, "Invalid role", http.StatusBadRequest)
+		return
+	}
 	isAuthenticated := middleware.CheckAdminPermission(permission, r)
 	if !isAuthenticated {
 		http.Error(w, "You don't have permission to manage "+accountToSuspend.RoleName+"s.", http.StatusUnauthorized)
@@ -355,6 +367,10 @@ func GetAccountsHandler(w http.ResponseWriter, r *http.Request) {
 		username = ""
 	}
 	permission := middleware.GetAdminPermissionByRoleName(role)
+	if permission == "" {
+		http.Error(w, "Invalid role", http.StatusBadRequest)
+		return
+	}
 	isAuthenticated := middleware.CheckAdminPermission(permission, r)
 	if !isAuthenticated {
 		http.Error(w, "You don't have permission to manage "+strings.ToLower(role)+"s.", http.StatusUnauthorized)

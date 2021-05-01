@@ -74,6 +74,10 @@ func GetAdminPermissionByRoleName(roleName string) string {
 			permission = config.GetAdminPermissionConfig().CanManageLearner
 			break
 		}
+	default:
+		{
+			return ""
+		}
 	}
 	return permission
 }
