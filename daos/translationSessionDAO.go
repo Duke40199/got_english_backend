@@ -47,7 +47,7 @@ func (dao *TranslationSessionDAO) GetTranslationSessionHistory(learnerID uint, s
 	err = db.Debug().Model(&models.TranslationSession{}).
 		Preload("Expert").
 		Preload("Pricing").
-		Find(&result, "creator_learner_id = ? AND created_at BETWEEN ? AND ?", learnerID, startDate, endDate).Error
+		Find(&result, "creator_learner_id = ? AND created_at BETWEEN ? AND ?  AND is_finished <> 0", learnerID, startDate, endDate).Error
 	return &result, err
 }
 

@@ -73,7 +73,7 @@ func (dao *MessagingSessionDAO) GetMessagingSessionHistory(learnerID uint, start
 	err = db.Debug().Model(&models.MessagingSession{}).
 		Preload("Expert").
 		Preload("Pricing").
-		Find(&result, "learner_id = ? AND created_at BETWEEN ? AND ?", learnerID, startDate, endDate).Error
+		Find(&result, "learner_id = ? AND created_at BETWEEN ? AND ? AND is_finished <> 0 ", learnerID, startDate, endDate).Error
 	return &result, err
 }
 
