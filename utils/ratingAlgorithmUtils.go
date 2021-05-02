@@ -45,8 +45,10 @@ func CalculateExpertWeightedRating(expertID uint, ratingList *[]models.Rating, r
 	}
 	expertAverageRating = CalculateAverageRating(&expertSessionRating)
 	numberOfExpertRatings = float32(len(expertSessionRating))
-	weightedRating = (numberOfExpertRatings / (numberOfExpertRatings + float32(minimumRatingCount)) * expertAverageRating) /
-		(float32(minimumRatingCount) / (numberOfExpertRatings + float32(minimumRatingCount)) * averageAllExpertRating)
+	fmt.Printf("==== expertratingCount:%f\n", numberOfExpertRatings)
+	weightedRating =
+		((numberOfExpertRatings / (numberOfExpertRatings + float32(minimumRatingCount))) * expertAverageRating) +
+			((float32(minimumRatingCount) / (numberOfExpertRatings + float32(minimumRatingCount))) * averageAllExpertRating)
 	fmt.Printf("=================weightedrating:%f\n", weightedRating)
 	return weightedRating
 }
