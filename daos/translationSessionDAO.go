@@ -120,7 +120,6 @@ func (u *TranslationSessionDAO) UpdateTranslationSessionByID(id string, translat
 	}
 	result := db.Debug().Model(&models.TranslationSession{}).Where("id = ?", id).
 		Updates(&translationSession)
-
 	//If add learner to translation session
 	if len(learners) > 0 {
 		_ = db.Debug().Preload("Learners").

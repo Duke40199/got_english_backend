@@ -158,9 +158,9 @@ func FinishTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 func UpdateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var (
-		params                = mux.Vars(r)
-		message               = "OK"
-		learners              = []models.Learner{}
+		params  = mux.Vars(r)
+		message = "OK"
+		// learners              = []models.Learner{}
 		translationSessionID  = params["translation_session_id"]
 		translationSession    = models.TranslationSession{}
 		translationSessionDAO = daos.GetTranslationSessionDAO()
@@ -204,7 +204,7 @@ func UpdateTranslationSessionHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		translationSession.Learners = *learners
 	}
-	result, _, err := translationSessionDAO.UpdateTranslationSessionByID(translationSessionID, translationSession, learners)
+	result, _, err := translationSessionDAO.UpdateTranslationSessionByID(translationSessionID, translationSession, translationSession.Learners)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
