@@ -158,7 +158,7 @@ func (dao *ExpertDAO) GetExpertSuggestions(serviceName string, limit uint) (*[]m
 	if err != nil {
 		return nil, err
 	}
-	query := "weighted_rating IS NOT NULL AND "
+	query := "weighted_rating <> 0 AND "
 	switch serviceName {
 	case config.GetServiceConfig().LiveCallService:
 		{
