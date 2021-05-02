@@ -241,21 +241,14 @@ func SeedCoinBundles(db *gorm.DB) {
 }
 
 func SeedExchangeRates(db *gorm.DB) {
-
-	rates := []models.ExchangeRate{
-
-		{
-			Rate:        0.2,
-			ServiceName: "messaging_session",
-		},
-		{
-			Rate:        0.3,
-			ServiceName: "live_call_session",
-		},
-		{
-			Rate:        0.4,
-			ServiceName: "translation_session",
-		},
+	rateList := []float32{0.2, 0.3, 0.4}
+	rates := []models.ExchangeRate{}
+	serviceNameList := []string{"messaging_session", "live_call_session", "translation_session"}
+	for i := 0; i < len(rateList); i++ {
+		rates = append(rates, models.ExchangeRate{
+			Rate:        &rateList[i],
+			ServiceName: &serviceNameList[i],
+		})
 	}
 	db.Create(&rates)
 	fmt.Println("======= Exchange rates seeded.")

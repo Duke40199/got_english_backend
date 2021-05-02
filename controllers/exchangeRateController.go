@@ -41,7 +41,7 @@ func GetExchangeRatesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(r.URL.Query()["service_name"]) > 0 {
 		serviceName := fmt.Sprint(r.URL.Query()["service_name"][0])
-		exchangeRate.ServiceName = serviceName
+		exchangeRate.ServiceName = &serviceName
 	}
 	exchangeRateDAO := daos.GetExchangeRateDAO()
 	result, err := exchangeRateDAO.GetExchangeRates(exchangeRate)
@@ -74,7 +74,7 @@ func UpdateExchangeRateHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	if exchangeRate.Rate < 0 || exchangeRate.Rate > 1 {
+	if *exchangeRate.Rate < 0 || *exchangeRate.Rate > 1 {
 		http.Error(w, "Rate is between 0 and 1", http.StatusBadRequest)
 		return
 	}

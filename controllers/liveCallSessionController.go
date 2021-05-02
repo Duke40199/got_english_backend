@@ -231,7 +231,7 @@ func FinishLiveCallSessionHandler(w http.ResponseWriter, r *http.Request) {
 	coinValue, _ := pricingDAO.GetPricings("coin_value", 0)
 	coinValueInVND := (*coinValue)[0].Price
 	//Calculate earning
-	expertEarnings := utils.CalculateExpertEarningBySession(liveCallSession.ExchangeRate.Rate, coinValueInVND, liveCallSession.PaidCoins)
+	expertEarnings := utils.CalculateExpertEarningBySession(*liveCallSession.ExchangeRate.Rate, coinValueInVND, liveCallSession.PaidCoins)
 	earningDAO := daos.GetEarningDAO()
 	earning := models.Earning{
 		Value:             expertEarnings,
