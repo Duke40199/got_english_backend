@@ -46,7 +46,7 @@ func (dao *ExchangeRateDAO) GetExchangeRates(exchangeRateQuery models.ExchangeRa
 	if exchangeRateQuery.ID != 0 {
 		query += " AND exchange_rates.id=" + fmt.Sprint(exchangeRateQuery.ID)
 	}
-	if len(*exchangeRateQuery.ServiceName) > 0 {
+	if exchangeRateQuery.ServiceName != nil && len(*exchangeRateQuery.ServiceName) > 0 {
 		query += " AND exchange_rates.service_name LIKE " + "'" + *exchangeRateQuery.ServiceName + "'"
 	}
 	result := []models.ExchangeRate{}
