@@ -34,7 +34,7 @@ func (dao *TranslationSessionDAO) GetTranslationSessionByID(id string) (*models.
 		return nil, err
 	}
 	result := models.TranslationSession{}
-	err = db.Debug().Model(&models.TranslationSession{}).
+	err = db.Debug().Model(&models.TranslationSession{}).Preload("ExchangeRate").
 		Find(&result, "id = ?", id).Error
 	return &result, err
 }
