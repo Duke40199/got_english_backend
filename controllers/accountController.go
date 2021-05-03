@@ -288,6 +288,7 @@ func UpdateAccountHandler(w http.ResponseWriter, r *http.Request) {
 		_, err := firebaseAuth.UpdateUser(ctx, accountID.String(), firebaseUpdateUserParams)
 		if err != nil {
 			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
 		}
 	}
 	result, err := accountDAO.UpdateAccountByID(accountID, updateInfo)

@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"fmt"
-
 	"github.com/golang/got_english_backend/models"
 )
 
@@ -45,10 +43,10 @@ func CalculateExpertWeightedRating(expertID uint, ratingList *[]models.Rating, r
 	}
 	expertAverageRating = CalculateAverageRating(&expertSessionRating)
 	numberOfExpertRatings = float32(len(expertSessionRating))
-	fmt.Printf("==== expertratingCount:%f\n", numberOfExpertRatings)
+	// fmt.Printf("==== expertratingCount:%f\n", numberOfExpertRatings)
 	weightedRating =
 		((numberOfExpertRatings / (numberOfExpertRatings + float32(minimumRatingCount))) * expertAverageRating) +
 			((float32(minimumRatingCount) / (numberOfExpertRatings + float32(minimumRatingCount))) * averageAllExpertRating)
-	fmt.Printf("=================weightedrating:%f\n", weightedRating)
+	// fmt.Printf("=================weightedrating:%f\n", weightedRating)
 	return weightedRating
 }
