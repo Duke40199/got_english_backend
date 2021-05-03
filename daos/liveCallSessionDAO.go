@@ -70,7 +70,7 @@ func (dao *LiveCallSessionDAO) GetLiveCallSessionByID(id string) (*models.LiveCa
 		return nil, err
 	}
 	result := models.LiveCallSession{}
-	err = db.Debug().Model(&models.LiveCallSession{}).
+	err = db.Debug().Model(&models.LiveCallSession{}).Preload("ExchangeRate").
 		Find(&result, "id = ?", id).Error
 	return &result, err
 }
